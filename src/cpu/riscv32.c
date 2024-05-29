@@ -9,9 +9,20 @@ Riscv32core riscv32core = {
 };
 
 #define R(i) riscv32core.regs[i]
+#define Rd riscv32core.regs[dec.rd]
+#define Rs1 riscv32core.regs[dec.rs1]
+#define Rs2 riscv32core.regs[dec.rs2]
 #define PC riscv32core.pc
-#define Mr(addr, size, data) mmu_read_32(addr, size, &data)
-#define Mw(addr, size, data) mmu_write_32(addr, size, data)
+#define Mr(addr, size, data)                                                   \
+    do {                                                                       \
+        uint64_t read_data;                                                    \
+        mmu_read(addr, size, &read_data);                                      \
+        data = read_data;                                                      \
+    } while (0);
+#define Mw(addr, size, data)                                                   \
+    do {                                                                       \
+        mmu_write(addr, size, data);                                           \
+    } while (0);
 
 #define INSTPAT(pattern, name, ...)                                            \
     do {                                                                       \
@@ -26,153 +37,135 @@ Riscv32core riscv32core = {
 void riscv32exec() {
     // 取指译码
     uint32_t inst;
-    mmu_read_32(riscv32core.pc, 4, &inst);
+    Mr(riscv32core.pc, 4, inst);
     RiscvDecode dec = decode(inst);
     dec.next_pc = PC + 4;
     // 执行
-    INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add,
-            R(dec.rd) = R(dec.rs1) + R(dec.rs2));
-    INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub,
-            R(dec.rd) = R(dec.rs1) - R(dec.rs2));
-    INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor,
-            R(dec.rd) = R(dec.rs1) ^ R(dec.rs2));
-    INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or,
-            R(dec.rd) = R(dec.rs1) | R(dec.rs2));
-    INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and,
-            R(dec.rd) = R(dec.rs1) & R(dec.rs2));
+    INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add, Rd = Rs1 + Rs2);
+    INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub, Rd = Rs1 - Rs2);
+    INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor, Rd = Rs1 ^ Rs2);
+    INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or, Rd = Rs1 | Rs2);
+    INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and, Rd = Rs1 & Rs2);
     INSTPAT("0000000 ????? ????? 001 ????? 01100 11", sll,
-            R(dec.rd) = R(dec.rs1) << BITS(R(dec.rs2), 4, 0));
+            Rd = Rs1 << BITS(Rs2, 4, 0));
     INSTPAT("0000000 ????? ????? 010 ????? 01100 11", slt,
-            R(dec.rd) = (int32_t)R(dec.rs1) < (int32_t)R(dec.rs2) ? 1 : 0);
+            Rd = (int32_t)Rs1 < (int32_t)Rs2 ? 1 : 0);
     INSTPAT("0000000 ????? ????? 011 ????? 01100 11", sltu,
-            R(dec.rd) = R(dec.rs1) < R(dec.rs2) ? 1 : 0);
+            Rd = Rs1 < Rs2 ? 1 : 0);
     INSTPAT("0000000 ????? ????? 101 ????? 01100 11", srl,
-            R(dec.rd) = R(dec.rs1) >> BITS(R(dec.rs2), 4, 0));
+            Rd = Rs1 >> BITS(Rs2, 4, 0));
     INSTPAT("0100000 ????? ????? 101 ????? 01100 11", sra,
-            R(dec.rd) = (int32_t)R(dec.rs1) >> BITS(R(dec.rs2), 4, 0));
+            Rd = (int32_t)Rs1 >> BITS(Rs2, 4, 0));
 
     INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi,
-            R(dec.rd) = R(dec.rs1) + (int32_t)dec.immI);
+            Rd = Rs1 + (int32_t)dec.immI);
     INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori,
-            R(dec.rd) = R(dec.rs1) ^ (uint32_t)dec.immI);
+            Rd = Rs1 ^ (uint32_t)dec.immI);
     INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori,
-            R(dec.rd) = R(dec.rs1) | (uint32_t)dec.immI);
+            Rd = Rs1 | (uint32_t)dec.immI);
     INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi,
-            R(dec.rd) = R(dec.rs1) & (uint32_t)dec.immI);
+            Rd = Rs1 & (uint32_t)dec.immI);
     INSTPAT("0000000 ????? ????? 001 ????? 00100 11", slli,
-            R(dec.rd) = R(dec.rs1) << (dec.immI & 0x1f));
+            Rd = Rs1 << (dec.immI & 0x1f));
     INSTPAT("0000000 ????? ????? 101 ????? 00100 11", srli,
-            R(dec.rd) = R(dec.rs1) >> (dec.immI & 0x1f));
+            Rd = Rs1 >> (dec.immI & 0x1f));
     INSTPAT("0100000 ????? ????? 101 ????? 00100 11", srai,
-            R(dec.rd) = (int32_t)R(dec.rs1) >> (dec.immI & 0x1f));
+            Rd = (int32_t)Rs1 >> (dec.immI & 0x1f));
     INSTPAT("??????? ????? ????? 010 ????? 00100 11", slti,
-            R(dec.rd) = (int32_t)R(dec.rs1) < (int32_t)dec.immI ? 1 : 0);
+            Rd = (int32_t)Rs1 < (int32_t)dec.immI ? 1 : 0);
     INSTPAT("??????? ????? ????? 011 ????? 00100 11", sltiu,
-            R(dec.rd) = R(dec.rs1) < (uint32_t)dec.immI ? 1 : 0);
+            Rd = Rs1 < (uint32_t)dec.immI ? 1 : 0);
 
     INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb, {
         uint32_t data;
-        dec.access_addr = R(dec.rs1) + dec.immI;
+        dec.access_addr = Rs1 + dec.immI;
         Mr(dec.access_addr, 1, data);
-        R(dec.rd) = (int8_t)data;
+        Rd = (int8_t)data;
     });
     INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh, {
         uint32_t data;
-        dec.access_addr = R(dec.rs1) + dec.immI;
+        dec.access_addr = Rs1 + dec.immI;
         Mr(dec.access_addr, 2, data);
-        R(dec.rd) = (int16_t)data;
+        Rd = (int16_t)data;
     });
     INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw, {
         uint32_t data;
-        dec.access_addr = R(dec.rs1) + dec.immI;
+        dec.access_addr = Rs1 + dec.immI;
         Mr(dec.access_addr, 4, data);
-        R(dec.rd) = data;
+        Rd = data;
     });
     INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu, {
         uint32_t data;
-        dec.access_addr = R(dec.rs1) + dec.immI;
+        dec.access_addr = Rs1 + dec.immI;
         Mr(dec.access_addr, 1, data);
-        R(dec.rd) = data;
+        Rd = data;
     });
     INSTPAT("??????? ????? ????? 101 ????? 00000 11", lhu, {
         uint32_t data;
-        dec.access_addr = R(dec.rs1) + dec.immI;
+        dec.access_addr = Rs1 + dec.immI;
         Mr(dec.access_addr, 2, data);
-        R(dec.rd) = data;
+        Rd = data;
     });
     INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb,
-            Mw(R(dec.rs1) + dec.immS, 1, R(dec.rs2)));
+            Mw(Rs1 + dec.immS, 1, Rs2));
     INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh,
-            Mw(R(dec.rs1) + dec.immS, 2, R(dec.rs2)));
+            Mw(Rs1 + dec.immS, 2, Rs2));
     INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw,
-            Mw(R(dec.rs1) + dec.immS, 4, R(dec.rs2)));
+            Mw(Rs1 + dec.immS, 4, Rs2));
 
     INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq,
-            if ((int32_t)R(dec.rs1) == (int32_t)R(dec.rs2)) dec.next_pc =
-                PC + dec.immB);
+            if ((int32_t)Rs1 == (int32_t)Rs2) dec.next_pc = PC + dec.immB);
     INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne,
-            if ((int32_t)R(dec.rs1) != (int32_t)R(dec.rs2)) dec.next_pc =
-                PC + dec.immB);
+            if ((int32_t)Rs1 != (int32_t)Rs2) dec.next_pc = PC + dec.immB);
     INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt,
-            if ((int32_t)R(dec.rs1) < (int32_t)R(dec.rs2)) dec.next_pc =
-                PC + dec.immB);
+            if ((int32_t)Rs1 < (int32_t)Rs2) dec.next_pc = PC + dec.immB);
     INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge,
-            if ((int32_t)R(dec.rs1) >= (int32_t)R(dec.rs2)) dec.next_pc =
-                PC + dec.immB);
+            if ((int32_t)Rs1 >= (int32_t)Rs2) dec.next_pc = PC + dec.immB);
     INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu,
-            if (R(dec.rs1) < R(dec.rs2)) dec.next_pc = PC + dec.immB);
+            if (Rs1 < Rs2) dec.next_pc = PC + dec.immB);
     INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu,
-            if (R(dec.rs1) >= R(dec.rs2)) dec.next_pc = PC + dec.immB);
+            if (Rs1 >= Rs2) dec.next_pc = PC + dec.immB);
 
-    INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal, R(dec.rd) = PC + 4;
+    INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal, Rd = PC + 4;
             dec.next_pc = PC + dec.immJ);
-    INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, R(dec.rd) = PC + 4;
-            dec.next_pc = (R(dec.rs1) + dec.immI) & ~1);
-    INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui,
-            R(dec.rd) = dec.immU);
+    INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, Rd = PC + 4;
+            dec.next_pc = (Rs1 + dec.immI) & ~1);
+    INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui, Rd = dec.immU);
     INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc,
-            R(dec.rd) = PC + dec.immU);
+            Rd = PC + dec.immU);
 
     INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak,
             riscv32core.halt = true);
 
     // -----------------------   M   ------------------------------
     INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul,
-            R(dec.rd) =
-                ((int64_t)(int32_t)R(dec.rs1) * (int64_t)(int32_t)R(dec.rs2)));
+            Rd = ((int64_t)(int32_t)Rs1 * (int64_t)(int32_t)Rs2));
     INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh,
-            R(dec.rd) =
-                ((int64_t)(int32_t)R(dec.rs1) * (int64_t)(int32_t)R(dec.rs2)) >>
-                32);
+            Rd = ((int64_t)(int32_t)Rs1 * (int64_t)(int32_t)Rs2) >> 32);
     INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulsu,
-            R(dec.rd) =
-                ((int64_t)(int32_t)R(dec.rs1) * (uint64_t)R(dec.rs2)) >> 32);
+            Rd = ((int64_t)(int32_t)Rs1 * (uint64_t)Rs2) >> 32);
     INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulu,
-            R(dec.rd) = ((uint64_t)R(dec.rs1) * (uint64_t)R(dec.rs2)) >> 32);
+            Rd = ((uint64_t)Rs1 * (uint64_t)Rs2) >> 32);
     INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div, {
-        if (R(dec.rs2) == 0)
-            R(dec.rd) = -1;
+        if (Rs2 == 0)
+            Rd = -1;
         else
-            R(dec.rd) =
-                ((int32_t)R(dec.rs1) == INT32_MIN && (int32_t)R(dec.rs2) == -1)
-                    ? R(dec.rs1)
-                    : ((int32_t)R(dec.rs1) / (int32_t)R(dec.rs2));
+            Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1)
+                     ? Rs1
+                     : ((int32_t)Rs1 / (int32_t)Rs2);
     });
-    INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu, {
-        R(dec.rd) = (R(dec.rs2) == 0) ? 0xffffffff : R(dec.rs1) / R(dec.rs2);
-    });
+    INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu,
+            { Rd = (Rs2 == 0) ? 0xffffffff : Rs1 / Rs2; });
     INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem, {
-        if (R(dec.rs2) == 0)
-            R(dec.rd) = R(dec.rs1);
+        if (Rs2 == 0)
+            Rd = Rs1;
         else
-            R(dec.rd) =
-                ((int32_t)R(dec.rs1) == INT32_MIN && (int32_t)R(dec.rs2) == -1)
-                    ? 0
-                    : ((uint32_t)((int32_t)R(dec.rs1) % (int32_t)R(dec.rs2)));
+            Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1)
+                     ? 0
+                     : ((uint32_t)((int32_t)Rs1 % (int32_t)Rs2));
     });
-    INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu, {
-        R(dec.rd) = (R(dec.rs2) == 0) ? R(dec.rs1) : R(dec.rs1) % R(dec.rs2);
-    });
+    INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu,
+            { Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2; });
 
     INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv, panic("未知指令"));
 exec_end:

@@ -2,16 +2,113 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-I/home/charain/Project/RV32-Simulator/include",
+      "-O2",
       "-Wall",
-      "-Wextra",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
       "-c",
       "-o",
-      "/home/charain/Project/RV32-Simulator/build/main.c.o",
-      "/home/charain/Project/RV32-Simulator/src/main.c"
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/diff/dut.o",
+      "src/diff/dut.c"
     ],
-    "directory": "/home/charain/Project/RV32-Simulator",
-    "file": "/home/charain/Project/RV32-Simulator/src/main.c",
-    "output": "/home/charain/Project/RV32-Simulator/build/main.c.o"
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/diff/dut.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/diff/dut.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/main.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/mmu.o",
+      "src/cpu/mmu.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/cpu/mmu.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/mmu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/decode.o",
+      "src/cpu/decode.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/cpu/decode.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/decode.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/riscv32.o",
+      "src/cpu/riscv32.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/cpu/riscv32.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/cpu/riscv32.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/device/sram.o",
+      "src/device/sram.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/device/sram.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/device/sram.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O2",
+      "-Wall",
+      "-Werror",
+      "-I/home/charain/Project/RISCV-Emulator/include",
+      "-c",
+      "-o",
+      "/home/charain/Project/RISCV-Emulator/build/obj/src/bus/bus.o",
+      "src/bus/bus.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/bus/bus.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/obj/src/bus/bus.o"
   }
 ]

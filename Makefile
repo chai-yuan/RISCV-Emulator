@@ -8,7 +8,7 @@ TAR_DIR 	= $(BUILD_DIR)/obj
 INC_PATH 	= $(WORK_DIR)/include
 INCLUDE 	= $(addprefix -I, $(INC_PATH))
 
-CFLAGS 	:= -MMD -Wall -Werror $(INCLUDE)
+CFLAGS 	:= -O2 -MMD -Wall -Werror $(INCLUDE)
 LDFLAGS := $(LDFLAGS)
 
 SRCS =  $(shell find src -name "*.c")

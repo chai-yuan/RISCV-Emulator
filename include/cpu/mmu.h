@@ -3,8 +3,8 @@
 
 #include <bus/bus.h>
 
-DeviceAccessStatus mmu_read_32(uint32_t addr, uint8_t size, uint32_t *data);
+DeviceAccessStatus mmu_read(uint64_t addr, uint8_t size, uint64_t *data);
 
-DeviceAccessStatus mmu_write_32(uint32_t addr, uint8_t size, uint32_t data);
+DeviceAccessStatus mmu_write(uint64_t addr, uint8_t size, uint64_t data);
 
 #endif // !MMU_H
