@@ -1,0 +1,17 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-I/home/charain/Project/RV32-Simulator/include",
+      "-Wall",
+      "-Wextra",
+      "-c",
+      "-o",
+      "/home/charain/Project/RV32-Simulator/build/main.c.o",
+      "/home/charain/Project/RV32-Simulator/src/main.c"
+    ],
+    "directory": "/home/charain/Project/RV32-Simulator",
+    "file": "/home/charain/Project/RV32-Simulator/src/main.c",
+    "output": "/home/charain/Project/RV32-Simulator/build/main.c.o"
+  }
+]
