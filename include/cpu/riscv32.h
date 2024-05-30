@@ -2,6 +2,7 @@
 #define RV32CORE_H
 
 #include <common/common.h>
+#include <stdint.h>
 
 // riscv32处理器状态
 typedef struct Riscv32core {
@@ -9,6 +10,7 @@ typedef struct Riscv32core {
     // 通用寄存器
     uint32_t regs[32];
     // CSR
+    uint32_t csr[4096];
     // 其他状态
     bool sleep; // 休眠标志
     bool halt;  // 停机标志

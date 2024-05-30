@@ -7,7 +7,7 @@
 - [x] M 指令
 - [ ] A 指令
 - [ ] C 指令
-- [ ] Zicsr 指令
+- [x] Zicsr 指令
 - [ ] Zifence 指令
 
 ### 特权级
