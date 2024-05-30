@@ -8,33 +8,6 @@ Riscv32core riscv32core = {
     .pc = 0x80000000,
 };
 
-#define R(i) riscv32core.regs[i]
-#define CSR(i) riscv32core.csr[i]
-#define Rd riscv32core.regs[dec.rd]
-#define Rs1 riscv32core.regs[dec.rs1]
-#define Rs2 riscv32core.regs[dec.rs2]
-#define PC riscv32core.pc
-#define Mr(addr, size, data)                                                   \
-    do {                                                                       \
-        uint64_t read_data;                                                    \
-        mmu_read(addr, size, &read_data);                                      \
-        data = read_data;                                                      \
-    } while (0);
-#define Mw(addr, size, data)                                                   \
-    do {                                                                       \
-        mmu_write(addr, size, data);                                           \
-    } while (0);
-
-#define INSTPAT(pattern, name, ...)                                            \
-    do {                                                                       \
-        uint64_t key, mask, shift;                                             \
-        pattern_decode(pattern, STRLEN(pattern), &key, &mask, &shift);         \
-        if ((((uint64_t)inst >> shift) & mask) == key) {                       \
-            __VA_ARGS__;                                                       \
-            goto exec_end;                                                     \
-        }                                                                      \
-    } while (0)
-
 void riscv32exec() {
     // 取指译码
     uint32_t inst;

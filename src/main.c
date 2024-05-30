@@ -22,9 +22,9 @@ int main(int argc, char **argv) {
     // ref_difftest_regcpy(&riscv32core, DIFFTEST_TO_REF);
 
     while (!riscv32core.halt) {
-        riscv32exec();
-        // ref_difftest_exec(1);
         //  check_difftest();
+        // ref_difftest_exec(1);
+        riscv32exec();
     }
 
     if (riscv32core.regs[10] == 0) {
