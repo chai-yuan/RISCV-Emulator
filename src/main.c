@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
     // 初始化并添加设备
     sram_init_file(0x10000000, argv[1]);
     bus_add_device(
-        (Device){0x80000000, 0x10000000, sram_read, sram_write, NULL});
+        (Device){0x80000000, 0x10000000, sram_read, sram_write, NULL, NULL});
     bus_add_device(
-        (Device){0x10000000, 0x100, serial_read, serial_write, NULL});
+        (Device){0x10000000, 0x100, serial_read, serial_write, NULL, NULL});
 
     // 初始化difftest
     // init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
         //  check_difftest();
         // ref_difftest_exec(1);
         riscv32_step();
+        bus_update();
     }
 
     if (riscv32core.regs[10] == 0) {

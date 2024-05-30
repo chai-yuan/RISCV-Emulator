@@ -15,6 +15,13 @@ int bus_add_device(Device device) {
 
 IntrType bus_check_intr() { return INTR_NULL; }
 
+void bus_update() {
+    for (int i = 0; i < device_num; i++) {
+        if (devices[i].update != NULL)
+            devices[i].update();
+    }
+}
+
 DeviceAccessStatus bus_read(uint64_t addr, uint8_t size, uint64_t *data) {
     for (size_t i = 0; i < device_num; i++) {
         if (addr >= devices[i].addr &&
