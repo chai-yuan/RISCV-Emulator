@@ -13,7 +13,7 @@ int bus_add_device(Device device) {
     return 0;
 }
 
-DeviceIntrStatus bus_check_intr() { return DEVICE_INTR_NULL; }
+IntrType bus_check_intr() { return INTR_NULL; }
 
 DeviceAccessStatus bus_read(uint64_t addr, uint8_t size, uint64_t *data) {
     for (size_t i = 0; i < device_num; i++) {

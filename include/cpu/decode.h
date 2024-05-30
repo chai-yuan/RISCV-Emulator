@@ -3,13 +3,18 @@
 
 #include "common/common.h"
 #include "common/debug.h"
+#include "cpu/except.h"
+#include "device/device.h"
 #include <stdint.h>
 
 typedef struct RiscvDecode {
+    uint32_t inst;
     // 从指令当中获取的信息
     uint32_t rd, rs1, rs2;
     int32_t immI, immB, immU, immJ, immS;
     // 执行中得到的信息
+    ExceptType except;
+    IntrType intr;
     uint32_t next_pc;
     uint64_t access_addr;
 } RiscvDecode;
@@ -68,7 +73,7 @@ finish:
     do {                                                                       \
         uint64_t key, mask, shift;                                             \
         pattern_decode(pattern, STRLEN(pattern), &key, &mask, &shift);         \
-        if ((((uint64_t)inst >> shift) & mask) == key) {                       \
+        if ((((uint64_t)dec->inst >> shift) & mask) == key) {                  \
             __VA_ARGS__;                                                       \
             goto exec_end;                                                     \
         }                                                                      \

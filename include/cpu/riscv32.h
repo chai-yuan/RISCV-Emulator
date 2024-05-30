@@ -1,6 +1,7 @@
 #ifndef RV32CORE_H
 #define RV32CORE_H
 
+#include "cpu/decode.h"
 #include <common/common.h>
 #include <stdint.h>
 
@@ -19,16 +20,22 @@ typedef struct Riscv32core {
 extern Riscv32core riscv32core;
 
 // 处理器运行
-void riscv32exec();
+void riscv32_step();
+// 取指译码
+void riscv32_fetch_decode(RiscvDecode *decode);
+// 执行指令
+void riscv32_exec(RiscvDecode *decode);
+// 处理写回，中断，异常
+void riscv32_writeback(RiscvDecode *decode);
 
 // 打印处理器信息
-void riscv32dump(const Riscv32core *core);
+void riscv32_dump(const Riscv32core *core);
 
 #define R(i) riscv32core.regs[i]
 #define CSR(i) riscv32core.csr[i]
-#define Rd riscv32core.regs[dec.rd]
-#define Rs1 riscv32core.regs[dec.rs1]
-#define Rs2 riscv32core.regs[dec.rs2]
+#define Rd riscv32core.regs[dec->rd]
+#define Rs1 riscv32core.regs[dec->rs1]
+#define Rs2 riscv32core.regs[dec->rs2]
 #define PC riscv32core.pc
 #define Mr(addr, size, data)                                                   \
     do {                                                                       \

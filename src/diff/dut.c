@@ -57,9 +57,9 @@ void check_difftest() {
 
     if (check) {
         Log("ref cpu");
-        riscv32dump(&diff_cpu);
+        riscv32_dump(&diff_cpu);
         Log("dut cpu");
-        riscv32dump(&riscv32core);
+        riscv32_dump(&riscv32core);
         exit(1);
     }
 }

@@ -23,4 +23,4 @@
 ### 设备
 
 - [x] SRAM
-- [ ] UART
+- [x] UART

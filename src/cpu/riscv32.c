@@ -8,13 +8,22 @@ Riscv32core riscv32core = {
     .pc = 0x80000000,
 };
 
-void riscv32exec() {
-    // 取指译码
+void riscv32_step() {
+    RiscvDecode dec;
+    riscv32_fetch_decode(&dec);
+    riscv32_exec(&dec);
+    riscv32_writeback(&dec);
+    return;
+}
+
+void riscv32_fetch_decode(RiscvDecode *dec) {
     uint32_t inst;
     Mr(riscv32core.pc, 4, inst);
-    RiscvDecode dec = decode(inst);
-    dec.next_pc = PC + 4;
-    // 执行
+    *dec = decode(inst);
+    dec->next_pc = PC + 4;
+}
+
+void riscv32_exec(RiscvDecode *dec) {
     INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add, Rd = Rs1 + Rs2);
     INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub, Rd = Rs1 - Rs2);
     INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor, Rd = Rs1 ^ Rs2);
@@ -32,81 +41,81 @@ void riscv32exec() {
             Rd = (int32_t)Rs1 >> BITS(Rs2, 4, 0));
 
     INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi,
-            Rd = Rs1 + (int32_t)dec.immI);
+            Rd = Rs1 + (int32_t)dec->immI);
     INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori,
-            Rd = Rs1 ^ (uint32_t)dec.immI);
+            Rd = Rs1 ^ (uint32_t)dec->immI);
     INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori,
-            Rd = Rs1 | (uint32_t)dec.immI);
+            Rd = Rs1 | (uint32_t)dec->immI);
     INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi,
-            Rd = Rs1 & (uint32_t)dec.immI);
+            Rd = Rs1 & (uint32_t)dec->immI);
     INSTPAT("0000000 ????? ????? 001 ????? 00100 11", slli,
-            Rd = Rs1 << (dec.immI & 0x1f));
+            Rd = Rs1 << (dec->immI & 0x1f));
     INSTPAT("0000000 ????? ????? 101 ????? 00100 11", srli,
-            Rd = Rs1 >> (dec.immI & 0x1f));
+            Rd = Rs1 >> (dec->immI & 0x1f));
     INSTPAT("0100000 ????? ????? 101 ????? 00100 11", srai,
-            Rd = (int32_t)Rs1 >> (dec.immI & 0x1f));
+            Rd = (int32_t)Rs1 >> (dec->immI & 0x1f));
     INSTPAT("??????? ????? ????? 010 ????? 00100 11", slti,
-            Rd = (int32_t)Rs1 < (int32_t)dec.immI ? 1 : 0);
+            Rd = (int32_t)Rs1 < (int32_t)dec->immI ? 1 : 0);
     INSTPAT("??????? ????? ????? 011 ????? 00100 11", sltiu,
-            Rd = Rs1 < (uint32_t)dec.immI ? 1 : 0);
+            Rd = Rs1 < (uint32_t)dec->immI ? 1 : 0);
 
     INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb, {
         uint32_t data;
-        dec.access_addr = Rs1 + dec.immI;
-        Mr(dec.access_addr, 1, data);
+        dec->access_addr = Rs1 + dec->immI;
+        Mr(dec->access_addr, 1, data);
         Rd = (int8_t)data;
     });
     INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh, {
         uint32_t data;
-        dec.access_addr = Rs1 + dec.immI;
-        Mr(dec.access_addr, 2, data);
+        dec->access_addr = Rs1 + dec->immI;
+        Mr(dec->access_addr, 2, data);
         Rd = (int16_t)data;
     });
     INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw, {
         uint32_t data;
-        dec.access_addr = Rs1 + dec.immI;
-        Mr(dec.access_addr, 4, data);
+        dec->access_addr = Rs1 + dec->immI;
+        Mr(dec->access_addr, 4, data);
         Rd = data;
     });
     INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu, {
         uint32_t data;
-        dec.access_addr = Rs1 + dec.immI;
-        Mr(dec.access_addr, 1, data);
+        dec->access_addr = Rs1 + dec->immI;
+        Mr(dec->access_addr, 1, data);
         Rd = data;
     });
     INSTPAT("??????? ????? ????? 101 ????? 00000 11", lhu, {
         uint32_t data;
-        dec.access_addr = Rs1 + dec.immI;
-        Mr(dec.access_addr, 2, data);
+        dec->access_addr = Rs1 + dec->immI;
+        Mr(dec->access_addr, 2, data);
         Rd = data;
     });
     INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb,
-            Mw(Rs1 + dec.immS, 1, Rs2));
+            Mw(Rs1 + dec->immS, 1, Rs2));
     INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh,
-            Mw(Rs1 + dec.immS, 2, Rs2));
+            Mw(Rs1 + dec->immS, 2, Rs2));
     INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw,
-            Mw(Rs1 + dec.immS, 4, Rs2));
+            Mw(Rs1 + dec->immS, 4, Rs2));
 
     INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq,
-            if ((int32_t)Rs1 == (int32_t)Rs2) dec.next_pc = PC + dec.immB);
+            if ((int32_t)Rs1 == (int32_t)Rs2) dec->next_pc = PC + dec->immB);
     INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne,
-            if ((int32_t)Rs1 != (int32_t)Rs2) dec.next_pc = PC + dec.immB);
+            if ((int32_t)Rs1 != (int32_t)Rs2) dec->next_pc = PC + dec->immB);
     INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt,
-            if ((int32_t)Rs1 < (int32_t)Rs2) dec.next_pc = PC + dec.immB);
+            if ((int32_t)Rs1 < (int32_t)Rs2) dec->next_pc = PC + dec->immB);
     INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge,
-            if ((int32_t)Rs1 >= (int32_t)Rs2) dec.next_pc = PC + dec.immB);
+            if ((int32_t)Rs1 >= (int32_t)Rs2) dec->next_pc = PC + dec->immB);
     INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu,
-            if (Rs1 < Rs2) dec.next_pc = PC + dec.immB);
+            if (Rs1 < Rs2) dec->next_pc = PC + dec->immB);
     INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu,
-            if (Rs1 >= Rs2) dec.next_pc = PC + dec.immB);
+            if (Rs1 >= Rs2) dec->next_pc = PC + dec->immB);
 
     INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal, Rd = PC + 4;
-            dec.next_pc = PC + dec.immJ);
+            dec->next_pc = PC + dec->immJ);
     INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr, Rd = PC + 4;
-            dec.next_pc = (Rs1 + dec.immI) & ~1);
-    INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui, Rd = dec.immU);
+            dec->next_pc = (Rs1 + dec->immI) & ~1);
+    INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui, Rd = dec->immU);
     INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc,
-            Rd = PC + dec.immU);
+            Rd = PC + dec->immU);
 
     INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak,
             riscv32core.halt = true);
@@ -141,44 +150,42 @@ void riscv32exec() {
             { Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2; });
     // ----------------------- Zicsr ------------------------------
     INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) = Rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) = Rs1;
     });
     INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) |= Rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) |= Rs1;
     });
     INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) &= ~Rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) &= ~Rs1;
     });
     INSTPAT("??????? ????? ????? 101 ????? 11100 11", csrrwi, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) = dec.rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) = dec->rs1;
     });
     INSTPAT("??????? ????? ????? 110 ????? 11100 11", csrrsi, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) |= dec.rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) |= dec->rs1;
     });
     INSTPAT("??????? ????? ????? 111 ????? 11100 11", csrrci, {
-        Rd = CSR(dec.immI);
-        CSR(dec.immI) &= ~dec.rs1;
+        Rd = CSR(dec->immI);
+        CSR(dec->immI) &= ~dec->rs1;
     });
 
     INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv, panic("未知指令"));
 exec_end:
-    // 更新状态
     riscv32core.regs[0] = 0;
-    riscv32core.pc = dec.next_pc;
-    return;
 }
+void riscv32_writeback(RiscvDecode *dec) { riscv32core.pc = dec->next_pc; }
 
 const char *regs[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
                       "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
                       "a6", "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
                       "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
-void riscv32dump(const Riscv32core *core) {
+void riscv32_dump(const Riscv32core *core) {
     printf("PC: 0x%08x\n", core->pc);
     for (int i = 0; i < 32; i++) {
         printf("x%2d: %-6s: 0x%08x\n", i, regs[i], core->regs[i]);

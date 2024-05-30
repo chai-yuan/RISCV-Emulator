@@ -2,6 +2,8 @@
 
 RiscvDecode decode(uint32_t inst) {
     RiscvDecode ret;
+    ret.inst = inst;
+
     ret.rd = BITS(inst, 11, 7);
     ret.rs1 = BITS(inst, 19, 15);
     ret.rs2 = BITS(inst, 24, 20);

@@ -7,7 +7,7 @@
 
 int bus_add_device(Device device);
 
-DeviceIntrStatus bus_check_intr();
+IntrType bus_check_intr();
 
 DeviceAccessStatus bus_read(uint64_t addr, uint8_t size, uint64_t *data);
 
