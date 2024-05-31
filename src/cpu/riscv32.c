@@ -1,11 +1,15 @@
 #include "common/debug.h"
+#include "cpu/csr.h"
 #include "cpu/decode.h"
+#include "cpu/except.h"
 #include "cpu/mmu.h"
 #include <cpu/riscv32.h>
 #include <stdint.h>
 
 Riscv32core riscv32core = {
     .pc = 0x80000000,
+    .regs[0] = 0,
+    .privilege = MACHINE,
 };
 
 void riscv32_step() {
@@ -117,6 +121,24 @@ void riscv32_exec(RiscvDecode *dec) {
     INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc,
             Rd = PC + dec->immU);
 
+    INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall, {
+        if (CPU(privilege) == MACHINE)
+            dec->except = EXC_EcallFromMMode;
+        else if (CPU(privilege) == SUPERVISOR)
+            dec->except = EXC_EcallFromSMode;
+        else if (CPU(privilege) == USER)
+            dec->except = EXC_EcallFromUMode;
+        else
+            panic("未知特权级");
+    });
+    INSTPAT("0011000 00010 00000 000 00000 11100 11", mret, {
+        uint32_t startmstatus = CSR(CSR_MSTATUS);
+        uint32_t privilege = CPU(privilege);
+        CSR(CSR_MSTATUS) =
+            ((startmstatus & 0x80) >> 4) | ((privilege & 3) << 11) | 0x80;
+        CPU(privilege) = (startmstatus >> 11) & 3;
+        dec->next_pc = CSR(CSR_MEPC);
+    });
     INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak,
             riscv32core.halt = true);
     // -----------------------   M   ------------------------------
@@ -148,6 +170,33 @@ void riscv32_exec(RiscvDecode *dec) {
     });
     INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu,
             { Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2; });
+    // -----------------------   A   ------------------------------
+    INSTPAT("00010?? ????? ????? 010 ????? 01011 11", lr.w, Mr(Rs1, 4, Rd);
+            CPU(amo_addr) = Rs1);
+    INSTPAT("00011?? ????? ????? 010 ????? 01011 11", sc.w, {
+        Rd = Rs1 != CPU(amo_addr);
+        if (Rd == 0)
+            Mw(Rs1, 4, Rs2);
+        CPU(amo_addr) = 0;
+    });
+    INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, Rs2););
+    INSTPAT("00000?? ????? ????? 010 ????? 01011 11", amoadd.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, Rs2 + Rd););
+    INSTPAT("01100?? ????? ????? 010 ????? 01011 11", amoand.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, Rs2 & Rd););
+    INSTPAT("01000?? ????? ????? 010 ????? 01011 11", amoor.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, Rs2 | Rd););
+    INSTPAT("00100?? ????? ????? 010 ????? 01011 11", amoxor.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, Rs2 ^ Rd););
+    INSTPAT("10100?? ????? ????? 010 ????? 01011 11", amomax.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, ((int32_t)Rs2 > (int32_t)Rd) ? Rs2 : Rd));
+    INSTPAT("10000?? ????? ????? 010 ????? 01011 11", amomin.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, ((int32_t)Rs2 < (int32_t)Rd) ? Rs2 : Rd));
+    INSTPAT("11000?? ????? ????? 010 ????? 01011 11", amominu.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, (Rs2 < Rd) ? Rs2 : Rd));
+    INSTPAT("11100?? ????? ????? 010 ????? 01011 11", amomaxu.w, Mr(Rs1, 4, Rd);
+            Mw(Rs1, 4, (Rs2 > Rd) ? Rs2 : Rd));
     // ----------------------- Zicsr ------------------------------
     INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw, {
         Rd = CSR(dec->immI);
@@ -173,12 +222,31 @@ void riscv32_exec(RiscvDecode *dec) {
         Rd = CSR(dec->immI);
         CSR(dec->immI) &= ~dec->rs1;
     });
+    // ----------------------- Zifence ------------------------------
+    INSTPAT("??????? ????? ????? 000 ????? 00011 11", fence, );
+    INSTPAT("??????? ????? ????? 001 ????? 00011 11", fence.i, );
 
     INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv, panic("未知指令"));
 exec_end:
     riscv32core.regs[0] = 0;
 }
-void riscv32_writeback(RiscvDecode *dec) { riscv32core.pc = dec->next_pc; }
+
+void riscv32_writeback(RiscvDecode *dec) {
+    if (dec->except != EXC_None) {
+        // 目前只处理了异常
+        CSR(CSR_MCAUSE) = dec->except;
+        CSR(CSR_MTVAL) = riscv32core.pc;
+
+        CSR(CSR_MEPC) = riscv32core.pc;
+        CSR(CSR_MSTATUS) =
+            (CSR(CSR_MSTATUS) & 0x08 << 4) | (CPU(privilege) & 3 << 11);
+
+        riscv32core.pc = CSR(CSR_MTVEC);
+        CPU(privilege) = MACHINE;
+    } else {
+        riscv32core.pc = dec->next_pc;
+    }
+}
 
 const char *regs[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
                       "s0", "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",

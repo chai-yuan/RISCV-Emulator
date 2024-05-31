@@ -5,6 +5,9 @@
 #include <common/common.h>
 #include <stdint.h>
 
+// 定义 RISC-V 特权级枚举类型
+typedef enum { USER = 0, SUPERVISOR = 1, MACHINE = 3 } PrivilegeLevel;
+
 // riscv32处理器状态
 typedef struct Riscv32core {
     uint32_t pc;
@@ -13,8 +16,10 @@ typedef struct Riscv32core {
     // CSR
     uint32_t csr[4096];
     // 其他状态
-    bool sleep; // 休眠标志
-    bool halt;  // 停机标志
+    PrivilegeLevel privilege; // 特权等级
+    uint32_t amo_addr;        // 原子指令记录地址
+    bool sleep;               // 休眠标志
+    bool halt;                // 停机标志
 } Riscv32core;
 
 extern Riscv32core riscv32core;
@@ -37,6 +42,7 @@ void riscv32_dump(const Riscv32core *core);
 #define Rs1 riscv32core.regs[dec->rs1]
 #define Rs2 riscv32core.regs[dec->rs2]
 #define PC riscv32core.pc
+#define CPU(i) riscv32core.i
 #define Mr(addr, size, data)                                                   \
     do {                                                                       \
         uint64_t read_data;                                                    \

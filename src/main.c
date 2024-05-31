@@ -14,19 +14,24 @@ int main(int argc, char **argv) {
 
     // 初始化并添加设备
     sram_init_file(0x10000000, argv[1]);
+    // sram_init_file(0x10000000, "/Project/mini-rv32ima/sim-nemu/linuxImage");
     bus_add_device(
         (Device){0x80000000, 0x10000000, sram_read, sram_write, NULL, NULL});
     bus_add_device(
         (Device){0x10000000, 0x100, serial_read, serial_write, NULL, NULL});
 
+    riscv32core.regs[10] = 0x00; // hart ID
+    riscv32core.regs[11] = 0x809ff000;
+    riscv32core.privilege = MACHINE;
+
     // 初始化difftest
-    // init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
-    // ref_difftest_memcpy(0x80000000, sram_mem, 0x10000, DIFFTEST_TO_REF);
-    // ref_difftest_regcpy(&riscv32core, DIFFTEST_TO_REF);
+    init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
+    ref_difftest_memcpy(0x80000000, sram_mem, 0x10000, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&riscv32core, DIFFTEST_TO_REF);
 
     while (!riscv32core.halt) {
-        //  check_difftest();
-        // ref_difftest_exec(1);
+        check_difftest();
+        ref_difftest_exec(1);
         riscv32_step();
         bus_update();
     }

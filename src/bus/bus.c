@@ -31,7 +31,7 @@ DeviceAccessStatus bus_read(uint64_t addr, uint8_t size, uint64_t *data) {
             return DEVICE_ACCESS_OK;
         }
     }
-    panic("访问设备不存在 addr : %x", (uint32_t)addr);
+    panic("访问设备不存在 addr : 0x%x", (uint32_t)addr);
     return DEVICE_ACCESS_ERROR;
 }
 
@@ -43,6 +43,6 @@ DeviceAccessStatus bus_write(uint64_t addr, uint8_t size, uint64_t data) {
             return DEVICE_ACCESS_OK;
         }
     }
-    panic("访问设备不存在 addr : %x", (uint32_t)addr);
+    panic("访问设备不存在 addr : 0x%x", (uint32_t)addr);
     return DEVICE_ACCESS_ERROR;
 }

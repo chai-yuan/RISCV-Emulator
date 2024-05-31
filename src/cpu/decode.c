@@ -1,3 +1,4 @@
+#include "cpu/except.h"
 #include <cpu/decode.h>
 
 RiscvDecode decode(uint32_t inst) {
@@ -15,5 +16,8 @@ RiscvDecode decode(uint32_t inst) {
     ret.immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) | (BITS(inst, 30, 21) << 1) |
                (BITS(inst, 20, 20) << 11) | (BITS(inst, 19, 12) << 12);
     ret.immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
+
+    ret.except = EXC_None;
+
     return ret;
 }
