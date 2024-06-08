@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+DeviceInterface ram_func = {
+    .read = ram_read,
+    .write = ram_write,
+    .update = NULL,
+    .check_intr = NULL,
+};
+
 RAM *ram_init(size_t ram_size, const uint8_t *data, size_t size) {
     RAM *ram = malloc(sizeof(RAM));
 
@@ -41,13 +48,6 @@ RAM *ram_init_file(size_t ram_size, const char *file_name) {
 
     return ram;
 }
-
-DeviceInterface ram_func = {
-    .read = ram_read,
-    .write = ram_write,
-    .update = NULL,
-    .check_intr = NULL,
-};
 
 DeviceAccessStatus ram_read(void *device, uint64_t addr, uint8_t size,
                             uint64_t *data) {

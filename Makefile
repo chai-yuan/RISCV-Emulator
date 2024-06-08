@@ -1,7 +1,7 @@
 bin :
-	xmake -r
+	xmake --rebuild --warning
 
-ARGS = ?
+ARGS ?= 
 
 run : bin
-	./build/linux/x86_64/release/RISCV-Emulator $(ARGS)
+	./build/linux/x86_64/debug/RISCV-Emulator $(ARGS)
