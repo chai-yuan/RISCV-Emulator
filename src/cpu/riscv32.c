@@ -239,7 +239,7 @@ void riscv32_writeback(RiscvDecode *dec) {
 
         CSR(CSR_MEPC) = riscv32core.pc;
         CSR(CSR_MSTATUS) =
-            (CSR(CSR_MSTATUS) & 0x08 << 4) | (CPU(privilege) & 3 << 11);
+            ((CSR(CSR_MSTATUS) & 0x08) << 4) | ((CPU(privilege) & 3) << 11);
 
         riscv32core.pc = CSR(CSR_MTVEC);
         CPU(privilege) = MACHINE;

@@ -13,6 +13,7 @@ DeviceAccessStatus serial_write(uint64_t addr, uint8_t size, uint64_t data) {
     switch (addr) {
     case 0x0: {
         printf("%c", (uint8_t)data);
+        fflush(stdout);
         break;
     }
     default: {

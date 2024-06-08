@@ -14,13 +14,17 @@ typedef enum IntrType {
     INTR_TIMER,
 } IntrType;
 
+typedef struct DeviceInterface {
+    DeviceAccessStatus (*read)(void *, uint64_t, uint8_t, uint64_t *);
+    DeviceAccessStatus (*write)(void *, uint64_t, uint8_t, uint64_t);
+    IntrType (*check_intr)(void *);
+    void (*update)(void *);
+} DeviceInterface;
+
 typedef struct Device {
-    uint64_t addr;
-    uint64_t size;
-    DeviceAccessStatus (*read)(uint64_t, uint8_t, uint64_t *);
-    DeviceAccessStatus (*write)(uint64_t, uint8_t, uint64_t);
-    IntrType (*check_intr)();
-    void (*update)();
+    uint64_t addr, size;
+    void *device_data;
+    DeviceInterface func;
 } Device;
 
 #endif // !DEVICE_H

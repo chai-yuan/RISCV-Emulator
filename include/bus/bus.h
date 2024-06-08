@@ -5,7 +5,8 @@
 #include <device/device.h>
 #include <stdint.h>
 
-int bus_add_device(Device device);
+int bus_add_device(uint64_t addr, uint64_t size, void *device,
+                   DeviceInterface func);
 
 IntrType bus_check_intr();
 

@@ -8,8 +8,18 @@
 Device devices[MAX_DEVICES_NUM];
 size_t device_num = 0;
 
-int bus_add_device(Device device) {
-    devices[device_num] = device;
+int bus_add_device(uint64_t addr, uint64_t size, void *device,
+                   DeviceInterface func) {
+    if (device_num == MAX_DEVICES_NUM) {
+        return -1;
+    }
+
+    devices[device_num] = (Device){
+        .addr = addr,
+        .size = size,
+        .device_data = device,
+        .func = func,
+    };
     device_num++;
     return 0;
 }
@@ -18,8 +28,8 @@ IntrType bus_check_intr() { return INTR_NULL; }
 
 void bus_update() {
     for (int i = 0; i < device_num; i++) {
-        if (devices[i].update != NULL)
-            devices[i].update();
+        if (devices[i].func.update != NULL)
+            devices[i].func.update(devices[i].device_data);
     }
 }
 
@@ -27,7 +37,8 @@ DeviceAccessStatus bus_read(uint64_t addr, uint8_t size, uint64_t *data) {
     for (size_t i = 0; i < device_num; i++) {
         if (addr >= devices[i].addr &&
             addr < devices[i].addr + devices[i].size) {
-            devices[i].read(addr - devices[i].addr, size, data);
+            devices[i].func.read(devices[i].device_data, addr - devices[i].addr,
+                                 size, data);
             return DEVICE_ACCESS_OK;
         }
     }
@@ -39,7 +50,8 @@ DeviceAccessStatus bus_write(uint64_t addr, uint8_t size, uint64_t data) {
     for (size_t i = 0; i < device_num; i++) {
         if (addr >= devices[i].addr &&
             addr < devices[i].addr + devices[i].size) {
-            devices[i].write(addr - devices[i].addr, size, data);
+            devices[i].func.write(devices[i].device_data,
+                                  addr - devices[i].addr, size, data);
             return DEVICE_ACCESS_OK;
         }
     }
