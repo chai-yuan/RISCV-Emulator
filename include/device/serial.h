@@ -5,8 +5,21 @@
 #include <stddef.h>
 #include <stdint.h>
 
-DeviceAccessStatus serial_read(uint64_t addr, uint8_t size, uint64_t *data);
+typedef struct Serial {
+} Serial;
 
-DeviceAccessStatus serial_write(uint64_t addr, uint8_t size, uint64_t data);
+extern DeviceInterface serial_func;
+
+Serial *serial_init();
+
+DeviceAccessStatus serial_read(void *device, uint64_t addr, uint8_t size,
+                              uint64_t *data);
+
+DeviceAccessStatus serial_write(void *device, uint64_t addr, uint8_t size,
+                               uint64_t data);
+
+IntrType serial_check_intr(void *device);
+
+void serial_update(void *device);
 
 #endif // !SERIAL_H

@@ -2,6 +2,7 @@
 #include "common/debug.h"
 #include "cpu/csr.h"
 #include "cpu/riscv32.h"
+#include "device/clint.h"
 #include "device/device.h"
 #include "device/ram.h"
 #include "device/serial.h"
@@ -12,6 +13,8 @@ int main(int argc, char **argv) {
     Log("argc : %d ,argv : %s", argc, argv[1]);
 
     // sram_init_file(0x10000000, "/Project/mini-rv32ima/sim-nemu/linuxImage");
+    bus_add_device(0x2000000, 0x8000, clint_init(), clint_func);
+    bus_add_device(0x10000000, 0x100, serial_init(), serial_func);
     bus_add_device(0x80000000, 0x10000000, ram_init_file(0x10000000, argv[1]),
                    ram_func);
 

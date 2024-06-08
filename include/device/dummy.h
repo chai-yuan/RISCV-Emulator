@@ -23,4 +23,3 @@ IntrType dummy_check_intr(void *device);
 void dummy_update(void *device);
 
 #endif // !DUMMY_H
-

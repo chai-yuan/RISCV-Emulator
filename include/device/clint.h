@@ -5,12 +5,21 @@
 #include <stddef.h>
 #include <stdint.h>
 
-IntrType clint_check_intr();
+typedef struct Clint {
+} Clint;
 
-void clint_update();
+extern DeviceInterface clint_func;
 
-DeviceAccessStatus clint_read(uint64_t addr, uint8_t size, uint64_t *data);
+Clint *clint_init();
 
-DeviceAccessStatus clint_write(uint64_t addr, uint8_t size, uint64_t data);
+DeviceAccessStatus clint_read(void *device, uint64_t addr, uint8_t size,
+                              uint64_t *data);
+
+DeviceAccessStatus clint_write(void *device, uint64_t addr, uint8_t size,
+                               uint64_t data);
+
+IntrType clint_check_intr(void *device);
+
+void clint_update(void *device);
 
 #endif // !CLINT_H
