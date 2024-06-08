@@ -22,36 +22,10 @@ typedef struct Riscv32core {
     bool halt;                // 停机标志
 } Riscv32core;
 
-extern Riscv32core riscv32core;
-
 // 处理器运行
-void riscv32_step();
-// 取指译码
-void riscv32_fetch_decode(RiscvDecode *decode);
-// 执行指令
-void riscv32_exec(RiscvDecode *decode);
-// 处理写回，中断，异常
-void riscv32_writeback(RiscvDecode *decode);
+void riscv32_step(Riscv32core *core);
 
 // 打印处理器信息
 void riscv32_dump(const Riscv32core *core);
-
-#define R(i) riscv32core.regs[i]
-#define CSR(i) riscv32core.csr[i]
-#define Rd riscv32core.regs[dec->rd]
-#define Rs1 riscv32core.regs[dec->rs1]
-#define Rs2 riscv32core.regs[dec->rs2]
-#define PC riscv32core.pc
-#define CPU(i) riscv32core.i
-#define Mr(addr, size, data)                                                   \
-    do {                                                                       \
-        uint64_t read_data;                                                    \
-        mmu_read(addr, size, &read_data);                                      \
-        data = read_data;                                                      \
-    } while (0);
-#define Mw(addr, size, data)                                                   \
-    do {                                                                       \
-        mmu_write(addr, size, data);                                           \
-    } while (0);
 
 #endif

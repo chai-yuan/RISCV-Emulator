@@ -12,12 +12,16 @@
 int main(int argc, char **argv) {
     Log("argc : %d ,argv : %s", argc, argv[1]);
 
+    // 初始化总线和设备
     // sram_init_file(0x10000000, "/Project/mini-rv32ima/sim-nemu/linuxImage");
     bus_add_device(0x2000000, 0x8000, clint_init(), clint_func);
     bus_add_device(0x10000000, 0x100, serial_init(), serial_func);
     bus_add_device(0x80000000, 0x10000000, ram_init_file(0x10000000, argv[1]),
                    ram_func);
 
+    // 初始化处理器
+    Riscv32core riscv32core;
+    riscv32core.pc = 0x80000000;
     riscv32core.regs[10] = 0x00; // hart ID
     riscv32core.regs[11] = 0x809ff000;
     riscv32core.privilege = MACHINE;
@@ -27,10 +31,11 @@ int main(int argc, char **argv) {
     //    ref_difftest_memcpy(0x80000000, sram_mem, 0x10000, DIFFTEST_TO_REF);
     //    ref_difftest_regcpy(&riscv32core, DIFFTEST_TO_REF);
 
+    // 运行
     while (!riscv32core.halt) {
         /* check_difftest(); */
         /* ref_difftest_exec(1); */
-        riscv32_step();
+        riscv32_step(&riscv32core);
         riscv32core.privilege = MACHINE;
         bus_update();
     }

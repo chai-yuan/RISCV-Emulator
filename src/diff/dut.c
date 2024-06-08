@@ -42,15 +42,15 @@ void init_difftest(char *ref_so_file) {
     ref_difftest_init(0);
 }
 
-void check_difftest() {
+void check_difftest(Riscv32core *dut) {
     Riscv32core diff_cpu;
     bool check = false;
     ref_difftest_regcpy(&diff_cpu, DIFFTEST_TO_DUT);
-    if (diff_cpu.pc != riscv32core.pc) {
+    if (diff_cpu.pc != dut->pc) {
         check = true;
     }
     for (int i = 0; i < 32; i++) {
-        if (diff_cpu.regs[i] != riscv32core.regs[i]) {
+        if (diff_cpu.regs[i] != dut->regs[i]) {
             check = true;
         }
     }
@@ -59,7 +59,7 @@ void check_difftest() {
         Log("ref cpu");
         riscv32_dump(&diff_cpu);
         Log("dut cpu");
-        riscv32_dump(&riscv32core);
+        riscv32_dump(dut);
         exit(1);
     }
 }
