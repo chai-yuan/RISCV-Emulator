@@ -1,6 +1,7 @@
 #ifndef DIFF_H
 #define DIFF_H
 
+#include <cpu/riscv32.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -16,6 +17,6 @@ extern void (*ref_difftest_raise_intr)(uint64_t NO);
 
 void init_difftest(char *ref_so_file);
 
-void check_difftest();
+void check_difftest(Riscv32core *dut);
 
 #endif // !DIFF_H

@@ -5,8 +5,8 @@
 DeviceInterface serial_func = {
     .read = serial_read,
     .write = serial_write,
-    .update = serial_update,
-    .check_intr = serial_check_intr,
+    .update = NULL,
+    .check_intr = NULL,
 };
 
 Serial *serial_init() { return NULL; }
@@ -25,7 +25,3 @@ DeviceAccessStatus serial_write(void *device, uint64_t addr, uint8_t size,
     }
     return DEVICE_ACCESS_OK;
 }
-
-IntrType serial_check_intr(void *device) { return INTR_NULL; }
-
-void serial_update(void *device) {}

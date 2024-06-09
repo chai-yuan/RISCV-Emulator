@@ -1,3 +1,4 @@
+#include "cpu/csr.h"
 #include "cpu/riscv32.h"
 #include <common/common.h>
 #include <diff.h>
@@ -42,18 +43,36 @@ void init_difftest(char *ref_so_file) {
     ref_difftest_init(0);
 }
 
+#define CHECK_CSR(csr_name)                                                    \
+    if (diff_cpu.csr[csr_name] != dut->csr[csr_name]) {                        \
+        Log("csr %s : %x != %x", #csr_name, diff_cpu.csr[csr_name],            \
+            dut->csr[csr_name]);                                               \
+        check = true;                                                          \
+    }
+
 void check_difftest(Riscv32core *dut) {
     Riscv32core diff_cpu;
     bool check = false;
     ref_difftest_regcpy(&diff_cpu, DIFFTEST_TO_DUT);
+
     if (diff_cpu.pc != dut->pc) {
+        Log("pc : %x != %x", diff_cpu.pc, dut->pc);
         check = true;
     }
     for (int i = 0; i < 32; i++) {
         if (diff_cpu.regs[i] != dut->regs[i]) {
+            Log("reg %d : %x != %x", i, diff_cpu.regs[i], dut->regs[i]);
             check = true;
         }
     }
+
+    CHECK_CSR(CSR_MIE);
+    CHECK_CSR(CSR_MTVAL);
+    CHECK_CSR(CSR_MSCRATCH);
+    CHECK_CSR(CSR_MEPC);
+    CHECK_CSR(CSR_MCAUSE);
+    CHECK_CSR(CSR_MSTATUS);
+    CHECK_CSR(CSR_MTVEC);
 
     if (check) {
         Log("ref cpu");
