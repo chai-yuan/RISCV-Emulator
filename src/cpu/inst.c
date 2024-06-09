@@ -1,6 +1,27 @@
 #include <cpu/inst.h>
+#include <stdint.h>
+
+#define R(i) core->regs[i]
+#define CSR(i) core->csr[i]
+#define Rd core->regs[dec->rd]
+#define Rs1 reg_src1
+#define Rs2 reg_src2
+#define PC core->pc
+#define CPU(i) core->i
+#define Mr(addr, size, data)                                                   \
+    do {                                                                       \
+        uint64_t read_data;                                                    \
+        mmu_read(addr, size, &read_data);                                      \
+        data = read_data;                                                      \
+    } while (0);
+#define Mw(addr, size, data)                                                   \
+    do {                                                                       \
+        mmu_write(addr, size, data);                                           \
+    } while (0);
 
 void riscv32_inst_exec(Riscv32core *core, RiscvDecode *dec) {
+    uint32_t reg_src1 = core->regs[dec->rs1], reg_src2 = core->regs[dec->rs2];
+
     INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add, Rd = Rs1 + Rs2);
     INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub, Rd = Rs1 - Rs2);
     INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor, Rd = Rs1 ^ Rs2);
@@ -125,32 +146,37 @@ void riscv32_inst_exec(Riscv32core *core, RiscvDecode *dec) {
     INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulu,
             Rd = ((uint64_t)Rs1 * (uint64_t)Rs2) >> 32);
     INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div, {
-        if (Rs2 == 0)
+        if (Rs2 == 0) {
             Rd = -1;
-        else
+        } else {
             Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1)
                      ? Rs1
                      : ((int32_t)Rs1 / (int32_t)Rs2);
+        }
     });
     INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu,
             { Rd = (Rs2 == 0) ? 0xffffffff : Rs1 / Rs2; });
     INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem, {
-        if (Rs2 == 0)
+        if (Rs2 == 0) {
             Rd = Rs1;
-        else
+        } else {
             Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1)
                      ? 0
                      : ((uint32_t)((int32_t)Rs1 % (int32_t)Rs2));
+        }
     });
     INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu,
             { Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2; });
     // -----------------------   A   ------------------------------
-    INSTPAT("00010?? ????? ????? 010 ????? 01011 11", lr.w, Mr(Rs1, 4, Rd);
-            CPU(amo_addr) = Rs1);
+    INSTPAT("00010?? ????? ????? 010 ????? 01011 11", lr.w, CPU(amo_addr) = Rs1;
+            Mr(Rs1, 4, Rd));
     INSTPAT("00011?? ????? ????? 010 ????? 01011 11", sc.w, {
-        Rd = Rs1 != CPU(amo_addr);
-        if (Rd == 0)
+        if (Rs1 == CPU(amo_addr)) {
             Mw(Rs1, 4, Rs2);
+            Rd = 0;
+        } else {
+            Rd = 1;
+        }
         CPU(amo_addr) = 0;
     });
     INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap.w, Mr(Rs1, 4, Rd);

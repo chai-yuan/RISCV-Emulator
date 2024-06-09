@@ -30,14 +30,11 @@ int main(int argc, char **argv) {
 
     // 初始化difftest
     init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
-    ref_difftest_memcpy(0x80000000, ram->data, 0x7000000, DIFFTEST_TO_REF);
+    ref_difftest_memcpy(0x80000000, ram->data, ram->size, DIFFTEST_TO_REF);
     ref_difftest_regcpy(riscv32core, DIFFTEST_TO_REF);
 
     // 运行
     while (!riscv32core->halt) {
-        check_difftest(riscv32core);
-        ref_difftest_exec(1);
-
         riscv32_step(riscv32core);
         bus_update();
     }

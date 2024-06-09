@@ -17,6 +17,7 @@ RiscvDecode decode(uint32_t inst) {
                (BITS(inst, 20, 20) << 11) | (BITS(inst, 19, 12) << 12);
     ret.immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
 
+    ret.access_addr = 0;
     ret.except = EXC_None;
     ret.intr = INTR_None;
 

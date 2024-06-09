@@ -5,6 +5,7 @@
 #include "cpu/inst.h"
 #include "cpu/mmu.h"
 #include "device/device.h"
+#include "diff.h"
 #include <cpu/riscv32.h>
 #include <stdint.h>
 
@@ -34,6 +35,14 @@ void riscv32_step(Riscv32core *core) {
     } else {
         core->pc = dec.next_pc;
     }
+
+    // difftest
+    if (dec.access_addr > 0x2000000 && dec.access_addr < 0x11000000) {
+        ref_difftest_regcpy(core, DIFFTEST_TO_REF);
+    } else {
+        ref_difftest_exec(1);
+    }
+    check_difftest(core);
     return;
 }
 

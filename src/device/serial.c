@@ -13,7 +13,7 @@ Serial *serial_init() { return NULL; }
 
 DeviceAccessStatus serial_read(void *device, uint64_t addr, uint8_t size,
                                uint64_t *data) {
-    *data = 0;
+    *data = 0x60;
     return DEVICE_ACCESS_OK;
 }
 

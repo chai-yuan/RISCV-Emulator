@@ -19,22 +19,4 @@ void riscv32_inst_exec(Riscv32core *core, RiscvDecode *dec);
         }                                                                      \
     } while (0)
 
-#define R(i) core->regs[i]
-#define CSR(i) core->csr[i]
-#define Rd core->regs[dec->rd]
-#define Rs1 core->regs[dec->rs1]
-#define Rs2 core->regs[dec->rs2]
-#define PC core->pc
-#define CPU(i) core->i
-#define Mr(addr, size, data)                                                   \
-    do {                                                                       \
-        uint64_t read_data;                                                    \
-        mmu_read(addr, size, &read_data);                                      \
-        data = read_data;                                                      \
-    } while (0);
-#define Mw(addr, size, data)                                                   \
-    do {                                                                       \
-        mmu_write(addr, size, data);                                           \
-    } while (0);
-
 #endif // !INST_H
