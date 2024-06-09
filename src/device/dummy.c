@@ -22,9 +22,9 @@ DeviceAccessStatus dummy_write(void *device, uint64_t addr, uint8_t size,
     return DEVICE_ACCESS_OK;
 }
 
-IntrType dummy_check_intr(void *device) {
+DeviceIntrType dummy_check_intr(void *device) {
     Dummy *dev = (Dummy *)device;
-    return INTR_NULL;
+    return DEVICE_INTR_NULL;
 }
 
 void dummy_update(void *device) { Dummy *dev = (Dummy *)device; }

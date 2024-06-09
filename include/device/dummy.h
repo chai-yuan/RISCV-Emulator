@@ -18,7 +18,7 @@ DeviceAccessStatus dummy_read(void *device, uint64_t addr, uint8_t size,
 DeviceAccessStatus dummy_write(void *device, uint64_t addr, uint8_t size,
                                uint64_t data);
 
-IntrType dummy_check_intr(void *device);
+DeviceIntrType dummy_check_intr(void *device);
 
 void dummy_update(void *device);
 

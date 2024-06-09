@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 typedef struct Clint {
+    uint64_t timer, timermatch;
 } Clint;
 
 extern DeviceInterface clint_func;
@@ -18,7 +19,7 @@ DeviceAccessStatus clint_read(void *device, uint64_t addr, uint8_t size,
 DeviceAccessStatus clint_write(void *device, uint64_t addr, uint8_t size,
                                uint64_t data);
 
-IntrType clint_check_intr(void *device);
+DeviceIntrType clint_check_intr(void *device);
 
 void clint_update(void *device);
 

@@ -13,8 +13,8 @@ typedef struct RiscvDecode {
     uint32_t rd, rs1, rs2;
     int32_t immI, immB, immU, immJ, immS;
     // 执行中得到的信息
-    ExceptType except;
-    IntrType intr;
+    ExceptType except; // 保存异常
+    IntrType intr;     // 保存触发后的中断
     uint32_t next_pc;
     uint64_t access_addr;
 } RiscvDecode;

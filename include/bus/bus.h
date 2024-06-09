@@ -8,7 +8,7 @@
 int bus_add_device(uint64_t addr, uint64_t size, void *device,
                    DeviceInterface func);
 
-IntrType bus_check_intr();
+DeviceIntrType bus_check_intr();
 
 void bus_update();
 

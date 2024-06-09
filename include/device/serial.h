@@ -13,12 +13,12 @@ extern DeviceInterface serial_func;
 Serial *serial_init();
 
 DeviceAccessStatus serial_read(void *device, uint64_t addr, uint8_t size,
-                              uint64_t *data);
+                               uint64_t *data);
 
 DeviceAccessStatus serial_write(void *device, uint64_t addr, uint8_t size,
-                               uint64_t data);
+                                uint64_t data);
 
-IntrType serial_check_intr(void *device);
+DeviceIntrType serial_check_intr(void *device);
 
 void serial_update(void *device);
 

@@ -53,7 +53,7 @@ DeviceAccessStatus ram_read(void *device, uint64_t addr, uint8_t size,
                             uint64_t *data) {
     RAM *ram = (RAM *)device;
 
-    if (ram->size <= addr) {
+    if (ram->size < addr + size) {
         return DEVICE_ACCESS_ERROR;
     }
 
