@@ -26,8 +26,14 @@ int bus_add_device(uint64_t addr, uint64_t size, void *device,
 
 DeviceIntrType bus_check_intr() {
     for (int i = 0; i < device_num; i++) {
-        if (devices[i].func.check_intr != NULL)
-            return devices[i].func.check_intr(devices[i].device_data);
+        if (devices[i].func.check_intr != NULL) {
+            DeviceIntrType intr =
+                devices[i].func.check_intr(devices[i].device_data);
+
+            if (intr != DEVICE_INTR_NULL) {
+                return intr;
+            }
+        }
     }
     return DEVICE_INTR_NULL;
 }

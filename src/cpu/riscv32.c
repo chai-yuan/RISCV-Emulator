@@ -1,3 +1,4 @@
+#include "bus/bus.h"
 #include "common/debug.h"
 #include "cpu/csr.h"
 #include "cpu/decode.h"
@@ -20,18 +21,41 @@ void riscv32_step(Riscv32core *core) {
     // 执行
     riscv32_inst_exec(core, &dec);
 
+    // 检查捕获中断
+    DeviceIntrType intr = bus_check_intr();
+    if (intr == DEVICE_INTR_TIMER) {
+        core->csr[CSR_MIP] |= 1 << 7;
+        ref_difftest_raise_intr(1);
+    } else {
+        core->csr[CSR_MIP] &= ~(1 << 7);
+        ref_difftest_raise_intr(0);
+    }
+
+    // 检查生成中断
+    if ((core->csr[CSR_MIP] & (1 << 7)) && (core->csr[CSR_MIE] & (1 << 7)) &&
+        core->csr[CSR_MSTATUS] & 0x8) {
+        dec.intr = INTR_MachineTimerInterrupt;
+    }
+
     // 处理异常和中断,异常优先
     if (dec.except != EXC_None) {
         core->csr[CSR_MCAUSE] = dec.except;
+        core->csr[CSR_MEPC] = dec.next_pc;
         core->csr[CSR_MTVAL] = core->pc;
-        core->csr[CSR_MEPC] = core->pc;
+
         core->csr[CSR_MSTATUS] = ((core->csr[CSR_MSTATUS] & 0x08) << 4) |
                                  ((core->privilege & 3) << 11);
-
         core->pc = core->csr[CSR_MTVEC];
         core->privilege = MACHINE;
     } else if (dec.intr != INTR_None) {
+        core->csr[CSR_MCAUSE] = dec.intr | 0x80000000;
+        core->csr[CSR_MEPC] = dec.next_pc;
+        core->csr[CSR_MTVAL] = 0;
 
+        core->csr[CSR_MSTATUS] = ((core->csr[CSR_MSTATUS] & 0x08) << 4) |
+                                 ((core->privilege & 3) << 11);
+        core->pc = core->csr[CSR_MTVEC];
+        core->privilege = MACHINE;
     } else {
         core->pc = dec.next_pc;
     }

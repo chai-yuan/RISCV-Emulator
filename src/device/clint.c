@@ -1,3 +1,4 @@
+#include "common/debug.h"
 #include "device/device.h"
 #include <device/clint.h>
 #include <stdint.h>
@@ -55,7 +56,7 @@ DeviceAccessStatus clint_write(void *device, uint64_t addr, uint8_t size,
 
 DeviceIntrType clint_check_intr(void *device) {
     Clint *dev = (Clint *)device;
-    if (dev->timermatch != 0 && dev->timermatch > dev->timer) {
+    if (dev->timermatch != 0 && dev->timermatch < dev->timer) {
         return DEVICE_INTR_TIMER;
     }
     return DEVICE_INTR_NULL;

@@ -7,6 +7,7 @@
 #include "device/ram.h"
 #include "device/serial.h"
 #include "diff.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,10 +34,15 @@ int main(int argc, char **argv) {
     ref_difftest_memcpy(0x80000000, ram->data, ram->size, DIFFTEST_TO_REF);
     ref_difftest_regcpy(riscv32core, DIFFTEST_TO_REF);
 
+    uint32_t cnt = 0;
     // 运行
     while (!riscv32core->halt) {
         riscv32_step(riscv32core);
         bus_update();
+        cnt++;
+        if ((cnt % 20000000) == 0) {
+            Log("riscv32 pc : %x", riscv32core->pc);
+        }
     }
 
     if (riscv32core->regs[10] == 0) {
