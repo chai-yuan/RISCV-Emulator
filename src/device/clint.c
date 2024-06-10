@@ -23,31 +23,31 @@ Clint *clint_init() {
 DeviceAccessStatus clint_read(void *device, uint64_t addr, uint8_t size,
                               uint64_t *data) {
     Clint *dev = (Clint *)device;
-    clint_update(device);
 
     uint64_t a = addr & ~0x7, offset = (addr & 0x7) * 8;
+    uint64_t mask = (1ULL << (size * 8)) - 1;
+
     if (a == CLINT_timer) {
-        *data = dev->timer >> offset;
+        *data = (dev->timer >> offset) & mask;
     } else if (a == CLINT_timermatch) {
-        *data = dev->timermatch >> offset;
+        *data = (dev->timermatch >> offset) & mask;
     } else {
-        return DEVICE_ACCESS_ERROR;
+        return DEVICE_ACCESS_ERROR; // 地址不匹配
     }
     return DEVICE_ACCESS_OK;
 }
 
-// 只支持32位和64位写入，之后可以改进
 DeviceAccessStatus clint_write(void *device, uint64_t addr, uint8_t size,
                                uint64_t data) {
     Clint *dev = (Clint *)device;
-    if (addr == CLINT_timermatch) {
-        if (size == 4) {
-            dev->timermatch = (dev->timermatch & ~0xffff) | (data & 0xffff);
-        } else {
-            dev->timermatch = data;
-        }
-    } else if (addr == CLINT_timermatch + 4) {
-        dev->timermatch = (dev->timermatch & 0xffff) | (data << 32);
+
+    uint64_t a = addr & ~0x7, offset = (addr & 0x7) * 8;
+    uint64_t mask = (1ULL << (size * 8)) - 1;
+
+    if (a == CLINT_timermatch) {
+        dev->timermatch &= ~(mask << offset);       // 清除要写入的位
+        dev->timermatch |= (data & mask) << offset; // 写入数据
+        return DEVICE_ACCESS_OK;
     } else {
         return DEVICE_ACCESS_ERROR;
     }

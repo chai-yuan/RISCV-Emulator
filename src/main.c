@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         ram_init_file(0x10000000, "/Project/mini-rv32ima/sim-nemu/linuxImage");
 
     bus_add_device(0x2000000, 0x10000, clint_init(), clint_func);
-    bus_add_device(0x10000000, 0x100, serial_init(), serial_func);
+    bus_add_device(0x10000000, 0x10, serial_init(), serial_func);
     bus_add_device(0x80000000, 0x10000000, ram, ram_func);
 
     // 初始化处理器
@@ -30,19 +30,14 @@ int main(int argc, char **argv) {
     riscv32core->privilege = MACHINE;
 
     // 初始化difftest
-    init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
-    ref_difftest_memcpy(0x80000000, ram->data, ram->size, DIFFTEST_TO_REF);
-    ref_difftest_regcpy(riscv32core, DIFFTEST_TO_REF);
+    // init_difftest("/Project/mini-rv32ima/sim-nemu/mini-rv32ima.so");
+    // ref_difftest_memcpy(0x80000000, ram->data, ram->size, DIFFTEST_TO_REF);
+    // ref_difftest_regcpy(riscv32core, DIFFTEST_TO_REF);
 
-    uint32_t cnt = 0;
     // 运行
     while (!riscv32core->halt) {
         riscv32_step(riscv32core);
         bus_update();
-        cnt++;
-        if ((cnt % 20000000) == 0) {
-            Log("riscv32 pc : %x", riscv32core->pc);
-        }
     }
 
     if (riscv32core->regs[10] == 0) {

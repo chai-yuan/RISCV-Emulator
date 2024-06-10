@@ -1,4 +1,6 @@
+#include "cpu/csr.h"
 #include <cpu/inst.h>
+#include <device/device.h>
 #include <stdint.h>
 
 #define R(i) core->regs[i]
@@ -11,12 +13,14 @@
 #define Mr(addr, size, data)                                                   \
     do {                                                                       \
         uint64_t read_data;                                                    \
-        mmu_read(addr, size, &read_data);                                      \
+        if (mmu_read(addr, size, &read_data) != DEVICE_ACCESS_OK)              \
+            panic("访存错误!");                                                \
         data = read_data;                                                      \
     } while (0);
 #define Mw(addr, size, data)                                                   \
     do {                                                                       \
-        mmu_write(addr, size, data);                                           \
+        if (mmu_write(addr, size, data) != DEVICE_ACCESS_OK)                   \
+            panic("访存错误!");                                                \
     } while (0);
 
 void riscv32_inst_exec(Riscv32core *core, RiscvDecode *dec) {
@@ -226,7 +230,14 @@ void riscv32_inst_exec(Riscv32core *core, RiscvDecode *dec) {
     INSTPAT("??????? ????? ????? 000 ????? 00011 11", fence, );
     INSTPAT("??????? ????? ????? 001 ????? 00011 11", fence.i, );
 
-    INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv, panic("未知指令"));
+    // ----------------------- 其他指令------------------------------
+    INSTPAT("0001000 00101 00000 000 00000 11100 11", wfi, {
+        CPU(sleep) = true;
+        CSR(CSR_MSTATUS) |= 8;
+    });
+
+    INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv,
+            panic("未知指令 : %x", dec->inst));
 exec_end:
     R(0) = 0;
 }
