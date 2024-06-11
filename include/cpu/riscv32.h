@@ -25,6 +25,8 @@ typedef struct Riscv32core {
 // 处理器运行
 void riscv32_step(Riscv32core *core);
 
+void riscv32_exec(Riscv32core *core, RiscvDecode *dec);
+
 // 打印处理器信息
 void riscv32_dump(const Riscv32core *core);
 

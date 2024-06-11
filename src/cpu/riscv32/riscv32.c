@@ -3,23 +3,24 @@
 #include "cpu/csr.h"
 #include "cpu/decode.h"
 #include "cpu/except.h"
-#include "cpu/inst.h"
 #include "cpu/mmu.h"
 #include "device/device.h"
 #include "diff.h"
 #include <cpu/riscv32.h>
 #include <stdint.h>
+#include <string.h>
 
 void riscv32_step(Riscv32core *core) {
     // 取指译码
     RiscvDecode dec;
     uint64_t inst;
     mmu_read(core->pc, 4, &inst);
-    dec = decode((uint32_t)inst);
+    dec.inst = inst;
+    decode(&dec);
     dec.next_pc = core->pc + 4;
 
     // 执行
-    riscv32_inst_exec(core, &dec);
+    riscv32_exec(core, &dec);
 
     // 检查捕获中断
     DeviceIntrType intr = bus_check_intr();

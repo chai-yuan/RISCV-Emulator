@@ -39,6 +39,7 @@
             printf(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_RED) "\n", __FILE__, \
                    __LINE__, __func__, ##__VA_ARGS__);                         \
             assert(cond);                                                      \
+            exit(0);                                                           \
         }                                                                      \
     } while (0)
 

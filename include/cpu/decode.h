@@ -7,11 +7,92 @@
 #include "device/device.h"
 #include <stdint.h>
 
+typedef enum {
+    inst_inv,
+    // 32I
+    inst_add,
+    inst_sub,
+    inst_xor,
+    inst_or,
+    inst_and,
+    inst_sll,
+    inst_slt,
+    inst_sltu,
+    inst_srl,
+    inst_sra,
+    inst_addi,
+    inst_xori,
+    inst_ori,
+    inst_andi,
+    inst_slli,
+    inst_srli,
+    inst_srai,
+    inst_slti,
+    inst_sltiu,
+    inst_lb,
+    inst_lh,
+    inst_lw,
+    inst_lbu,
+    inst_lhu,
+    inst_sb,
+    inst_sh,
+    inst_sw,
+    inst_beq,
+    inst_bne,
+    inst_blt,
+    inst_bge,
+    inst_bltu,
+    inst_bgeu,
+    inst_jal,
+    inst_jalr,
+    inst_lui,
+    inst_auipc,
+    // 32M
+    inst_mul,
+    inst_mulh,
+    inst_mulsu,
+    inst_mulu,
+    inst_div,
+    inst_divu,
+    inst_rem,
+    inst_remu,
+    // 32A
+    inst_lr_w,
+    inst_sc_w,
+    inst_amoswap_w,
+    inst_amoadd_w,
+    inst_amoxor_w,
+    inst_amoor_w,
+    inst_amoand_w,
+    inst_amomin_w,
+    inst_amomax_w,
+    inst_amominu_w,
+    inst_amomaxu_w,
+    // Zicsr
+    inst_csrrw,
+    inst_csrrs,
+    inst_csrrc,
+    inst_csrrwi,
+    inst_csrrsi,
+    inst_csrrci,
+    // Zifence
+    inst_fence,
+    inst_fence_i,
+    // 特权指令
+    inst_wfi,
+    inst_ecall,
+    inst_mret,
+    inst_ebreak,
+} Instruction;
+
 typedef struct RiscvDecode {
     uint32_t inst;
+    Instruction instruction;
     // 从指令当中获取的信息
     uint32_t rd, rs1, rs2;
     int32_t immI, immB, immU, immJ, immS;
+    int32_t imm32;
+    int64_t imm64;
     // 执行中得到的信息
     ExceptType except; // 保存异常
     IntrType intr;     // 保存触发后的中断
@@ -20,53 +101,6 @@ typedef struct RiscvDecode {
 } RiscvDecode;
 
 // 从指令提取需要的信息
-RiscvDecode decode(uint32_t inst);
+void decode(RiscvDecode *dec);
 
-// --- pattern matching mechanism ---
-__attribute__((always_inline)) static inline void
-pattern_decode(const char *str, int len, uint64_t *key, uint64_t *mask,
-               uint64_t *shift) {
-    uint64_t __key = 0, __mask = 0, __shift = 0;
-#define macro(i)                                                               \
-    if ((i) >= len)                                                            \
-        goto finish;                                                           \
-    else {                                                                     \
-        char c = str[i];                                                       \
-        if (c != ' ') {                                                        \
-            Assert(c == '0' || c == '1' || c == '?',                           \
-                   "invalid character '%c' in pattern string", c);             \
-            __key = (__key << 1) | (c == '1' ? 1 : 0);                         \
-            __mask = (__mask << 1) | (c == '?' ? 0 : 1);                       \
-            __shift = (c == '?' ? __shift + 1 : 0);                            \
-        }                                                                      \
-    }
-
-#define macro2(i)                                                              \
-    macro(i);                                                                  \
-    macro((i) + 1)
-#define macro4(i)                                                              \
-    macro2(i);                                                                 \
-    macro2((i) + 2)
-#define macro8(i)                                                              \
-    macro4(i);                                                                 \
-    macro4((i) + 4)
-#define macro16(i)                                                             \
-    macro8(i);                                                                 \
-    macro8((i) + 8)
-#define macro32(i)                                                             \
-    macro16(i);                                                                \
-    macro16((i) + 16)
-#define macro64(i)                                                             \
-    macro32(i);                                                                \
-    macro32((i) + 32)
-
-    macro64(0);
-    panic("decode too long");
-#undef macro
-finish:
-    *key = __key >> __shift;
-    *mask = __mask >> __shift;
-    *shift = __shift;
-}
-
-#endif // !DECODE_H
+#endif

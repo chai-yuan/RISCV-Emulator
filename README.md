@@ -5,14 +5,14 @@
 
 - [x] I 指令
 - [x] M 指令
-- [ ] A 指令
+- [x] A 指令
 - [ ] C 指令
 - [x] Zicsr 指令
-- [ ] Zifence 指令
+- [x] Zifence 指令
 
 ### 特权级
 
-- [ ] U
+- [x] U
 - [ ] S
 - [x] M
 

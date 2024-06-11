@@ -1,5 +1,5 @@
 set_project("RISCV-Emulator")
-set_version("0.1.0")
+set_version("0.1.5")
 add_rules("mode.debug", "mode.release")
 
 add_includedirs("include")
