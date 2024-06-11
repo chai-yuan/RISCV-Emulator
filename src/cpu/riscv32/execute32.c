@@ -14,15 +14,11 @@
 #define CPU(i) core->i
 #define Mr(addr, size, data)                                                   \
     do {                                                                       \
-        uint64_t read_data;                                                    \
-        if (mmu_read(addr, size, &read_data) != DEVICE_ACCESS_OK)              \
-            panic("访存错误!");                                                \
-        data = read_data;                                                      \
+        mmu_read_32(core, dec, addr, size, &data);                             \
     } while (0);
 #define Mw(addr, size, data)                                                   \
     do {                                                                       \
-        if (mmu_write(addr, size, data) != DEVICE_ACCESS_OK)                   \
-            panic("访存错误!");                                                \
+        mmu_write_32(core, dec, addr, size, data);                             \
     } while (0);
 
 #define INSTEXE(name, ...)                                                     \
@@ -56,34 +52,17 @@ void riscv32_exec(Riscv32core *core, RiscvDecode *dec) {
         INSTEXE(sltiu, Rd = Rs1 < (uint32_t)dec->immI ? 1 : 0);
         INSTEXE(lb, {
             uint32_t data;
-            dec->access_addr = Rs1 + dec->immI;
-            Mr(dec->access_addr, 1, data);
+            Mr(Rs1 + dec->immI, 1, data);
             Rd = (int8_t)data;
         });
         INSTEXE(lh, {
             uint32_t data;
-            dec->access_addr = Rs1 + dec->immI;
-            Mr(dec->access_addr, 2, data);
+            Mr(Rs1 + dec->immI, 2, data);
             Rd = (int16_t)data;
         });
-        INSTEXE(lw, {
-            uint32_t data;
-            dec->access_addr = Rs1 + dec->immI;
-            Mr(dec->access_addr, 4, data);
-            Rd = data;
-        });
-        INSTEXE(lbu, {
-            uint32_t data;
-            dec->access_addr = Rs1 + dec->immI;
-            Mr(dec->access_addr, 1, data);
-            Rd = data;
-        });
-        INSTEXE(lhu, {
-            uint32_t data;
-            dec->access_addr = Rs1 + dec->immI;
-            Mr(dec->access_addr, 2, data);
-            Rd = data;
-        });
+        INSTEXE(lw, Mr(Rs1 + dec->immI, 4, Rd));
+        INSTEXE(lbu, Mr(Rs1 + dec->immI, 1, Rd));
+        INSTEXE(lhu, Mr(Rs1 + dec->immI, 2, Rd));
         INSTEXE(sb, Mw(Rs1 + dec->immS, 1, Rs2));
         INSTEXE(sh, Mw(Rs1 + dec->immS, 2, Rs2));
         INSTEXE(sw, Mw(Rs1 + dec->immS, 4, Rs2));

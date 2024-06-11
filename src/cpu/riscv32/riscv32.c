@@ -13,9 +13,7 @@
 void riscv32_step(Riscv32core *core) {
     // 取指译码
     RiscvDecode dec;
-    uint64_t inst;
-    mmu_read(core->pc, 4, &inst);
-    dec.inst = inst;
+    mmu_fetch_32(core, &dec);
     decode(&dec);
     dec.next_pc = core->pc + 4;
 
