@@ -1,6 +1,9 @@
 #ifndef EXCEPT_H
 #define EXCEPT_H
 
+// 定义 RISC-V 特权级枚举类型
+typedef enum { USER = 0, SUPERVISOR = 1, MACHINE = 3 } PrivilegeLevel;
+
 typedef enum {
     EXC_InstructionAddressMisaligned = 0,
     EXC_InstructionAccessFault = 1,

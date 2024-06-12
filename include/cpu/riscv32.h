@@ -5,9 +5,6 @@
 #include <common/common.h>
 #include <stdint.h>
 
-// 定义 RISC-V 特权级枚举类型
-typedef enum { USER = 0, SUPERVISOR = 1, MACHINE = 3 } PrivilegeLevel;
-
 // riscv32处理器状态
 typedef struct Riscv32core {
     uint32_t pc;
