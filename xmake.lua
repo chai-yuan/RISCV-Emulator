@@ -7,6 +7,7 @@ add_includedirs("include")
 target("RISCV-Emulator")
     set_kind("binary")
     add_files("src/**.c")
+    add_files("virtual_machine.c")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

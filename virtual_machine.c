@@ -1,3 +1,7 @@
+/*
+ * 利用模拟器组建构建的简易虚拟机
+ */
+
 #include "bus/bus.h"
 #include "common/debug.h"
 #include "cpu/csr.h"
