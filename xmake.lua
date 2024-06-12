@@ -2,12 +2,16 @@ set_project("RISCV-Emulator")
 set_version("0.2.0")
 add_rules("mode.debug", "mode.release")
 
+-- 所有的子项目都依赖RISCV-Emulator
 add_includedirs("include")
+add_files("src/**.c")
 
-target("RISCV-Emulator")
+-- 构建用于命令行的模拟器可执行文件
+target("Virtual-Machine")
     set_kind("binary")
-    add_files("src/**.c")
-    add_files("virtual_machine.c")
+    add_includedirs("virtual_machine/include")
+    add_files("virtual_machine/src/*.c")
+    add_files("virtual_machine/virtual_machine.c")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

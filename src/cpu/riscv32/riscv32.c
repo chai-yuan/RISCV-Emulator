@@ -24,10 +24,8 @@ void riscv32_step(Riscv32core *core) {
     DeviceIntrType intr = bus_check_intr();
     if (intr == DEVICE_INTR_TIMER) {
         core->csr[CSR_MIP] |= 1 << 7;
-        // ref_difftest_raise_intr(1);
     } else {
         core->csr[CSR_MIP] &= ~(1 << 7);
-        // ref_difftest_raise_intr(0);
     }
 
     // 检查生成中断
@@ -59,13 +57,16 @@ void riscv32_step(Riscv32core *core) {
         core->pc = dec.next_pc;
     }
 
-    // difftest
-    /* if (dec.access_addr > 0x2000000 && dec.access_addr < 0x11000000) { */
-    /*     ref_difftest_regcpy(core, DIFFTEST_TO_REF); */
-    /* } else { */
-    /*     ref_difftest_exec(1); */
-    /* } */
-    /* check_difftest(core); */
+    // difftest 根据函数是否为NULL来判断是否开启
+    if (ref_difftest_exec != NULL) {
+        ref_difftest_raise_intr(intr == DEVICE_INTR_TIMER);
+        if (dec.access_addr > 0x2000000 && dec.access_addr < 0x11000000) {
+            ref_difftest_regcpy(core, DIFFTEST_TO_REF);
+        } else {
+            ref_difftest_exec(1);
+        }
+        check_difftest(core);
+    }
     return;
 }
 
