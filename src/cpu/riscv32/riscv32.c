@@ -75,9 +75,34 @@ const char *regs[] = {"$0", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
                       "a6", "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
                       "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
+#define PRINT_CSR(core, csr_enum)                                              \
+    printf("%s (0x%03x): 0x%08x\n", #csr_enum, csr_enum, core->csr[csr_enum]);
+
 void riscv32_dump(const Riscv32core *core) {
     printf("PC: 0x%08x\n", core->pc);
+    // 设置列数
+    const int num_columns = 4;
+    // 打印寄存器
     for (int i = 0; i < 32; i++) {
-        printf("x%2d: %-6s: 0x%08x\n", i, regs[i], core->regs[i]);
+        printf("x%2d: %-6s: 0x%08x  ", i, regs[i], core->regs[i]);
+        // 每打印完一列就换行
+        if ((i + 1) % num_columns == 0) {
+            printf("\n");
+        }
     }
+    // 如果最后一列没有完整，则需要手动换行
+    if (32 % num_columns != 0) {
+        printf("\n");
+    }
+    // 打印需要调试的csr
+    PRINT_CSR(core, CSR_MIE);
+    PRINT_CSR(core, CSR_MTVAL);
+    PRINT_CSR(core, CSR_MIP);
+    PRINT_CSR(core, CSR_MSCRATCH);
+    PRINT_CSR(core, CSR_MEPC);
+    PRINT_CSR(core, CSR_MCAUSE);
+    PRINT_CSR(core, CSR_MSTATUS);
+    PRINT_CSR(core, CSR_MTVEC);
+    PRINT_CSR(core, CSR_MVENDORID);
+    PRINT_CSR(core, CSR_MARCHID);
 }

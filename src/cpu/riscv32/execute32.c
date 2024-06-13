@@ -1,5 +1,6 @@
 #include "common/debug.h"
 #include "cpu/csr.h"
+#include "cpu/except.h"
 #include <cpu/decode.h>
 #include <cpu/mmu.h>
 #include <cpu/riscv32.h>
@@ -163,6 +164,7 @@ void riscv32_exec(Riscv32core *core, RiscvDecode *dec) {
         INSTEXE(ebreak, CPU(halt) = true);
     default:
         panic("未知指令! %d", dec->instruction);
+        dec->except = EXC_IllegalInstruction;
     }
     R(0) = 0;
 }
