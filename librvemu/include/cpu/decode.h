@@ -6,6 +6,7 @@
 #include "cpu/except.h"
 #include "device/device.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef enum {
     inst_inv,

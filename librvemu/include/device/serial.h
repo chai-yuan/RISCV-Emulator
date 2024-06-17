@@ -4,6 +4,7 @@
 #include <device/device.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef struct Serial {
 } Serial;

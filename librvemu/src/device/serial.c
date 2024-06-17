@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <unistd.h>
 
 DeviceInterface serial_func = {
     .read = serial_read,

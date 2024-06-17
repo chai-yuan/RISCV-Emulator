@@ -3,8 +3,11 @@ bin :
 
 ARGS ?= 
 
-vm : bin
-	./build/linux/x86_64/release/Virtual-Machine $(ARGS)
+test : bin
+	xmake run test $(ARGS)
+
+Virtual-Machine : bin
+	xmake run Virtual-Machine $(ARGS)
 
 compile_commands :
 	xmake project -k compile_commands

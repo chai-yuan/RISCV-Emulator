@@ -1,6 +1,7 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 

@@ -4,6 +4,7 @@
 #include <common/common.h>
 #include <device/device.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 int bus_add_device(uint64_t addr, uint64_t size, void *device,
                    DeviceInterface func);

@@ -1,7 +1,6 @@
 target("rvemu")
     set_kind("static")
-    add_includedirs("include/public", {public = true})
-    add_includedirs("include/private", {public = false})
+    add_includedirs("include", {public = true})
     add_files("src/**.c")
 
 target("test")
