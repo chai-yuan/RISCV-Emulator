@@ -1,8 +1,27 @@
-set_project("RISCV-Emulator")
-set_version("0.2.0")
-add_rules("mode.debug", "mode.release")
-
-includes("**/xmake.lua")
+target("Virtual-Machine")
+    set_kind("binary")
+    -- 源码和依赖
+    add_includedirs("include")
+    add_files("src/*.c")
+    add_files("virtual_machine.c")
+    add_deps("rvemu")
+    -- 添加配置
+--     add_configfiles("config.h.in")
+--     add_options("CONFIG_ISA")
+--     set_configvar("CONFIG_ISA","$(CONFIG_ISA)")
+--     add_options("CONFIG_TEST")
+--
+-- option("CONFIG_ISA")
+--     set_showmenu(true)
+--     set_description("Select ISA")
+--     set_default("RV32")
+--     set_values("RV32", "RV64")
+--
+-- option("CONFIG_TEST")
+--     set_showmenu(true)
+--     set_description("enable test")
+--     set_default(false)
+--     set_configvar("CONFIG_TEST",1)
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

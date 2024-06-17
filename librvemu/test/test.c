@@ -1,7 +1,3 @@
-/*
- * 利用模拟器组建构建的简易虚拟机
- */
-
 #include "bus/bus.h"
 #include "common/debug.h"
 #include "cpu/csr.h"
@@ -17,21 +13,6 @@
 
 int main(int argc, char **argv) {
     Log("argc : %d ,argv : %s", argc, argv[1]);
-
-#ifdef CONFIG_TEST
-    Log("test");
-#endif
-
-#ifdef CONFIG_RV32
-    Log("rv32");
-    exit(0);
-#endif
-
-#ifdef CONFIG_RV64
-    Log("rv64");
-    exit(0);
-#endif
-
     // 初始化总线和设备
     RAM *ram =
         ram_init_file(0x10000000, "/Project/mini-rv32ima/sim-nemu/linuxImage");

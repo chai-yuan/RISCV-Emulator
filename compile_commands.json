@@ -1,81 +1,81 @@
 [
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/common/time.c.o", "src/common/time.c"],
-  "file": "src/common/time.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/common/time.c.o", "librvemu/src/common/time.c"],
+  "file": "librvemu/src/common/time.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/diff/dut.c.o", "src/diff/dut.c"],
-  "file": "src/diff/dut.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/diff/dut.c.o", "librvemu/src/diff/dut.c"],
+  "file": "librvemu/src/diff/dut.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv32/execute32.c.o", "src/cpu/riscv32/execute32.c"],
-  "file": "src/cpu/riscv32/execute32.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv32/execute32.c.o", "librvemu/src/cpu/riscv32/execute32.c"],
+  "file": "librvemu/src/cpu/riscv32/execute32.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv32/mmu32.c.o", "src/cpu/riscv32/mmu32.c"],
-  "file": "src/cpu/riscv32/mmu32.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv32/mmu32.c.o", "librvemu/src/cpu/riscv32/mmu32.c"],
+  "file": "librvemu/src/cpu/riscv32/mmu32.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv32/riscv32.c.o", "src/cpu/riscv32/riscv32.c"],
-  "file": "src/cpu/riscv32/riscv32.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv32/riscv32.c.o", "librvemu/src/cpu/riscv32/riscv32.c"],
+  "file": "librvemu/src/cpu/riscv32/riscv32.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/decode.c.o", "src/cpu/decode.c"],
-  "file": "src/cpu/decode.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/decode.c.o", "librvemu/src/cpu/decode.c"],
+  "file": "librvemu/src/cpu/decode.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv64/mmu64.c.o", "src/cpu/riscv64/mmu64.c"],
-  "file": "src/cpu/riscv64/mmu64.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv64/mmu64.c.o", "librvemu/src/cpu/riscv64/mmu64.c"],
+  "file": "librvemu/src/cpu/riscv64/mmu64.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv64/execute64.c.o", "src/cpu/riscv64/execute64.c"],
-  "file": "src/cpu/riscv64/execute64.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv64/execute64.c.o", "librvemu/src/cpu/riscv64/execute64.c"],
+  "file": "librvemu/src/cpu/riscv64/execute64.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/cpu/riscv64/riscv64.c.o", "src/cpu/riscv64/riscv64.c"],
-  "file": "src/cpu/riscv64/riscv64.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/cpu/riscv64/riscv64.c.o", "librvemu/src/cpu/riscv64/riscv64.c"],
+  "file": "librvemu/src/cpu/riscv64/riscv64.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/device/serial.c.o", "src/device/serial.c"],
-  "file": "src/device/serial.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/device/serial.c.o", "librvemu/src/device/serial.c"],
+  "file": "librvemu/src/device/serial.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/device/clint.c.o", "src/device/clint.c"],
-  "file": "src/device/clint.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/device/clint.c.o", "librvemu/src/device/clint.c"],
+  "file": "librvemu/src/device/clint.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/device/dummy.c.o", "src/device/dummy.c"],
-  "file": "src/device/dummy.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/device/dummy.c.o", "librvemu/src/device/dummy.c"],
+  "file": "librvemu/src/device/dummy.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/device/ram.c.o", "src/device/ram.c"],
-  "file": "src/device/ram.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/device/ram.c.o", "librvemu/src/device/ram.c"],
+  "file": "librvemu/src/device/ram.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/src/bus/bus.c.o", "src/bus/bus.c"],
-  "file": "src/bus/bus.c"
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/rvemu/linux/x86_64/release/librvemu/src/bus/bus.c.o", "librvemu/src/bus/bus.c"],
+  "file": "librvemu/src/bus/bus.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/virtual_machine/src/dummy.c.o", "virtual_machine/src/dummy.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ivirtual_machine/include", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/virtual_machine/src/dummy.c.o", "virtual_machine/src/dummy.c"],
   "file": "virtual_machine/src/dummy.c"
 },
 {
   "directory": "/home/charain/Project/RISCV-Emulator",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Iinclude", "-Ivirtual_machine/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/virtual_machine/virtual_machine.c.o", "virtual_machine/virtual_machine.c"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-Ivirtual_machine/include", "-Ilibrvemu/include", "-DNDEBUG", "-o", "build/.objs/Virtual-Machine/linux/x86_64/release/virtual_machine/virtual_machine.c.o", "virtual_machine/virtual_machine.c"],
   "file": "virtual_machine/virtual_machine.c"
 }]

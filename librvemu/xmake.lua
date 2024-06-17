@@ -1,8 +1,13 @@
-set_project("RISCV-Emulator")
-set_version("0.2.0")
-add_rules("mode.debug", "mode.release")
+target("rvemu")
+    set_kind("static")
+    add_includedirs("include/public", {public = true})
+    add_includedirs("include/private", {public = false})
+    add_files("src/**.c")
 
-includes("**/xmake.lua")
+target("test")
+    set_kind("binary")
+    add_files("test/test.c")
+    add_deps("rvemu")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
