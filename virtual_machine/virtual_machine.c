@@ -11,26 +11,13 @@
 #include "device/ram.h"
 #include "device/serial.h"
 #include "diff.h"
+#include "lib/gdbstub.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
     Log("argc : %d ,argv : %s", argc, argv[1]);
-
-#ifdef CONFIG_TEST
-    Log("test");
-#endif
-
-#ifdef CONFIG_RV32
-    Log("rv32");
-    exit(0);
-#endif
-
-#ifdef CONFIG_RV64
-    Log("rv64");
-    exit(0);
-#endif
 
     // 初始化总线和设备
     RAM *ram =

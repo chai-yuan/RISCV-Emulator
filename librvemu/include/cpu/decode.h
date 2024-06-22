@@ -9,8 +9,7 @@
 #include <stdlib.h>
 
 typedef enum {
-    inst_inv,
-    // 32I
+    // I
     inst_add,
     inst_sub,
     inst_xor,
@@ -48,7 +47,7 @@ typedef enum {
     inst_jalr,
     inst_lui,
     inst_auipc,
-    // 32M
+    // M
     inst_mul,
     inst_mulh,
     inst_mulsu,
@@ -57,7 +56,7 @@ typedef enum {
     inst_divu,
     inst_rem,
     inst_remu,
-    // 32A
+    // A
     inst_lr_w,
     inst_sc_w,
     inst_amoswap_w,
@@ -84,6 +83,8 @@ typedef enum {
     inst_ecall,
     inst_mret,
     inst_ebreak,
+
+    inst_inv,
 } Instruction;
 
 typedef struct RiscvDecode {
