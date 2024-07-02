@@ -3,6 +3,8 @@ target("Virtual-Machine")
     -- 源码和依赖
     add_includedirs("include")
     add_files("src/*.c")
+    add_linkdirs("lib")
+    add_links("gdbstub")
     add_files("virtual_machine.c")
     add_deps("rvemu")
     -- 添加配置
