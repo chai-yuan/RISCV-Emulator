@@ -1,0 +1,307 @@
+#ifndef RISCV_DECODE_H
+#define RISCV_DECODE_H
+
+#include <cstdint>
+
+class RiscvDecode {
+  public:
+    // 异常类型枚举
+    enum class ExceptType {
+        InstructionAddressMisaligned = 0,
+        InstructionAccessFault = 1,
+        IllegalInstruction = 2,
+        Breakpoint = 3,
+        LoadAddressMisaligned = 4,
+        LoadAccessFault = 5,
+        StoreAMOAddressMisaligned = 6,
+        StoreAMOAccessFault = 7,
+        EcallFromUMode = 8,
+        EcallFromSMode = 9,
+        EcallFromMMode = 11,
+        InstructionPageFault = 12,
+        LoadPageFault = 13,
+        StoreAMOPageFault = 15,
+        None = 64,
+    };
+
+    // 中断类型枚举
+    enum class IntrType {
+        SupervisorSoftwareInterrupt = 0,
+        MachineSoftwareInterrupt = 2,
+        SupervisorTimerInterrupt = 4,
+        MachineTimerInterrupt = 7,
+        SupervisorExternalInterrupt = 8,
+        MachineExternalInterrupt = 11,
+        None = 16,
+    };
+
+    // 指令类型枚举
+    enum class Instruction {
+        // I 类型指令
+        inst_add,
+        inst_sub,
+        inst_xor,
+        inst_or,
+        inst_and,
+        inst_sll,
+        inst_slt,
+        inst_sltu,
+        inst_srl,
+        inst_sra,
+        inst_addi,
+        inst_xori,
+        inst_ori,
+        inst_andi,
+        inst_slli,
+        inst_srli,
+        inst_srai,
+        inst_slti,
+        inst_sltiu,
+        inst_lb,
+        inst_lh,
+        inst_lw,
+        inst_lbu,
+        inst_lhu,
+        inst_sb,
+        inst_sh,
+        inst_sw,
+        inst_beq,
+        inst_bne,
+        inst_blt,
+        inst_bge,
+        inst_bltu,
+        inst_bgeu,
+        inst_jal,
+        inst_jalr,
+        inst_lui,
+        inst_auipc,
+        // M 类型指令
+        inst_mul,
+        inst_mulh,
+        inst_mulsu,
+        inst_mulu,
+        inst_div,
+        inst_divu,
+        inst_rem,
+        inst_remu,
+        // A 类型指令
+        inst_lr_w,
+        inst_sc_w,
+        inst_amoswap_w,
+        inst_amoadd_w,
+        inst_amoxor_w,
+        inst_amoor_w,
+        inst_amoand_w,
+        inst_amomin_w,
+        inst_amomax_w,
+        inst_amominu_w,
+        inst_amomaxu_w,
+        // Zicsr 类型指令
+        inst_csrrw,
+        inst_csrrs,
+        inst_csrrc,
+        inst_csrrwi,
+        inst_csrrsi,
+        inst_csrrci,
+        // Zifence 类型指令
+        inst_fence,
+        inst_fence_i,
+        // 特权指令
+        inst_wfi,
+        inst_ecall,
+        inst_mret,
+        inst_ebreak,
+        // 无效指令
+        inst_inv
+    };
+
+    // 译码结果
+    uint32_t inst;
+    Instruction instruction;
+    uint32_t rd, rs1, rs2;
+    int32_t immI, immB, immU, immJ, immS;
+    ExceptType except;
+    IntrType intr;
+    uint32_t next_pc;
+
+    uint64_t accessAddr;
+    bool error;
+
+    RiscvDecode()
+        : inst(0), instruction(), rd(0), rs1(0), rs2(0), immI(0), immB(0), immU(0), immJ(0), immS(0),
+          except(ExceptType::None), intr(IntrType::None), next_pc(0), accessAddr(0), error(false) {}
+
+    void decode() {
+#define BITMASK(bits) ((1ull << (bits)) - 1)
+#define BITS(x, hi, lo) (((x) >> (lo)) & BITMASK((hi) - (lo) + 1))
+#define SEXT(x, len)                                                                                                   \
+    ({                                                                                                                 \
+        struct {                                                                                                       \
+            int64_t n : len;                                                                                           \
+        } __x = {.n = (int64_t)x};                                                                                     \
+        (uint64_t) __x.n;                                                                                              \
+    })
+
+        uint32_t inst = this->inst;
+
+        this->rd = BITS(inst, 11, 7);
+        this->rs1 = BITS(inst, 19, 15);
+        this->rs2 = BITS(inst, 24, 20);
+
+        int32_t immI = SEXT(BITS(inst, 31, 20), 12);
+        int32_t immB = (SEXT(BITS(inst, 31, 31), 1) << 12) | (BITS(inst, 30, 25) << 5) | (BITS(inst, 11, 8) << 1) |
+                       (BITS(inst, 7, 7) << 11);
+        int32_t immU = (SEXT(BITS(inst, 31, 12), 20) << 12);
+        int32_t immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) | (BITS(inst, 30, 21) << 1) | (BITS(inst, 20, 20) << 11) |
+                       (BITS(inst, 19, 12) << 12);
+        int32_t immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
+
+        this->immI = immI;
+        this->immB = immB;
+        this->immU = immU;
+        this->immJ = immJ;
+        this->immS = immS;
+
+        this->accessAddr = 0;
+
+        decodeInst();
+#undef BITMASK
+#undef BITS
+#undef SEXT
+    }
+
+  private:
+    void decodeInst() {
+#define INSTPAT(pattern, name)                                                                                         \
+    do {                                                                                                               \
+        uint64_t key, mask, shift;                                                                                     \
+        pattern_decode(pattern, (sizeof(pattern) - 1), &key, &mask, &shift);                                           \
+        if ((((uint64_t)inst >> shift) & mask) == key) {                                                               \
+            instruction = Instruction::inst_##name;                                                                    \
+            return;                                                                                                    \
+        }                                                                                                              \
+    } while (0)
+
+        INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add);
+        INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub);
+        INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor);
+        INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or);
+        INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and);
+        INSTPAT("0000000 ????? ????? 001 ????? 01100 11", sll);
+        INSTPAT("0000000 ????? ????? 010 ????? 01100 11", slt);
+        INSTPAT("0000000 ????? ????? 011 ????? 01100 11", sltu);
+        INSTPAT("0000000 ????? ????? 101 ????? 01100 11", srl);
+        INSTPAT("0100000 ????? ????? 101 ????? 01100 11", sra);
+        INSTPAT("??????? ????? ????? 000 ????? 00100 11", addi);
+        INSTPAT("??????? ????? ????? 100 ????? 00100 11", xori);
+        INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori);
+        INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi);
+        INSTPAT("0000000 ????? ????? 001 ????? 00100 11", slli);
+        INSTPAT("0000000 ????? ????? 101 ????? 00100 11", srli);
+        INSTPAT("0100000 ????? ????? 101 ????? 00100 11", srai);
+        INSTPAT("??????? ????? ????? 010 ????? 00100 11", slti);
+        INSTPAT("??????? ????? ????? 011 ????? 00100 11", sltiu);
+        INSTPAT("??????? ????? ????? 000 ????? 00000 11", lb);
+        INSTPAT("??????? ????? ????? 001 ????? 00000 11", lh);
+        INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw);
+        INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu);
+        INSTPAT("??????? ????? ????? 101 ????? 00000 11", lhu);
+        INSTPAT("??????? ????? ????? 000 ????? 01000 11", sb);
+        INSTPAT("??????? ????? ????? 001 ????? 01000 11", sh);
+        INSTPAT("??????? ????? ????? 010 ????? 01000 11", sw);
+        INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq);
+        INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne);
+        INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt);
+        INSTPAT("??????? ????? ????? 101 ????? 11000 11", bge);
+        INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu);
+        INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu);
+        INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal);
+        INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr);
+        INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui);
+        INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc);
+
+        INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul);
+        INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh);
+        INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulsu);
+        INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulu);
+        INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div);
+        INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu);
+        INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem);
+        INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu);
+
+        INSTPAT("00010?? ????? ????? 010 ????? 01011 11", lr_w);
+        INSTPAT("00011?? ????? ????? 010 ????? 01011 11", sc_w);
+        INSTPAT("00100?? ????? ????? 010 ????? 01011 11", amoxor_w);
+        INSTPAT("00000?? ????? ????? 010 ????? 01011 11", amoadd_w);
+        INSTPAT("00001?? ????? ????? 010 ????? 01011 11", amoswap_w);
+        INSTPAT("01000?? ????? ????? 010 ????? 01011 11", amoor_w);
+        INSTPAT("01100?? ????? ????? 010 ????? 01011 11", amoand_w);
+        INSTPAT("10000?? ????? ????? 010 ????? 01011 11", amomin_w);
+        INSTPAT("10100?? ????? ????? 010 ????? 01011 11", amomax_w);
+        INSTPAT("11000?? ????? ????? 010 ????? 01011 11", amominu_w);
+        INSTPAT("11100?? ????? ????? 010 ????? 01011 11", amomaxu_w);
+
+        INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw);
+        INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs);
+        INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc);
+        INSTPAT("??????? ????? ????? 101 ????? 11100 11", csrrwi);
+        INSTPAT("??????? ????? ????? 110 ????? 11100 11", csrrsi);
+        INSTPAT("??????? ????? ????? 111 ????? 11100 11", csrrci);
+
+        INSTPAT("??????? ????? ????? 000 ????? 00011 11", fence);
+        INSTPAT("??????? ????? ????? 001 ????? 00011 11", fence_i);
+
+        INSTPAT("0001000 00101 00000 000 00000 11100 11", wfi);
+        INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall);
+        INSTPAT("0011000 00010 00000 000 00000 11100 11", mret);
+        INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak);
+
+        INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv);
+
+#undef INSTPAT
+    }
+
+    __attribute__((always_inline)) static inline void pattern_decode(const char *str, int len, uint64_t *key,
+                                                                     uint64_t *mask, uint64_t *shift) {
+        uint64_t __key = 0, __mask = 0, __shift = 0;
+#define macro(i)                                                                                                       \
+    if ((i) >= len)                                                                                                    \
+        goto finish;                                                                                                   \
+    else {                                                                                                             \
+        char c = str[i];                                                                                               \
+        if (c != ' ') {                                                                                                \
+            __key = (__key << 1) | (c == '1' ? 1 : 0);                                                                 \
+            __mask = (__mask << 1) | (c == '?' ? 0 : 1);                                                               \
+            __shift = (c == '?' ? __shift + 1 : 0);                                                                    \
+        }                                                                                                              \
+    }
+
+#define macro2(i)                                                                                                      \
+    macro(i);                                                                                                          \
+    macro((i) + 1)
+#define macro4(i)                                                                                                      \
+    macro2(i);                                                                                                         \
+    macro2((i) + 2)
+#define macro8(i)                                                                                                      \
+    macro4(i);                                                                                                         \
+    macro4((i) + 4)
+#define macro16(i)                                                                                                     \
+    macro8(i);                                                                                                         \
+    macro8((i) + 8)
+#define macro32(i)                                                                                                     \
+    macro16(i);                                                                                                        \
+    macro16((i) + 16)
+#define macro64(i)                                                                                                     \
+    macro32(i);                                                                                                        \
+    macro32((i) + 32)
+
+        macro64(0);
+#undef macro
+    finish:
+        *key = __key >> __shift;
+        *mask = __mask >> __shift;
+        *shift = __shift;
+    }
+};
+
+#endif // RISCV_DECODE_H
