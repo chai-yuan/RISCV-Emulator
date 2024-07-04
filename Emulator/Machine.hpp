@@ -6,6 +6,7 @@
 #include "../Device/SimpleBus.hpp"
 #include "../GdbServer/GdbServer.hpp"
 #include <cstdint>
+#include <set>
 #include <stdexcept>
 
 class Machine : public Riscv32Core, public GdbServer {
@@ -39,7 +40,7 @@ class Machine : public Riscv32Core, public GdbServer {
     }
 
     void continueExecution() override {
-        while (getState()->pc != breakpoint) {
+        while (breakpoint.count(getState()->pc) == 0) {
             run(1);
         }
     }
@@ -47,8 +48,12 @@ class Machine : public Riscv32Core, public GdbServer {
     void readRegister(int regNo, uint32_t *value) override {
         if (regNo < 32) {
             *value = getState()->regs[regNo];
-        } else {
+        } else if (regNo == 32) {
             *value = getState()->pc;
+        } else if (regNo < 4096) {
+            *value = getState()->csr[regNo];
+        } else {
+            ERROR("未知寄存器地址");
         }
     }
 
@@ -61,11 +66,9 @@ class Machine : public Riscv32Core, public GdbServer {
             *value = 0;
         }
     }
-    void setBreakpoint(uint32_t address) override {
-        DEBUG("break set:", address);
-        breakpoint = address;
-    }
-    void deleteBreakpoint(uint32_t address) override { breakpoint = 0; }
+
+    void setBreakpoint(uint32_t address) override { breakpoint.insert(address); }
+    void deleteBreakpoint(uint32_t address) override { breakpoint.erase(address); }
 
     bool read(uint64_t addr, uint8_t size, uint64_t *data) override {
         auto ret = bus.read(addr, size, data);
@@ -83,6 +86,6 @@ class Machine : public Riscv32Core, public GdbServer {
     }
 
   private:
-    uint32_t breakpoint = 0;
+    std::set<uint32_t> breakpoint;
     SimpleBus bus;
 };

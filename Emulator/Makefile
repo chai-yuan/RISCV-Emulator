@@ -1,7 +1,7 @@
 TARGET = Emulator
 
-# CXX = g++
-CXX = clang++
+CXX = g++
+# CXX = clang++
 CXXFLAGS = -std=c++17 -Wall -MMD
 LDFLAGS =
 
