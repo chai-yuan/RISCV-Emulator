@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "../Common/DebugUtils.hpp"
+
 class MemoryDevice : public AbstractDevice {
 public:
     MemoryDevice(size_t size) : size(size) {
@@ -15,7 +17,7 @@ public:
 
     MemoryDevice(size_t size, const std::vector<uint8_t>& initData) : size(size) {
         if (initData.size() > size) {
-            throw std::invalid_argument("Initialization data size exceeds memory size");
+            ERROR("Initialization data size exceeds memory size");
         }
         data = new uint8_t[size]();
         std::copy(initData.begin(), initData.end(), data);

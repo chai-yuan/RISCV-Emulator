@@ -1,12 +1,12 @@
-#ifndef RISCV32_CORE_H
-#define RISCV32_CORE_H
+#ifndef RISCV64_CORE_H
+#define RISCV64_CORE_H
 
 #include "RiscvCore.hpp"
 #include "RiscvDecode.hpp"
 #include "RiscvState.hpp"
 #include <cstdint>
 
-class Riscv32Core : public RiscvCore {
+class Riscv64Core : public RiscvCore {
   public:
     void exec() override {
 #define CSRR(i) state.csrRead(i)
@@ -21,6 +21,7 @@ class Riscv32Core : public RiscvCore {
 #define INSTBEGIN() switch (dec.instruction) {
 #define INSTEND()                                                                                                      \
     default:                                                                                                           \
+        dec.error = true;                                                                                              \
         dec.except = RiscvDecode::ExceptType::IllegalInstruction;                                                      \
         }
 #define INSTEXE(name, ...)                                                                                             \
@@ -29,57 +30,57 @@ class Riscv32Core : public RiscvCore {
         break;                                                                                                         \
     }
 
-        uint32_t reg_src1 = state.regs[dec.rs1], reg_src2 = state.regs[dec.rs2];
+        uint64_t reg_src1 = state.regs[dec.rs1], reg_src2 = state.regs[dec.rs2];
 
         INSTBEGIN()
-        // 32I
+        // 64I
         INSTEXE(add, Rd = Rs1 + Rs2);
         INSTEXE(sub, Rd = Rs1 - Rs2);
         INSTEXE(xor, Rd = Rs1 ^ Rs2);
         INSTEXE(or, Rd = Rs1 | Rs2);
         INSTEXE(and, Rd = Rs1 & Rs2);
         INSTEXE(sll, Rd = Rs1 << (Rs2 & 0x1f));
-        INSTEXE(slt, Rd = (int32_t)Rs1 < (int32_t)Rs2 ? 1 : 0);
+        INSTEXE(slt, Rd = (int64_t)Rs1 < (int64_t)Rs2 ? 1 : 0);
         INSTEXE(sltu, Rd = Rs1 < Rs2 ? 1 : 0);
         INSTEXE(srl, Rd = Rs1 >> (Rs2 & 0x1f));
-        INSTEXE(sra, Rd = (int32_t)Rs1 >> (Rs2 & 0x1f));
-        INSTEXE(addi, Rd = Rs1 + (int32_t)dec.immI);
-        INSTEXE(xori, Rd = Rs1 ^ (uint32_t)dec.immI);
-        INSTEXE(ori, Rd = Rs1 | (uint32_t)dec.immI);
-        INSTEXE(andi, Rd = Rs1 & (uint32_t)dec.immI);
+        INSTEXE(sra, Rd = (int64_t)Rs1 >> (Rs2 & 0x1f));
+        INSTEXE(addi, Rd = Rs1 + (int64_t)dec.immI);
+        INSTEXE(xori, Rd = Rs1 ^ (uint64_t)dec.immI);
+        INSTEXE(ori, Rd = Rs1 | (uint64_t)dec.immI);
+        INSTEXE(andi, Rd = Rs1 & (uint64_t)dec.immI);
         INSTEXE(slli, Rd = Rs1 << (dec.immI & 0x1f));
         INSTEXE(srli, Rd = Rs1 >> (dec.immI & 0x1f));
-        INSTEXE(srai, Rd = (int32_t)Rs1 >> (dec.immI & 0x1f));
-        INSTEXE(slti, Rd = (int32_t)Rs1 < (int32_t)dec.immI ? 1 : 0);
-        INSTEXE(sltiu, Rd = Rs1 < (uint32_t)dec.immI ? 1 : 0);
-        INSTEXE(lb, uint32_t data = Mr(Rs1 + dec.immI, 1); Rd = (int8_t)data;);
-        INSTEXE(lh, uint32_t data = Mr(Rs1 + dec.immI, 2); Rd = (int16_t)data;);
+        INSTEXE(srai, Rd = (int64_t)Rs1 >> (dec.immI & 0x1f));
+        INSTEXE(slti, Rd = (int64_t)Rs1 < (int64_t)dec.immI ? 1 : 0);
+        INSTEXE(sltiu, Rd = Rs1 < (uint64_t)dec.immI ? 1 : 0);
+        INSTEXE(lb, uint64_t data = Mr(Rs1 + dec.immI, 1); Rd = (int8_t)data;);
+        INSTEXE(lh, uint64_t data = Mr(Rs1 + dec.immI, 2); Rd = (int16_t)data;);
         INSTEXE(lbu, Rd = Mr(Rs1 + dec.immI, 1));
         INSTEXE(lhu, Rd = Mr(Rs1 + dec.immI, 2));
         INSTEXE(lw, Rd = Mr(Rs1 + dec.immI, 4));
         INSTEXE(sb, Mw(Rs1 + dec.immS, 1, Rs2));
         INSTEXE(sh, Mw(Rs1 + dec.immS, 2, Rs2));
         INSTEXE(sw, Mw(Rs1 + dec.immS, 4, Rs2));
-        INSTEXE(beq, if ((int32_t)Rs1 == (int32_t)Rs2) dec.next_pc = PC + dec.immB);
-        INSTEXE(bne, if ((int32_t)Rs1 != (int32_t)Rs2) dec.next_pc = PC + dec.immB);
-        INSTEXE(blt, if ((int32_t)Rs1 < (int32_t)Rs2) dec.next_pc = PC + dec.immB);
-        INSTEXE(bge, if ((int32_t)Rs1 >= (int32_t)Rs2) dec.next_pc = PC + dec.immB);
+        INSTEXE(beq, if ((int64_t)Rs1 == (int64_t)Rs2) dec.next_pc = PC + dec.immB);
+        INSTEXE(bne, if ((int64_t)Rs1 != (int64_t)Rs2) dec.next_pc = PC + dec.immB);
+        INSTEXE(blt, if ((int64_t)Rs1 < (int64_t)Rs2) dec.next_pc = PC + dec.immB);
+        INSTEXE(bge, if ((int64_t)Rs1 >= (int64_t)Rs2) dec.next_pc = PC + dec.immB);
         INSTEXE(bltu, if (Rs1 < Rs2) dec.next_pc = PC + dec.immB);
         INSTEXE(bgeu, if (Rs1 >= Rs2) dec.next_pc = PC + dec.immB);
         INSTEXE(jal, dec.next_pc = PC + dec.immJ; Rd = PC + 4);
         INSTEXE(jalr, dec.next_pc = (Rs1 + dec.immI) & ~1; Rd = PC + 4);
         INSTEXE(lui, Rd = dec.immU);
         INSTEXE(auipc, Rd = PC + dec.immU);
-        // 32M
-        INSTEXE(mul, Rd = ((int64_t)(int32_t)Rs1 * (int64_t)(int32_t)Rs2));
-        INSTEXE(mulh, Rd = ((int64_t)(int32_t)Rs1 * (int64_t)(int32_t)Rs2) >> 32);
-        INSTEXE(mulsu, Rd = ((int64_t)(int32_t)Rs1 * (uint64_t)Rs2) >> 32);
+        // 64M
+        INSTEXE(mul, Rd = ((int64_t)(int64_t)Rs1 * (int64_t)(int64_t)Rs2));
+        INSTEXE(mulh, Rd = ((int64_t)(int64_t)Rs1 * (int64_t)(int64_t)Rs2) >> 32);
+        INSTEXE(mulsu, Rd = ((int64_t)(int64_t)Rs1 * (uint64_t)Rs2) >> 32);
         INSTEXE(mulu, Rd = ((uint64_t)Rs1 * (uint64_t)Rs2) >> 32);
         INSTEXE(div, {
             if (Rs2 == 0) {
                 Rd = -1;
             } else {
-                Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) ? Rs1 : ((int32_t)Rs1 / (int32_t)Rs2);
+                Rd = ((int64_t)Rs1 == INT32_MIN && (int64_t)Rs2 == -1) ? Rs1 : ((int64_t)Rs1 / (int64_t)Rs2);
             }
         });
         INSTEXE(divu, { Rd = (Rs2 == 0) ? 0xffffffff : Rs1 / Rs2; });
@@ -87,11 +88,11 @@ class Riscv32Core : public RiscvCore {
             if (Rs2 == 0) {
                 Rd = Rs1;
             } else {
-                Rd = ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) ? 0 : ((uint32_t)((int32_t)Rs1 % (int32_t)Rs2));
+                Rd = ((int64_t)Rs1 == INT32_MIN && (int64_t)Rs2 == -1) ? 0 : ((uint64_t)((int64_t)Rs1 % (int64_t)Rs2));
             }
         });
         INSTEXE(remu, Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2);
-        // 32A
+        // 64A
         INSTEXE(lr_w, state.amoAddr = Rs1; Rd = Mr(Rs1, 4));
         INSTEXE(sc_w, {
             if (Rs1 == state.amoAddr) {
@@ -107,8 +108,8 @@ class Riscv32Core : public RiscvCore {
         INSTEXE(amoand_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 & Rd););
         INSTEXE(amoor_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 | Rd););
         INSTEXE(amoxor_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 ^ Rd););
-        INSTEXE(amomax_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int32_t)Rs2 > (int32_t)Rd) ? Rs2 : Rd));
-        INSTEXE(amomin_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int32_t)Rs2 < (int32_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amomax_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int64_t)Rs2 > (int64_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amomin_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int64_t)Rs2 < (int64_t)Rd) ? Rs2 : Rd));
         INSTEXE(amominu_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, (Rs2 < Rd) ? Rs2 : Rd));
         INSTEXE(amomaxu_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, (Rs2 > Rd) ? Rs2 : Rd));
         // zicsr

@@ -13,9 +13,9 @@ class Machine : public Riscv32Core, public GdbServer {
   public:
     Machine(std::string initFileName) {
         auto initFile = FileUtils::readFileToBinaryVector(initFileName);
-        bus.addDevice(0x80000000, new MemoryDevice(0x100000, initFile));
+        bus.addDevice(0x80000000, new MemoryDevice(0x8000000, initFile));
 
-        gdbInit(10086);
+        // gdbInit(10086);
     }
 
     void run(uint64_t num) {
@@ -24,7 +24,7 @@ class Machine : public Riscv32Core, public GdbServer {
 
             if (dec.instruction == RiscvDecode::Instruction::inst_ebreak) {
                 DEBUG("Machine halt");
-                if (getState()->regs[10] == 0) {
+                if (state.regs[10] == 0) {
                     PASS("pass");
                 } else {
                     ERROR("unpass");
@@ -33,25 +33,24 @@ class Machine : public Riscv32Core, public GdbServer {
             }
             if (dec.error) {
                 ERROR("Machine error");
-                getState()->printState();
                 return;
             }
         }
     }
 
     void continueExecution() override {
-        while (breakpoint.count(getState()->pc) == 0) {
+        while (breakpoint.count(state.pc) == 0) {
             run(1);
         }
     }
 
     void readRegister(int regNo, uint32_t *value) override {
         if (regNo < 32) {
-            *value = getState()->regs[regNo];
+            *value = state.regs[regNo];
         } else if (regNo == 32) {
-            *value = getState()->pc;
+            *value = state.pc;
         } else if (regNo < 4096) {
-            *value = getState()->csr[regNo];
+            *value = state.csrRead(regNo);
         } else {
             ERROR("未知寄存器地址");
         }

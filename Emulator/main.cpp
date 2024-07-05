@@ -6,5 +6,5 @@ int main(int argc, char *argv[]) {
     }
 
     auto machine = Machine(argv[1]);
-    machine.gdbRun();
+    machine.run(-1);
 }

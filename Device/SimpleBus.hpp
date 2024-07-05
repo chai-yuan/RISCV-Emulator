@@ -1,16 +1,17 @@
 #ifndef SIMPLEBUS_H
 #define SIMPLEBUS_H
 
-#include "MMIO.hpp"
+#include <cstdint>
 #include <map>
 #include <utility>
+#include <vector>
+
+#include "MMIO.hpp"
 
 class SimpleBus : public MMIO {
   public:
     // 添加一个 MMIO 设备
-    void addDevice(uint64_t start_address, MMIO *device) {
-        devices[start_address] = device;
-    }
+    void addDevice(uint64_t start_address, MMIO *device) { devices[start_address] = device; }
 
     // 实现读操作
     MMIOStatus read(uint64_t addr, uint8_t size, uint64_t *data) override {
