@@ -43,14 +43,14 @@ template <typename... Args> void printError(const std::string &file, int line, A
     std::ostringstream oss;
     ((oss << args << " "), ...);
     std::cerr << RED << "[ERROR] " << getFileLocation(file, line) << ": " << oss.str() << RESET << std::endl;
-    exit(0);
+    exit(1);
 }
 
 // TODO() 函数
 void TODO(const std::string &file, int line) {
     std::cerr << YELLOW << "[TODO] " << getFileLocation(file, line) << ": This feature is not yet implemented." << RESET
               << std::endl;
-    exit(0);
+    exit(1);
 }
 
 } // namespace DebugUtils

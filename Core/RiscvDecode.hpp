@@ -6,7 +6,7 @@
 class RiscvDecode {
   public:
     // 异常类型枚举
-    enum class ExceptType {
+    enum ExceptType {
         InstructionAddressMisaligned = 0,
         InstructionAccessFault = 1,
         IllegalInstruction = 2,
@@ -21,22 +21,22 @@ class RiscvDecode {
         InstructionPageFault = 12,
         LoadPageFault = 13,
         StoreAMOPageFault = 15,
-        None = 64,
+        ExceptNone = 64,
     };
 
     // 中断类型枚举
-    enum class IntrType {
+    enum IntrType {
         SupervisorSoftwareInterrupt = 0,
         MachineSoftwareInterrupt = 2,
         SupervisorTimerInterrupt = 4,
         MachineTimerInterrupt = 7,
         SupervisorExternalInterrupt = 8,
         MachineExternalInterrupt = 11,
-        None = 16,
+        IntrNone = 16,
     };
 
     // 指令类型枚举
-    enum class Instruction {
+    enum Instruction {
         // I 类型指令
         inst_add,
         inst_addw,
@@ -141,7 +141,7 @@ class RiscvDecode {
 
     RiscvDecode()
         : inst(0), instruction(), rd(0), rs1(0), rs2(0), immI(0), immB(0), immU(0), immJ(0), immS(0),
-          except(ExceptType::None), intr(IntrType::None), next_pc(0), accessAddr(0), error(false) {}
+          except(ExceptType::ExceptNone), intr(IntrType::IntrNone), next_pc(0), accessAddr(0), error(false) {}
 
     void decode() {
 #define BITMASK(bits) ((1ull << (bits)) - 1)
@@ -234,9 +234,9 @@ class RiscvDecode {
         INSTPAT("010000? ????? ????? 101 ????? 00110 11", sraiw);
         INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw);
         INSTPAT("0100000 ????? ????? 000 ????? 01110 11", subw);
-        INSTPAT("000000? ????? ????? 001 ????? 01110 11", slliw);
-        INSTPAT("000000? ????? ????? 101 ????? 01110 11", srliw);
-        INSTPAT("010000? ????? ????? 101 ????? 01110 11", sraiw);
+        INSTPAT("000000? ????? ????? 001 ????? 01110 11", sllw);
+        INSTPAT("000000? ????? ????? 101 ????? 01110 11", srlw);
+        INSTPAT("010000? ????? ????? 101 ????? 01110 11", sraw);
         // 32M
         INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul);
         INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh);

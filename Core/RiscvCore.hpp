@@ -24,7 +24,10 @@ class RiscvCore {
         mmuFetch();
         exec();
 
-        if (dec.except != RiscvDecode::ExceptType::None) {
+        if (dec.except != RiscvDecode::ExceptType::ExceptNone) {
+            if (dec.except == RiscvDecode::IllegalInstruction) {
+                ERROR("unkonw inst :", dec.instruction);
+            }
             ERROR("unkown execpt!");
         } else {
             state.pc = dec.next_pc;

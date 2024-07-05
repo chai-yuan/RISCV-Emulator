@@ -21,7 +21,6 @@ class Riscv64Core : public RiscvCore {
 #define INSTBEGIN() switch (dec.instruction) {
 #define INSTEND()                                                                                                      \
     default:                                                                                                           \
-        dec.error = true;                                                                                              \
         dec.except = RiscvDecode::ExceptType::IllegalInstruction;                                                      \
         }
 #define INSTEXE(name, ...)                                                                                             \
@@ -35,32 +34,44 @@ class Riscv64Core : public RiscvCore {
         INSTBEGIN()
         // 64I
         INSTEXE(add, Rd = Rs1 + Rs2);
+        INSTEXE(addw, Rd = (int32_t)(Rs1 + Rs2));
         INSTEXE(sub, Rd = Rs1 - Rs2);
+        INSTEXE(subw, Rd = (int32_t)(Rs1 - Rs2));
         INSTEXE(xor, Rd = Rs1 ^ Rs2);
         INSTEXE(or, Rd = Rs1 | Rs2);
         INSTEXE(and, Rd = Rs1 & Rs2);
-        INSTEXE(sll, Rd = Rs1 << (Rs2 & 0x1f));
+        INSTEXE(sll, Rd = Rs1 << (Rs2 & 0x3f));
+        INSTEXE(sllw, Rd = (int32_t)(Rs1 << (Rs2 & 0x1f)));
         INSTEXE(slt, Rd = (int64_t)Rs1 < (int64_t)Rs2 ? 1 : 0);
         INSTEXE(sltu, Rd = Rs1 < Rs2 ? 1 : 0);
-        INSTEXE(srl, Rd = Rs1 >> (Rs2 & 0x1f));
-        INSTEXE(sra, Rd = (int64_t)Rs1 >> (Rs2 & 0x1f));
+        INSTEXE(srl, Rd = Rs1 >> (Rs2 & 0x3f));
+        INSTEXE(srlw, Rd = (int32_t)((uint32_t)Rs1 >> (Rs2 & 0x1f)));
+        INSTEXE(sra, Rd = (int64_t)Rs1 >> (Rs2 & 0x3f));
+        INSTEXE(sraw, Rd = (int32_t)Rs1 >> (Rs2 & 0x1f));
         INSTEXE(addi, Rd = Rs1 + (int64_t)dec.immI);
+        INSTEXE(addiw, Rd = (int32_t)(Rs1 + (int64_t)dec.immI));
         INSTEXE(xori, Rd = Rs1 ^ (uint64_t)dec.immI);
         INSTEXE(ori, Rd = Rs1 | (uint64_t)dec.immI);
         INSTEXE(andi, Rd = Rs1 & (uint64_t)dec.immI);
-        INSTEXE(slli, Rd = Rs1 << (dec.immI & 0x1f));
-        INSTEXE(srli, Rd = Rs1 >> (dec.immI & 0x1f));
-        INSTEXE(srai, Rd = (int64_t)Rs1 >> (dec.immI & 0x1f));
+        INSTEXE(slli, Rd = Rs1 << (dec.immI & 0x3f));
+        INSTEXE(slliw, Rd = (int32_t)(Rs1 << (dec.immI & 0x1f)));
+        INSTEXE(srli, Rd = Rs1 >> (dec.immI & 0x3f));
+        INSTEXE(srliw, Rd = (int32_t)((uint32_t)Rs1 >> (dec.immI & 0x1f)));
+        INSTEXE(srai, Rd = (int64_t)Rs1 >> (dec.immI & 0x3f));
+        INSTEXE(sraiw, Rd = (int32_t)Rs1 >> (dec.immI & 0x1f));
         INSTEXE(slti, Rd = (int64_t)Rs1 < (int64_t)dec.immI ? 1 : 0);
         INSTEXE(sltiu, Rd = Rs1 < (uint64_t)dec.immI ? 1 : 0);
-        INSTEXE(lb, uint64_t data = Mr(Rs1 + dec.immI, 1); Rd = (int8_t)data;);
-        INSTEXE(lh, uint64_t data = Mr(Rs1 + dec.immI, 2); Rd = (int16_t)data;);
+        INSTEXE(lb, uint64_t data = Mr(Rs1 + dec.immI, 1); Rd = (int8_t)data);
+        INSTEXE(lh, uint64_t data = Mr(Rs1 + dec.immI, 2); Rd = (int16_t)data);
+        INSTEXE(lw, uint64_t data = Mr(Rs1 + dec.immI, 8); Rd = (int32_t)data);
         INSTEXE(lbu, Rd = Mr(Rs1 + dec.immI, 1));
         INSTEXE(lhu, Rd = Mr(Rs1 + dec.immI, 2));
-        INSTEXE(lw, Rd = Mr(Rs1 + dec.immI, 4));
+        INSTEXE(lwu, Rd = Mr(Rs1 + dec.immI, 4));
+        INSTEXE(ld, Rd = Mr(Rs1 + dec.immI, 8));
         INSTEXE(sb, Mw(Rs1 + dec.immS, 1, Rs2));
         INSTEXE(sh, Mw(Rs1 + dec.immS, 2, Rs2));
         INSTEXE(sw, Mw(Rs1 + dec.immS, 4, Rs2));
+        INSTEXE(sd, Mw(Rs1 + dec.immS, 8, Rs2));
         INSTEXE(beq, if ((int64_t)Rs1 == (int64_t)Rs2) dec.next_pc = PC + dec.immB);
         INSTEXE(bne, if ((int64_t)Rs1 != (int64_t)Rs2) dec.next_pc = PC + dec.immB);
         INSTEXE(blt, if ((int64_t)Rs1 < (int64_t)Rs2) dec.next_pc = PC + dec.immB);
@@ -72,35 +83,22 @@ class Riscv64Core : public RiscvCore {
         INSTEXE(lui, Rd = dec.immU);
         INSTEXE(auipc, Rd = PC + dec.immU);
         // 64M
-        INSTEXE(mul, Rd = ((int64_t)(int64_t)Rs1 * (int64_t)(int64_t)Rs2));
-        INSTEXE(mulh, Rd = ((int64_t)(int64_t)Rs1 * (int64_t)(int64_t)Rs2) >> 32);
-        INSTEXE(mulsu, Rd = ((int64_t)(int64_t)Rs1 * (uint64_t)Rs2) >> 32);
+        INSTEXE(mul, Rd = ((int64_t)Rs1 * (int64_t)Rs2));
+        INSTEXE(mulh, Rd = ((int64_t)Rs1 * (int64_t)Rs2) >> 32);
+        INSTEXE(mulsu, Rd = ((int64_t)Rs1 * (uint64_t)Rs2) >> 32);
         INSTEXE(mulu, Rd = ((uint64_t)Rs1 * (uint64_t)Rs2) >> 32);
-        INSTEXE(div, {
-            if (Rs2 == 0) {
-                Rd = -1;
-            } else {
-                Rd = ((int64_t)Rs1 == INT32_MIN && (int64_t)Rs2 == -1) ? Rs1 : ((int64_t)Rs1 / (int64_t)Rs2);
-            }
-        });
+        INSTEXE(div, Rd = (Rs2 == 0)                                          ? -1
+                          : ((int64_t)Rs1 == INT64_MIN && (int64_t)Rs2 == -1) ? Rs1
+                                                                              : ((int64_t)Rs1 / (int64_t)Rs2););
         INSTEXE(divu, { Rd = (Rs2 == 0) ? 0xffffffff : Rs1 / Rs2; });
-        INSTEXE(rem, {
-            if (Rs2 == 0) {
-                Rd = Rs1;
-            } else {
-                Rd = ((int64_t)Rs1 == INT32_MIN && (int64_t)Rs2 == -1) ? 0 : ((uint64_t)((int64_t)Rs1 % (int64_t)Rs2));
-            }
-        });
+        INSTEXE(rem, Rd = (Rs2 == 0)                                          ? Rs1
+                          : ((int64_t)Rs1 == INT64_MIN && (int64_t)Rs2 == -1) ? 0
+                                                                              : ((int64_t)Rs1 % (int64_t)Rs2););
         INSTEXE(remu, Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2);
         // 64A
         INSTEXE(lr_w, state.amoAddr = Rs1; Rd = Mr(Rs1, 4));
         INSTEXE(sc_w, {
-            if (Rs1 == state.amoAddr) {
-                Mw(Rs1, 4, Rs2);
-                Rd = 0;
-            } else {
-                Rd = 1;
-            }
+            Rd = (Rs1 == state.amoAddr) ? (Mw(Rs1, 4, Rs2), 0) : 1;
             state.amoAddr = 0;
         });
         INSTEXE(amoswap_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2););

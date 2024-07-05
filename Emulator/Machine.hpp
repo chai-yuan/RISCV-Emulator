@@ -1,6 +1,7 @@
 #include "../Common/DebugUtils.hpp"
 #include "../Common/FileUtils.hpp"
 #include "../Core/Riscv32Core.hpp"
+#include "../Core/Riscv64Core.hpp"
 #include "../Device/MMIO.hpp"
 #include "../Device/MemoryDevice.hpp"
 #include "../Device/SimpleBus.hpp"
@@ -9,7 +10,7 @@
 #include <set>
 #include <stdexcept>
 
-class Machine : public Riscv32Core, public GdbServer {
+class Machine : public Riscv64Core {
   public:
     Machine(std::string initFileName) {
         auto initFile = FileUtils::readFileToBinaryVector(initFileName);
@@ -38,36 +39,36 @@ class Machine : public Riscv32Core, public GdbServer {
         }
     }
 
-    void continueExecution() override {
-        while (breakpoint.count(state.pc) == 0) {
-            run(1);
-        }
-    }
-
-    void readRegister(int regNo, uint32_t *value) override {
-        if (regNo < 32) {
-            *value = state.regs[regNo];
-        } else if (regNo == 32) {
-            *value = state.pc;
-        } else if (regNo < 4096) {
-            *value = state.csrRead(regNo);
-        } else {
-            ERROR("未知寄存器地址");
-        }
-    }
-
-    void readMemory(uint32_t address, uint8_t *value) override {
-        if (address >= 0x80000000) {
-            uint64_t v;
-            read(address, 1, &v);
-            *value = (uint8_t)(v & 0xff);
-        } else {
-            *value = 0;
-        }
-    }
-
-    void setBreakpoint(uint32_t address) override { breakpoint.insert(address); }
-    void deleteBreakpoint(uint32_t address) override { breakpoint.erase(address); }
+    // void continueExecution() override {
+    //     while (breakpoint.count(state.pc) == 0) {
+    //         run(1);
+    //     }
+    // }
+    //
+    // void readRegister(int regNo, uint32_t *value) override {
+    //     if (regNo < 32) {
+    //         *value = state.regs[regNo];
+    //     } else if (regNo == 32) {
+    //         *value = state.pc;
+    //     } else if (regNo < 4096) {
+    //         *value = state.csrRead(regNo);
+    //     } else {
+    //         ERROR("未知寄存器地址");
+    //     }
+    // }
+    //
+    // void readMemory(uint32_t address, uint8_t *value) override {
+    //     if (address >= 0x80000000) {
+    //         uint64_t v;
+    //         read(address, 1, &v);
+    //         *value = (uint8_t)(v & 0xff);
+    //     } else {
+    //         *value = 0;
+    //     }
+    // }
+    //
+    // void setBreakpoint(uint32_t address) override { breakpoint.insert(address); }
+    // void deleteBreakpoint(uint32_t address) override { breakpoint.erase(address); }
 
     bool read(uint64_t addr, uint8_t size, uint64_t *data) override {
         auto ret = bus.read(addr, size, data);
