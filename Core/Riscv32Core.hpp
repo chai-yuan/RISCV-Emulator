@@ -75,13 +75,25 @@ class Riscv32Core : public RiscvCore {
         INSTEXE(mulh, Rd = ((int64_t)(int32_t)Rs1 * (int64_t)(int32_t)Rs2) >> 32);
         INSTEXE(mulsu, Rd = ((int64_t)(int32_t)Rs1 * (uint64_t)Rs2) >> 32);
         INSTEXE(mulu, Rd = ((uint64_t)Rs1 * (uint64_t)Rs2) >> 32);
-        INSTEXE(div, Rd = (Rs2 == 0)                                          ? -1
-                          : ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) ? Rs1
-                                                                              : ((int32_t)Rs1 / (int32_t)Rs2););
-        INSTEXE(divu, { Rd = (Rs2 == 0) ? 0xffffffff : Rs1 / Rs2; });
-        INSTEXE(rem, Rd = (Rs2 == 0)                                          ? Rs1
-                          : ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) ? 0
-                                                                              : ((int32_t)Rs1 % (int32_t)Rs2););
+        INSTEXE(div, {
+            if (Rs2 == 0) {
+                Rd = -1;
+            } else if ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) {
+                Rd = Rs1;
+            } else {
+                Rd = (int32_t)Rs1 / (int32_t)Rs2;
+            }
+        });
+        INSTEXE(divu, { Rd = (Rs2 == 0) ? (uint32_t)-1 : Rs1 / Rs2; });
+        INSTEXE(rem, {
+            if (Rs2 == 0) {
+                Rd = Rs1;
+            } else if ((int32_t)Rs1 == INT32_MIN && (int32_t)Rs2 == -1) {
+                Rd = 0;
+            } else {
+                Rd = (int32_t)Rs1 % (int32_t)Rs2;
+            }
+        });
         INSTEXE(remu, Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2);
         // 32A
         INSTEXE(lr_w, state.amoAddr = Rs1; Rd = Mr(Rs1, 4));
