@@ -16,7 +16,7 @@ class GdbServer {
     // 必须实现的方法
     virtual void continueExecution() = 0;
     virtual void readRegister(int regNo, uint8_t offset, uint8_t *value) = 0;
-    virtual void readMemory(uint32_t address, uint8_t *value) = 0;
+    virtual bool readMemory(uint32_t address, uint8_t *value) = 0;
     virtual void setBreakpoint(uint32_t address) = 0;
     virtual void deleteBreakpoint(uint32_t address) = 0;
 
@@ -199,9 +199,13 @@ class GdbServer {
         for (uint32_t i = addr; len--; i++) {
             uint8_t value = 0;
             char result[3] = {0};
-            readMemory(i, &value);
-            sprintf(result, "%02x", value);
-            msgResp.append(result);
+            if (readMemory(i, &value)) {
+                sprintf(result, "%02x", value);
+                msgResp.append(result);
+            } else { // 访存错误
+                tcpServer.SendMsg(Packetify("E14").c_str());
+                return;
+            }
         }
         tcpServer.SendMsg(Packetify(msgResp).c_str());
     }

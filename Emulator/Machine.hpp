@@ -10,14 +10,11 @@
 #include <set>
 #include <stdexcept>
 
-
-class Machine : public Riscv64Core {
+class Machine : public Riscv64Core, public GdbServer {
   public:
     Machine(std::string initFileName) {
         auto initFile = FileUtils::readFileToBinaryVector(initFileName);
         bus.addDevice(0x80000000, new MemoryDevice(0x8000000, initFile));
-
-        // gdbInit(10086);
     }
 
     void run(uint64_t num) {
@@ -40,36 +37,37 @@ class Machine : public Riscv64Core {
         }
     }
 
-    // void continueExecution() override {
-    //     while (breakpoint.count(state.pc) == 0) {
-    //         run(1);
-    //     }
-    // }
-    //
-    // void readRegister(int regNo, uint32_t *value) override {
-    //     if (regNo < 32) {
-    //         *value = state.regs[regNo];
-    //     } else if (regNo == 32) {
-    //         *value = state.pc;
-    //     } else if (regNo < 4096) {
-    //         *value = state.csrRead(regNo);
-    //     } else {
-    //         ERROR("未知寄存器地址");
-    //     }
-    // }
-    //
-    // void readMemory(uint32_t address, uint8_t *value) override {
-    //     if (address >= 0x80000000) {
-    //         uint64_t v;
-    //         read(address, 1, &v);
-    //         *value = (uint8_t)(v & 0xff);
-    //     } else {
-    //         *value = 0;
-    //     }
-    // }
-    //
-    // void setBreakpoint(uint32_t address) override { breakpoint.insert(address); }
-    // void deleteBreakpoint(uint32_t address) override { breakpoint.erase(address); }
+    void continueExecution() override {
+        while (breakpoint.count(state.pc) == 0) {
+            run(1);
+        }
+    }
+
+    void readRegister(int regNo, uint8_t offset, uint8_t *value) override {
+        if (regNo < 32) {
+            *value = state.regs[regNo] >> (offset * 8);
+        } else if (regNo == 32) {
+            *value = state.pc >> (offset * 8);
+        } else if (regNo < 4096) {
+            *value = state.csrRead(regNo) >> (offset * 8);
+        } else {
+            ERROR("未知寄存器地址");
+        }
+    }
+
+    bool readMemory(uint32_t address, uint8_t *value) override {
+        if (address >= 0x80000000) {
+            uint64_t v;
+            read(address, 1, &v);
+            *value = (uint8_t)(v & 0xff);
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    void setBreakpoint(uint32_t address) override { breakpoint.insert(address); }
+    void deleteBreakpoint(uint32_t address) override { breakpoint.erase(address); }
 
     bool read(uint64_t addr, uint8_t size, uint64_t *data) override {
         auto ret = bus.read(addr, size, data);

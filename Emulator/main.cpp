@@ -6,5 +6,6 @@ int main(int argc, char *argv[]) {
     }
 
     auto machine = Machine(argv[1]);
-    machine.run(-1);
+    machine.gdbInit(GdbServer::ARCH::RV64);
+    machine.gdbRun();
 }
