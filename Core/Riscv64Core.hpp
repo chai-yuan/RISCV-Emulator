@@ -120,7 +120,6 @@ class Riscv64Core : public RiscvCore {
             }
         });
         INSTEXE(divuw, {
-            // TODO 未通过测试
             auto dividend = (uint32_t)Rs1;
             auto divisor = (uint32_t)Rs2;
             Rd = (divisor == 0) ? (int64_t)-1 : (int32_t)(dividend / divisor);
