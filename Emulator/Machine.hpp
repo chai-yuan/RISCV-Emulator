@@ -10,6 +10,7 @@
 #include <set>
 #include <stdexcept>
 
+
 class Machine : public Riscv64Core {
   public:
     Machine(std::string initFileName) {

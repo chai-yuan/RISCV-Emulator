@@ -15,15 +15,18 @@ class GdbServer {
   public:
     // 必须实现的方法
     virtual void continueExecution() = 0;
-    virtual void readRegister(int regNo, uint32_t *value) = 0;
+    virtual void readRegister(int regNo, uint8_t offset, uint8_t *value) = 0;
     virtual void readMemory(uint32_t address, uint8_t *value) = 0;
     virtual void setBreakpoint(uint32_t address) = 0;
     virtual void deleteBreakpoint(uint32_t address) = 0;
 
+    enum class ARCH { RV32, RV64 };
+
     virtual ~GdbServer() = default;
 
-    void gdbInit(int port) {
+    void gdbInit(ARCH arch = ARCH::RV32, int port = 10086) {
         DEBUG("GdbServer enable at 127.0.0.1:", port);
+        this->arch = arch;
         tcpServer.Start(port);
         tcpServer.AcceptClient();
     }
@@ -42,6 +45,7 @@ class GdbServer {
     char const *kMsgAck = "+";
     char const *kMsgOk = "$OK#9a";
     const uint32_t MaxMessageLength = 4096;
+    ARCH arch;
     bool running = false;
     TcpServer tcpServer;
 
@@ -146,7 +150,11 @@ class GdbServer {
             // 表明当前是附加到一个已经在运行的进程上
             tcpServer.SendMsg(Packetify("1").c_str());
         } else if (request == "Xfe") { // Xfer
-            tcpServer.SendMsg(Packetify("l" + riscv32RegisterXML).c_str());
+            if (arch == ARCH::RV32) {
+                tcpServer.SendMsg(Packetify("l" + riscv32RegisterXML).c_str());
+            } else if (arch == ARCH::RV64) {
+                tcpServer.SendMsg(Packetify("l" + riscv64RegisterXML).c_str());
+            }
         } else if (request == "Sym") { // Symbol
             tcpServer.SendMsg(kMsgOk);
         } else {
@@ -154,33 +162,33 @@ class GdbServer {
         }
     }
     void CmdRegRead() {
-        uint32_t values[33];
-        for (int i = 0; i <= 32; ++i) {
-            uint32_t value = 0;
-            readRegister(i, &value);
-            values[i] = value;
+        std::string msgResp("");
+        int8_t dataWidth = (arch == ARCH::RV32) ? 4 : 8;
+        for (uint32_t i = 0; i <= 32; i++) {
+            uint8_t value = 0;
+            char result[3] = {0};
+            for (int8_t offset = 0; offset < dataWidth; offset++) {
+                readRegister(i, offset, &value);
+                sprintf(result, "%02x", value);
+                msgResp.append(result);
+            }
         }
-        char result[33 * 8 + 1];
-        result[33 * 8] = '\0';
-
-        uint8_t *reg = (uint8_t *)values;
-        for (size_t i = 0; i < sizeof(values); i++) {
-            sprintf(result + (i * 2), "%02x", reg[i]);
-        }
-        tcpServer.SendMsg(Packetify(result).c_str());
+        tcpServer.SendMsg(Packetify(msgResp).c_str());
     }
     void CmdRegReadNum(const std::string &payload) {
-        uint32_t regNum = 0, value = 0;
+        uint32_t regNum = 0;
         sscanf(payload.substr(1).c_str(), "%x", &regNum);
-        readRegister(regNum, &value);
 
-        char result[8 + 1];
-        result[8] = '\0';
-        uint8_t *reg = (uint8_t *)(&value);
-        for (size_t i = 0; i < sizeof(value); i++) {
-            sprintf(result + (i * 2), "%02x", reg[i]);
+        std::string msgResp("");
+        int8_t dataWidth = (arch == ARCH::RV32) ? 4 : 8;
+        uint8_t value = 0;
+        char result[3] = {0};
+        for (int8_t offset = 0; offset < dataWidth; offset++) {
+            readRegister(regNum, offset, &value);
+            sprintf(result, "%02x", value);
+            msgResp.append(result);
         }
-        tcpServer.SendMsg(Packetify(result).c_str());
+        tcpServer.SendMsg(Packetify(msgResp).c_str());
     }
     void CmdReadMem(const std::string &payload) {
         std::string cmd = payload.substr(1);
@@ -189,8 +197,8 @@ class GdbServer {
 
         std::string msgResp("");
         for (uint32_t i = addr; len--; i++) {
-            uint8_t value;
-            char result[3];
+            uint8_t value = 0;
+            char result[3] = {0};
             readMemory(i, &value);
             sprintf(result, "%02x", value);
             msgResp.append(result);
@@ -281,6 +289,69 @@ class GdbServer {
     <reg name="mcause" bitsize="32" type="int" regnum="0x342"/>
     <reg name="mip" bitsize="32" type="int" regnum="0x344"/>
 </feature>
+
+</target>)";
+
+    const std::string riscv64RegisterXML = R"(<?xml version="1.0"?>
+<!DOCTYPE target SYSTEM "gdb-target.dtd">
+<target>
+  <architecture>riscv:rv64</architecture>
+
+  <feature name="org.gnu.gdb.riscv.cpu">
+    <reg name="zero" bitsize="64" type="int" regnum="0"/>
+    <reg name="ra" bitsize="64" type="code_ptr" regnum="1"/>
+    <reg name="sp" bitsize="64" type="data_ptr" regnum="2"/>
+    <reg name="gp" bitsize="64" type="data_ptr" regnum="3"/>
+    <reg name="tp" bitsize="64" type="data_ptr" regnum="4"/>
+    <reg name="t0" bitsize="64" type="int" regnum="5"/>
+    <reg name="t1" bitsize="64" type="int" regnum="6"/>
+    <reg name="t2" bitsize="64" type="int" regnum="7"/>
+    <reg name="fp" bitsize="64" type="data_ptr" regnum="8"/>
+    <reg name="s1" bitsize="64" type="int" regnum="9"/>
+    <reg name="a0" bitsize="64" type="int" regnum="10"/>
+    <reg name="a1" bitsize="64" type="int" regnum="11"/>
+    <reg name="a2" bitsize="64" type="int" regnum="12"/>
+    <reg name="a3" bitsize="64" type="int" regnum="13"/>
+    <reg name="a4" bitsize="64" type="int" regnum="14"/>
+    <reg name="a5" bitsize="64" type="int" regnum="15"/>
+    <reg name="a6" bitsize="64" type="int" regnum="16"/>
+    <reg name="a7" bitsize="64" type="int" regnum="17"/>
+    <reg name="s2" bitsize="64" type="int" regnum="18"/>
+    <reg name="s3" bitsize="64" type="int" regnum="19"/>
+    <reg name="s4" bitsize="64" type="int" regnum="20"/>
+    <reg name="s5" bitsize="64" type="int" regnum="21"/>
+    <reg name="s6" bitsize="64" type="int" regnum="22"/>
+    <reg name="s7" bitsize="64" type="int" regnum="23"/>
+    <reg name="s8" bitsize="64" type="int" regnum="24"/>
+    <reg name="s9" bitsize="64" type="int" regnum="25"/>
+    <reg name="s10" bitsize="64" type="int" regnum="26"/>
+    <reg name="s11" bitsize="64" type="int" regnum="27"/>
+    <reg name="t3" bitsize="64" type="int" regnum="28"/>
+    <reg name="t4" bitsize="64" type="int" regnum="29"/>
+    <reg name="t5" bitsize="64" type="int" regnum="30"/>
+    <reg name="t6" bitsize="64" type="int" regnum="31"/>
+    <reg name="pc" bitsize="64" type="code_ptr" regnum="32"/>
+  </feature>
+
+  <feature name="org.gnu.gdb.riscv.virtual">
+    <reg name="priv" bitsize="64" type="int" regnum="69"/>
+  </feature>
+
+  <feature name="org.gnu.gdb.riscv.csr">
+    <reg name="mstatus" bitsize="64" type="int" regnum="838"/>
+    <reg name="misa" bitsize="64" type="int" regnum="839"/>
+    <reg name="medeleg" bitsize="64" type="int" regnum="840"/>
+    <reg name="mideleg" bitsize="64" type="int" regnum="841"/>
+    <reg name="mie" bitsize="64" type="int" regnum="842"/>
+    <reg name="mtvec" bitsize="64" type="int" regnum="843"/>
+    <reg name="mscratch" bitsize="64" type="int" regnum="902"/>
+    <reg name="mepc" bitsize="64" type="int" regnum="903"/>
+    <reg name="mcause" bitsize="64" type="int" regnum="904"/>
+    <reg name="mtval" bitsize="64" type="int" regnum="905"/>
+    <reg name="mip" bitsize="64" type="int" regnum="906"/>
+    <reg name="mvendorid" bitsize="64" type="int" regnum="3927"/>
+    <reg name="marchid" bitsize="64" type="int" regnum="3928"/>
+  </feature>
 
 </target>)";
 };
