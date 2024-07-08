@@ -13,31 +13,36 @@ class RiscvCore {
     RiscvDecode dec;  // 处理器单次执行时产生的状态
 
     virtual ~RiscvCore() = default;
-    virtual void exec() = 0;
     virtual bool read(uint64_t addr, uint8_t size, uint64_t *data) = 0;
     virtual bool write(uint64_t addr, uint8_t size, uint64_t data) = 0;
     virtual bool checkInterrupt() { return false; }
 
     RiscvDecode step() {
-        dec = RiscvDecode(); // 重置当前译码状态
+        dec = RiscvDecode(); // 重置当前状态
 
         mmuFetch();
         exec();
+        handleExcept();
 
+        state.pc = dec.next_pc;
+        return dec;
+    }
+
+  protected:
+    // 执行指令
+    virtual void exec() = 0;
+
+    // 处理异常
+    void handleExcept(){
         if (dec.except != RiscvDecode::ExceptType::ExceptNone) {
             if (dec.except == RiscvDecode::IllegalInstruction) {
                 ERROR("unkonw inst :", dec.instruction);
             }
             ERROR("unkown execpt!");
-        } else {
-            state.pc = dec.next_pc;
         }
-
-        return dec;
     }
 
-  protected:
-    // mmu函数
+    // mmu相关操作
     void mmuFetch() {
         dec.inst = mmuRead(state.pc, 4);
         dec.decode();

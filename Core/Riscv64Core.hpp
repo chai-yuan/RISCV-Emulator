@@ -141,6 +141,20 @@ class Riscv64Core : public RiscvCore {
             Rd = (divisor == 0) ? (int32_t)dividend : (int32_t)(dividend % divisor);
         });
         // 64A
+        INSTEXE(lr_d, state.amoAddr = Rs1; Rd = Mr(Rs1, 8));
+        INSTEXE(sc_d, {
+            Rd = (Rs1 == state.amoAddr) ? (Mw(Rs1, 8, Rs2), 0) : 1;
+            state.amoAddr = 0;
+        });
+        INSTEXE(amoswap_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, Rs2););
+        INSTEXE(amoadd_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, Rs2 + Rd););
+        INSTEXE(amoand_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, Rs2 & Rd););
+        INSTEXE(amoor_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, Rs2 | Rd););
+        INSTEXE(amoxor_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, Rs2 ^ Rd););
+        INSTEXE(amomax_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, ((int64_t)Rs2 > (int64_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amomin_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, ((int64_t)Rs2 < (int64_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amominu_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, (Rs2 < Rd) ? Rs2 : Rd));
+        INSTEXE(amomaxu_d, Rd = Mr(Rs1, 8); Mw(Rs1, 8, (Rs2 > Rd) ? Rs2 : Rd));
         INSTEXE(lr_w, state.amoAddr = Rs1; Rd = Mr(Rs1, 4));
         INSTEXE(sc_w, {
             Rd = (Rs1 == state.amoAddr) ? (Mw(Rs1, 4, Rs2), 0) : 1;
@@ -151,8 +165,8 @@ class Riscv64Core : public RiscvCore {
         INSTEXE(amoand_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 & Rd););
         INSTEXE(amoor_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 | Rd););
         INSTEXE(amoxor_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, Rs2 ^ Rd););
-        INSTEXE(amomax_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int64_t)Rs2 > (int64_t)Rd) ? Rs2 : Rd));
-        INSTEXE(amomin_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int64_t)Rs2 < (int64_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amomax_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int32_t)Rs2 > (int32_t)Rd) ? Rs2 : Rd));
+        INSTEXE(amomin_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, ((int32_t)Rs2 < (int32_t)Rd) ? Rs2 : Rd));
         INSTEXE(amominu_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, (Rs2 < Rd) ? Rs2 : Rd));
         INSTEXE(amomaxu_w, Rd = Mr(Rs1, 4); Mw(Rs1, 4, (Rs2 > Rd) ? Rs2 : Rd));
         // zicsr
@@ -174,7 +188,7 @@ class Riscv64Core : public RiscvCore {
             else if (state.privilege == RiscvState::PrivilegeLevel::User)
                 dec.except = RiscvDecode::ExceptType::EcallFromUMode;
             else
-                dec.error = true;
+                ERROR("未知特权级");
         });
         INSTEXE(mret, {});
         INSTEXE(ebreak, );

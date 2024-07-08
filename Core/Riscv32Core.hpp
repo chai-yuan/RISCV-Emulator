@@ -129,7 +129,7 @@ class Riscv32Core : public RiscvCore {
             else if (state.privilege == RiscvState::PrivilegeLevel::User)
                 dec.except = RiscvDecode::ExceptType::EcallFromUMode;
             else
-                dec.error = true;
+                ERROR("未知特权级");
         });
         INSTEXE(mret, {});
         INSTEXE(ebreak, );
