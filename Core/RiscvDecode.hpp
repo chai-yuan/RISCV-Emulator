@@ -138,6 +138,7 @@ class RiscvDecode {
         inst_wfi,
         inst_ecall,
         inst_mret,
+        inst_sret,
         inst_ebreak,
         // 无效指令
         inst_inv
@@ -305,6 +306,7 @@ class RiscvDecode {
         INSTPAT("0001000 00101 00000 000 00000 11100 11", wfi);
         INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall);
         INSTPAT("0011000 00010 00000 000 00000 11100 11", mret);
+        INSTPAT("0001000 00010 00000 000 00000 11100 11", sret);
         INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak);
 
         INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv);

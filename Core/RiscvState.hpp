@@ -70,7 +70,7 @@ class RiscvState {
         case CSR::sip:
             return csrs[CSR::mip] & csrs[CSR::mideleg];
         case CSR::sstatus:
-            return csrs[CSR::mstatus]; // TODO 增加一个掩码
+            return csrs[CSR::mstatus] & MASK_SSTATUS;
         default:
             return csrs[addr];
         }
@@ -85,12 +85,46 @@ class RiscvState {
             csrs[CSR::mip] = (csrs[CSR::mip] & !csrs[CSR::mideleg]) | (value & csrs[CSR::mideleg]);
             break;
         case CSR::sstatus:
-            csrs[CSR::mstatus] = (csrs[CSR::mstatus] & !csrs[CSR::sstatus]) | (value); // TODO 增加掩码
+            csrs[CSR::mstatus] = (csrs[CSR::mstatus] & !MASK_SSTATUS) | (value & MASK_SSTATUS);
             break;
         default:
             csrs[addr] = value;
         }
     }
+
+  private:
+    // mstatus and sstatus field mask
+    const uint64_t MASK_SIE = 1ULL << 1;
+    const uint64_t MASK_MIE = 1ULL << 3;
+    const uint64_t MASK_SPIE = 1ULL << 5;
+    const uint64_t MASK_UBE = 1ULL << 6;
+    const uint64_t MASK_MPIE = 1ULL << 7;
+    const uint64_t MASK_SPP = 1ULL << 8;
+    const uint64_t MASK_VS = 0b11ULL << 9;
+    const uint64_t MASK_MPP = 0b11ULL << 11;
+    const uint64_t MASK_FS = 0b11ULL << 13;
+    const uint64_t MASK_XS = 0b11ULL << 15;
+    const uint64_t MASK_MPRV = 1ULL << 17;
+    const uint64_t MASK_SUM = 1ULL << 18;
+    const uint64_t MASK_MXR = 1ULL << 19;
+    const uint64_t MASK_TVM = 1ULL << 20;
+    const uint64_t MASK_TW = 1ULL << 21;
+    const uint64_t MASK_TSR = 1ULL << 22;
+    const uint64_t MASK_UXL = 0b11ULL << 32;
+    const uint64_t MASK_SXL = 0b11ULL << 34;
+    const uint64_t MASK_SBE = 1ULL << 36;
+    const uint64_t MASK_MBE = 1ULL << 37;
+    const uint64_t MASK_SD = 1ULL << 63;
+    const uint64_t MASK_SSTATUS =
+        MASK_SIE | MASK_SPIE | MASK_UBE | MASK_SPP | MASK_FS | MASK_XS | MASK_SUM | MASK_MXR | MASK_UXL | MASK_SD;
+
+    // MIP / SIP field mask
+    const uint64_t MASK_SSIP = 1ULL << 1;
+    const uint64_t MASK_MSIP = 1ULL << 3;
+    const uint64_t MASK_STIP = 1ULL << 5;
+    const uint64_t MASK_MTIP = 1ULL << 7;
+    const uint64_t MASK_SEIP = 1ULL << 9;
+    const uint64_t MASK_MEIP = 1ULL << 11;
 };
 
 #endif // RISCVSTATE_H

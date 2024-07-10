@@ -190,7 +190,28 @@ class Riscv64Core : public RiscvCore {
             else
                 ERROR("未知特权级");
         });
-        INSTEXE(mret, {});
+        INSTEXE(mret, {
+            dec.next_pc = state.csrRead(RiscvState::mepc);
+            uint64_t status = state.csrRead(RiscvState::mstatus);
+            uint64_t mpie = (status >> 7) & 1;
+            uint64_t mpp = (status >> 11) & 0x3;
+            uint64_t mprv = (mpp == RiscvState::Machine) ? (status >> 17) & 1 : 0;
+
+            uint64_t newStatus = (status & !0x21888) | (mprv << 17) | (mpie << 3) | (1 << 7);
+            state.csrWrite(RiscvState::mstatus, newStatus);
+            state.privilege = (RiscvState::PrivilegeLevel)mpp;
+        });
+        INSTEXE(sret, {
+            dec.next_pc = state.csrRead(RiscvState::sepc);
+            uint64_t status = state.csrRead(RiscvState::sstatus);
+            uint64_t spie = (status >> 5) & 1;
+            uint64_t spp = (status >> 8) & 1;
+            uint64_t mprv = (spp == RiscvState::Machine) ? (status >> 17) & 1 : 0;
+
+            uint64_t newStatus = (status & !0x20122) | (mprv << 17) | (spie << 1) | (1 << 5);
+            state.csrWrite(RiscvState::mstatus, newStatus);
+            state.privilege = (RiscvState::PrivilegeLevel)spp;
+        });
         INSTEXE(ebreak, );
         INSTEXE(wfi, );
         INSTEND()
