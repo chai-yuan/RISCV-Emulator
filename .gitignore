@@ -1,0 +1,33 @@
+# 忽略编译生成的文件
+*.o
+*.a
+*.so
+*.dll
+*.exe
+.cache/
+cremu
+
+# 忽略编译中间文件
+*.d
+*.out
+compile_commands.json
+
+# 忽略临时文件
+*.swp
+*.swo
+*.swn
+*~
+
+# 忽略其他常见的临时文件
+*.log
+*.tmp
+
+# 忽略二进制文件
+*.bin
+
+# 忽略构建目录
+build/
+
+# 忽略特定于操作系统的文件
+Thumbs.db
+.DS_Store
