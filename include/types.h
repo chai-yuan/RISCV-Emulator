@@ -37,4 +37,7 @@ typedef signed long        iptr; // 指针大小的有符号整数
 typedef unsigned int       usize; // 用于表示大小的无符号整数
 typedef signed int         isize; // 用于表示大小的有符号整数
 
+#define INT64_MIN 0x1000000000000000
+#define UINT64_MAX 0xFFFFFFFFFFFFFFFF
+
 #endif // TYPES_H

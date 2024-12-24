@@ -2,9 +2,10 @@
 #define DEVICE_H
 
 #include "common.h"
+#include "core/rvdecode.h"
 
-typedef void (*read_func_t)(void *context, u64 address,u8 size, u64 *value);
-typedef void (*write_func_t)(void *context, u64 address,u8 size, u64 value);
+typedef enum exception (*read_func_t)(void *context, u64 address,u8 size, u64 *value);
+typedef enum exception (*write_func_t)(void *context, u64 address,u8 size, u64 value);
 typedef bool (*check_external_interrupt_func_t)(void *context);
 typedef bool (*check_timer_interrupt_func_t)(void *context);
 

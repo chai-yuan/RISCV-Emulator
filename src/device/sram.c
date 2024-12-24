@@ -5,11 +5,11 @@ void sram_init(struct Sram *sram, void *data, u32 len) {
     sram->len = len;
 }
 
-void sram_read(void *context, u64 address, u8 size, u64 *value) {
+enum exception sram_read(void *context, u64 address, u8 size, u64 *value) {
     struct Sram *sram = (struct Sram *)context;
     if (address + size > sram->len) {
         ERROR("address out of bounds");
-        return;
+        return STORE_AMO_ADDRESS_MISALIGNED;
     }
     switch (size) {
     case 1:
@@ -26,15 +26,16 @@ void sram_read(void *context, u64 address, u8 size, u64 *value) {
         break;
     default:
         ERROR("unsupported size");
-        break;
+        return STORE_AMO_ADDRESS_MISALIGNED;
     }
+    return EXC_NONE;
 }
 
-void sram_write(void *context, u64 address, u8 size, u64 value) {
+enum exception sram_write(void *context, u64 address, u8 size, u64 value) {
     struct Sram *sram = (struct Sram *)context;
     if (address + size > sram->len) {
         ERROR("address out of bounds");
-        return;
+        return STORE_AMO_ADDRESS_MISALIGNED;
     }
     switch (size) {
     case 1:
@@ -51,8 +52,9 @@ void sram_write(void *context, u64 address, u8 size, u64 value) {
         break;
     default:
         ERROR("unsupported size");
-        break;
+        return STORE_AMO_ADDRESS_MISALIGNED;
     }
+    return EXC_NONE;
 }
 
 struct DeviceFunc sram_get_func(struct Sram *sram) {
