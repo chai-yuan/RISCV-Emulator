@@ -11,11 +11,14 @@ struct RiscvCore64 {
     u64 pc;
     u64 csrs[4096];
     enum mode mode;
+    bool halt;
     struct DeviceFunc device_func;
 };
 
 void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func);
 
 void riscvcore64_step(struct RiscvCore64 *core);
+
+bool riscvcore64_check_halt(struct RiscvCore64 *core);
 
 #endif

@@ -12,6 +12,7 @@ void riscvcore64_mmu_write(struct RiscvCore64 *core, u64 addr, u8 size, u64 data
 void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
     core->pc = 0x80000000;
     core->mode = MACHINE;
+    core->halt = false;
     core->device_func = device_func;
 }
 
@@ -21,6 +22,12 @@ void riscvcore64_step(struct RiscvCore64 *core) {
     riscvcore64_mmu_fetch(core, &decode);
     riscv_decode(&decode);
     riscvcore64_exec(core, &decode);
+
+    core->pc = decode.next_pc;
+}
+
+bool riscvcore64_check_halt(struct RiscvCore64 *core){
+    return core->halt;
 }
 
 void riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
