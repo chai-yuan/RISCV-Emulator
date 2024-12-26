@@ -18,17 +18,23 @@ void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
 
 void riscvcore64_step(struct RiscvCore64 *core) {
     struct RiscvDecode decode; // decode当中保存每一次执行需要用到的临时信息
+    riscv_decode_init(&decode);
 
     riscvcore64_mmu_fetch(core, &decode);
-    riscv_decode(&decode);
+    riscv_decode_inst(&decode);
     riscvcore64_exec(core, &decode);
 
-    core->pc = decode.next_pc;
+    if (decode.exception != EXC_NONE) {
+        printf("%x\n", decode.inst_raw);
+        ERROR("Exception occurred: %d", decode.exception);
+    } else if (decode.interrupt != INT_NONE) {
+        ERROR("Interrupt occurred: %d", decode.interrupt);
+    } else {
+        core->pc = decode.next_pc;
+    }
 }
 
-bool riscvcore64_check_halt(struct RiscvCore64 *core){
-    return core->halt;
-}
+bool riscvcore64_check_halt(struct RiscvCore64 *core) { return core->halt; }
 
 void riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
     struct DeviceFunc device = core->device_func;
@@ -127,14 +133,41 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     INSTEXE(mulh, Rd = ((i64)Rs1 * (i64)Rs2) >> 32);
     INSTEXE(mulsu, Rd = ((i64)Rs1 * (u64)Rs2) >> 32);
     INSTEXE(mulu, Rd = ((u64)Rs1 * (u64)Rs2) >> 32);
+    INSTEXE(mulw, Rd = (i64)(i32)((i32)Rs1 * (i32)Rs2));
     INSTEXE(div, Rd = (Rs2 == 0)                                  ? -1
                       : ((i64)Rs1 == INT64_MIN && (i64)Rs2 == -1) ? Rs1
                                                                   : ((i64)Rs1 / (i64)Rs2););
     INSTEXE(divu, { Rd = (Rs2 == 0) ? UINT64_MAX : Rs1 / Rs2; });
+    INSTEXE(divw, {
+        i32 src1 = (i32)Rs1;
+        i32 src2 = (i32)Rs2;
+        i32 result = (src2 == 0) ? -1 : (src1 == INT32_MIN && src2 == -1) ? src1 : src1 / src2;
+        Rd = (i64)(i32)result;
+    });
+    INSTEXE(divuw, {
+        u32 src1 = (u32)Rs1;
+        u32 src2 = (u32)Rs2;
+        u32 result = (src2 == 0) ? UINT32_MAX : src1 / src2;
+        Rd = (i64)(i32)result;
+    });
     INSTEXE(rem, Rd = (Rs2 == 0)                                  ? Rs1
                       : ((i64)Rs1 == INT64_MIN && (i64)Rs2 == -1) ? 0
                                                                   : ((i64)Rs1 % (i64)Rs2););
     INSTEXE(remu, Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2);
+    INSTEXE(remw, {
+        i32 src1 = (i32)Rs1;
+        i32 src2 = (i32)Rs2;
+        i32 result = (src2 == 0) ? src1 : (src1 == INT32_MIN && src2 == -1) ? 0 : src1 % src2;
+        Rd = (i64)(i32)result;
+    });
+    INSTEXE(remuw, {
+        u32 src1 = (u32)Rs1;
+        u32 src2 = (u32)Rs2;
+        u32 result = (src2 == 0) ? src1 : src1 % src2;
+        Rd = (i64)(i32)result;
+    });
+    // SYSTEM
+    INSTEXE(ebreak, core->halt = true);
 
     INSTEND();
 

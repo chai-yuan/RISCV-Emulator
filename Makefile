@@ -17,6 +17,9 @@ else
     CFLAGS += -O2
 endif
 
+IMG  ?= 
+ARGS ?= 
+
 # 构建命令
 OBJS = $(patsubst $(SRCS_DIR)/%.c, build/%.o, $(SRCS))
 
@@ -30,8 +33,8 @@ $(OBJS): build/%.o : src/%.c $(HEADS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(PROJECT_NAME)
-	@echo "[RUN] Running the program: ./$(PROJECT_NAME)"
-	@./$(PROJECT_NAME)
+	@echo "[RUN] Running the program: ./$(PROJECT_NAME) $(ARGS) $(IMG)"
+	@./$(PROJECT_NAME) $(ARGS) $(IMG)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"

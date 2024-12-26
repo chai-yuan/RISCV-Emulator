@@ -23,7 +23,7 @@ enum exception bus_device_read(void *context, u64 address, u8 size, u64 *value) 
     for (int i = 0; i < bus->num_sub_devices; i++) {
         struct SubDevice *sub = &bus->sub_devices[i];
         if (address >= sub->base && address < sub->base + sub->size) {
-            return sub->func.read(sub->func.context, address, size, value);
+            return sub->func.read(sub->func.context, address - sub->base, size, value);
         }
     }
 
@@ -37,7 +37,7 @@ enum exception bus_device_write(void *context, u64 address, u8 size, u64 value) 
     for (int i = 0; i < bus->num_sub_devices; i++) {
         struct SubDevice *sub = &bus->sub_devices[i];
         if (address >= sub->base && address < sub->base + sub->size) {
-            return sub->func.write(sub->func.context, address, size, value);
+            return sub->func.write(sub->func.context, address - sub->base, size, value);
         }
     }
 

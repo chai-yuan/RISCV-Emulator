@@ -90,10 +90,15 @@ enum instruction {
     inst_mulh,
     inst_mulsu,
     inst_mulu,
+    inst_mulw,
     inst_div,
     inst_divu,
+    inst_divw,
+    inst_divuw,
     inst_rem,
+    inst_remw,
     inst_remu,
+    inst_remuw,
     // A 类型指令
     inst_lr_w,
     inst_sc_w,
@@ -136,6 +141,8 @@ struct RiscvDecode {
     enum interrupt interrupt;
 };
 
-void riscv_decode(struct RiscvDecode *decode);
+void riscv_decode_init(struct RiscvDecode *decode);
+
+void riscv_decode_inst(struct RiscvDecode *decode);
 
 #endif

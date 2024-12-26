@@ -1,57 +1,63 @@
 #include "core/rvdecode.h"
 
+void riscv_decode_init(struct RiscvDecode *decode) {
+    decode->inst_raw = 0;
+    decode->exception = EXC_NONE;
+    decode->interrupt = INT_NONE;
+}
+
 #define BITMASK(bits) ((1ull << (bits)) - 1)
 #define BITS(x, hi, lo) (((x) >> (lo)) & BITMASK((hi) - (lo) + 1))
-#define SEXT(x, len)                                                           \
-    ({                                                                         \
-        struct {                                                               \
-            i64 n : len;                                                       \
-        } __x = {.n = (i64)x};                                                 \
-        (u64) __x.n;                                                           \
+#define SEXT(x, len)                                                                               \
+    ({                                                                                             \
+        struct {                                                                                   \
+            i64 n : len;                                                                           \
+        } __x = {.n = (i64)x};                                                                     \
+        (u64) __x.n;                                                                               \
     })
 
-#define INSTPAT(pattern, name)                                                 \
-    do {                                                                       \
-        u64 key, mask, shift;                                                  \
-        pattern_decode(pattern, (sizeof(pattern) - 1), &key, &mask, &shift);   \
-        if ((((u64)inst >> shift) & mask) == key) {                            \
-            decode->inst = inst_##name;                                        \
-            return;                                                            \
-        }                                                                      \
+#define INSTPAT(pattern, name)                                                                     \
+    do {                                                                                           \
+        u64 key, mask, shift;                                                                      \
+        pattern_decode(pattern, (sizeof(pattern) - 1), &key, &mask, &shift);                       \
+        if ((((u64)inst >> shift) & mask) == key) {                                                \
+            decode->inst = inst_##name;                                                            \
+            return;                                                                                \
+        }                                                                                          \
     } while (0)
 
-__attribute__((always_inline)) static inline void
-pattern_decode(const char *str, int len, u64 *key, u64 *mask, u64 *shift) {
+__attribute__((always_inline)) static inline void pattern_decode(const char *str, int len, u64 *key,
+                                                                 u64 *mask, u64 *shift) {
     u64 __key = 0, __mask = 0, __shift = 0;
-#define macro(i)                                                               \
-    if ((i) >= len)                                                            \
-        goto finish;                                                           \
-    else {                                                                     \
-        char c = str[i];                                                       \
-        if (c != ' ') {                                                        \
-            __key = (__key << 1) | (c == '1' ? 1 : 0);                         \
-            __mask = (__mask << 1) | (c == '?' ? 0 : 1);                       \
-            __shift = (c == '?' ? __shift + 1 : 0);                            \
-        }                                                                      \
+#define macro(i)                                                                                   \
+    if ((i) >= len)                                                                                \
+        goto finish;                                                                               \
+    else {                                                                                         \
+        char c = str[i];                                                                           \
+        if (c != ' ') {                                                                            \
+            __key = (__key << 1) | (c == '1' ? 1 : 0);                                             \
+            __mask = (__mask << 1) | (c == '?' ? 0 : 1);                                           \
+            __shift = (c == '?' ? __shift + 1 : 0);                                                \
+        }                                                                                          \
     }
 
-#define macro2(i)                                                              \
-    macro(i);                                                                  \
+#define macro2(i)                                                                                  \
+    macro(i);                                                                                      \
     macro((i) + 1)
-#define macro4(i)                                                              \
-    macro2(i);                                                                 \
+#define macro4(i)                                                                                  \
+    macro2(i);                                                                                     \
     macro2((i) + 2)
-#define macro8(i)                                                              \
-    macro4(i);                                                                 \
+#define macro8(i)                                                                                  \
+    macro4(i);                                                                                     \
     macro4((i) + 4)
-#define macro16(i)                                                             \
-    macro8(i);                                                                 \
+#define macro16(i)                                                                                 \
+    macro8(i);                                                                                     \
     macro8((i) + 8)
-#define macro32(i)                                                             \
-    macro16(i);                                                                \
+#define macro32(i)                                                                                 \
+    macro16(i);                                                                                    \
     macro16((i) + 16)
-#define macro64(i)                                                             \
-    macro32(i);                                                                \
+#define macro64(i)                                                                                 \
+    macro32(i);                                                                                    \
     macro32((i) + 32)
 
     macro64(0);
@@ -62,7 +68,7 @@ finish:
     *shift = __shift;
 };
 
-void riscv_decode(struct RiscvDecode *decode) {
+void riscv_decode_inst(struct RiscvDecode *decode) {
     u32 inst = decode->inst_raw;
 
     decode->rd = BITS(inst, 11, 7);
@@ -70,13 +76,11 @@ void riscv_decode(struct RiscvDecode *decode) {
     decode->rs2 = BITS(inst, 24, 20);
 
     decode->immI = SEXT(BITS(inst, 31, 20), 12);
-    decode->immB = (SEXT(BITS(inst, 31, 31), 1) << 12) |
-                   (BITS(inst, 30, 25) << 5) | (BITS(inst, 11, 8) << 1) |
-                   (BITS(inst, 7, 7) << 11);
+    decode->immB = (SEXT(BITS(inst, 31, 31), 1) << 12) | (BITS(inst, 30, 25) << 5) |
+                   (BITS(inst, 11, 8) << 1) | (BITS(inst, 7, 7) << 11);
     decode->immU = (SEXT(BITS(inst, 31, 12), 20) << 12);
-    decode->immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) |
-                   (BITS(inst, 30, 21) << 1) | (BITS(inst, 20, 20) << 11) |
-                   (BITS(inst, 19, 12) << 12);
+    decode->immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) | (BITS(inst, 30, 21) << 1) |
+                   (BITS(inst, 20, 20) << 11) | (BITS(inst, 19, 12) << 12);
     decode->immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
 
     INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add);
@@ -134,10 +138,15 @@ void riscv_decode(struct RiscvDecode *decode) {
     INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh);
     INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulsu);
     INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulu);
+    INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw);
     INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div);
     INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu);
+    INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw);
+    INSTPAT("0000001 ????? ????? 101 ????? 01110 11", divuw);
     INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem);
+    INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw);
     INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu);
+    INSTPAT("0000001 ????? ????? 111 ????? 01110 11", remuw);
 
     INSTPAT("00010?? ????? ????? 010 ????? 01011 11", lr_w);
     INSTPAT("00011?? ????? ????? 010 ????? 01011 11", sc_w);
