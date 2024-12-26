@@ -1,8 +1,6 @@
 #include "device/bus.h"
 
-void bus_device_init(struct BusDevice *bus) {
-    bus->num_sub_devices = 0;
-}
+void bus_device_init(struct BusDevice *bus) { bus->num_sub_devices = 0; }
 
 void bus_device_add_sub_device(struct BusDevice *bus, u64 base, u64 size, struct DeviceFunc func) {
     bus->num_sub_devices++;
@@ -50,7 +48,8 @@ bool bus_device_check_external_interrupt(void *context) {
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
         struct SubDevice *sub = &bus->sub_devices[i];
-        if (sub->func.check_external_interrupt && sub->func.check_external_interrupt(sub->func.context)) {
+        if (sub->func.check_external_interrupt &&
+            sub->func.check_external_interrupt(sub->func.context)) {
             return true;
         }
     }
@@ -71,11 +70,22 @@ bool bus_device_check_timer_interrupt(void *context) {
     return false;
 }
 
+void bus_device_update(void *context) {
+    struct BusDevice *bus = (struct BusDevice *)context;
+
+    for (int i = 0; i < bus->num_sub_devices; i++) {
+        struct SubDevice *sub = &bus->sub_devices[i];
+        if (sub->func.update)
+            sub->func.update(sub->func.context);
+    }
+}
+
 struct DeviceFunc bus_device_get_func(struct BusDevice *bus) {
     return (struct DeviceFunc){
         .context = bus,
         .read = bus_device_read,
         .write = bus_device_write,
+        .update = bus_device_update,
         .check_external_interrupt = bus_device_check_external_interrupt,
         .check_timer_interrupt = bus_device_check_timer_interrupt,
     };

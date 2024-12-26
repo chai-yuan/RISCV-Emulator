@@ -62,6 +62,7 @@ struct DeviceFunc sram_get_func(struct Sram *sram) {
         .context = sram,
         .read = sram_read,
         .write = sram_write,
+        .update = NULL,
         .check_timer_interrupt = NULL,
         .check_external_interrupt = NULL,
     };

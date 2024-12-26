@@ -1,41 +1,6 @@
 #include "core/rvcore64.h"
 #include "core/rvdecode.h"
 
-void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode);
-
-void riscvcore64_mmu_fetch(struct RiscvCore64 *core, struct RiscvDecode *decode);
-
-void riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data);
-
-void riscvcore64_mmu_write(struct RiscvCore64 *core, u64 addr, u8 size, u64 data);
-
-void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
-    core->pc = 0x80000000;
-    core->mode = MACHINE;
-    core->halt = false;
-    core->device_func = device_func;
-}
-
-void riscvcore64_step(struct RiscvCore64 *core) {
-    struct RiscvDecode decode; // decode当中保存每一次执行需要用到的临时信息
-    riscv_decode_init(&decode);
-
-    riscvcore64_mmu_fetch(core, &decode);
-    riscv_decode_inst(&decode);
-    riscvcore64_exec(core, &decode);
-
-    if (decode.exception != EXC_NONE) {
-        printf("%x\n", decode.inst_raw);
-        ERROR("Exception occurred: %d", decode.exception);
-    } else if (decode.interrupt != INT_NONE) {
-        ERROR("Interrupt occurred: %d", decode.interrupt);
-    } else {
-        core->pc = decode.next_pc;
-    }
-}
-
-bool riscvcore64_check_halt(struct RiscvCore64 *core) { return core->halt; }
-
 void riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
     struct DeviceFunc device = core->device_func;
     device.read(device.context, addr, size, data);
@@ -172,4 +137,43 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     INSTEND();
 
     core->regs[0] = 0;
+}
+
+void riscvcore64_step(void *context) {
+    struct RiscvCore64 *core = (struct RiscvCore64 *)context;
+    struct RiscvDecode decode; // decode当中保存每一次执行需要用到的临时信息
+    riscv_decode_init(&decode);
+
+    riscvcore64_mmu_fetch(core, &decode);
+    riscv_decode_inst(&decode);
+    riscvcore64_exec(core, &decode);
+
+    if (decode.exception != EXC_NONE) {
+        printf("%x\n", decode.inst_raw);
+        ERROR("Exception occurred: %d", decode.exception);
+    } else if (decode.interrupt != INT_NONE) {
+        ERROR("Interrupt occurred: %d", decode.interrupt);
+    } else {
+        core->pc = decode.next_pc;
+    }
+}
+
+bool riscvcore64_check_halt(void *context) {
+    struct RiscvCore64 *core = (struct RiscvCore64 *)context;
+    return core->halt;
+}
+
+void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
+    core->pc = 0x80000000;
+    core->mode = MACHINE;
+    core->halt = false;
+    core->device_func = device_func;
+}
+
+struct CoreFunc riscvcore64_get_func(struct RiscvCore64 *core) {
+    return (struct CoreFunc){
+        .context = core,
+        .step = riscvcore64_step,
+        .check_halt = riscvcore64_check_halt,
+    };
 }
