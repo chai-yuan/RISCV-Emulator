@@ -1,12 +1,8 @@
 #define ENABLE_DEBUG_MACROS 1 // 默认启用调试宏
 
-#include "core/rvcore.h"
 #include "core/rvcore64.h"
-#include "device/bus.h"
-#include "device/sram.h"
 #include "machine/simple.h"
 #include "string.h"
-#include "types.h"
 
 void *load_binary(const char *filename, size_t *size) {
     FILE *file = fopen(filename, "rb");
