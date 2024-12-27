@@ -26,7 +26,7 @@ enum exception bus_device_read(void *context, u64 address, u8 size, u64 *value) 
     }
 
     // 如果没有找到匹配的设备，返回访问错误
-    return STORE_AMO_ACCESS_FAULT;
+    return LOAD_ACCESS_FAULT;
 }
 
 enum exception bus_device_write(void *context, u64 address, u8 size, u64 value) {
@@ -70,13 +70,13 @@ bool bus_device_check_timer_interrupt(void *context) {
     return false;
 }
 
-void bus_device_update(void *context) {
+void bus_device_update(void *context, u32 interval) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
         struct SubDevice *sub = &bus->sub_devices[i];
         if (sub->func.update)
-            sub->func.update(sub->func.context);
+            sub->func.update(sub->func.context, interval);
     }
 }
 

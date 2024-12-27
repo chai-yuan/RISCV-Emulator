@@ -9,7 +9,7 @@ enum exception sram_read(void *context, u64 address, u8 size, u64 *value) {
     struct Sram *sram = (struct Sram *)context;
     if (address + size > sram->len) {
         ERROR("address out of bounds");
-        return STORE_AMO_ADDRESS_MISALIGNED;
+        return LOAD_ADDRESS_MISALIGNED;
     }
     switch (size) {
     case 1:
@@ -26,7 +26,7 @@ enum exception sram_read(void *context, u64 address, u8 size, u64 *value) {
         break;
     default:
         ERROR("unsupported size");
-        return STORE_AMO_ADDRESS_MISALIGNED;
+        return LOAD_ACCESS_FAULT;
     }
     return EXC_NONE;
 }
@@ -52,7 +52,7 @@ enum exception sram_write(void *context, u64 address, u8 size, u64 value) {
         break;
     default:
         ERROR("unsupported size");
-        return STORE_AMO_ADDRESS_MISALIGNED;
+        return STORE_AMO_ACCESS_FAULT;
     }
     return EXC_NONE;
 }

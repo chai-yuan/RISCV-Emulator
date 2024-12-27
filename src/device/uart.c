@@ -47,7 +47,7 @@ static enum exception uart_write(void *context, u64 address, u8 size, u64 value)
     return EXC_NONE;
 }
 
-static void uart_update(void *context) {
+static void uart_update(void *context, u32 interval) {
     struct Uart *uart = (struct Uart *)context;
     // 检查是否有输入数据
     u8 data;

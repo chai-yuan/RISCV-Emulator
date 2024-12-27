@@ -6,7 +6,7 @@
 
 typedef enum exception (*read_func_t)(void *context, u64 address, u8 size, u64 *value);
 typedef enum exception (*write_func_t)(void *context, u64 address, u8 size, u64 value);
-typedef void (*update_func_t)(void *context);
+typedef void (*update_func_t)(void *context, u32 interval);
 typedef bool (*check_external_interrupt_func_t)(void *context);
 typedef bool (*check_timer_interrupt_func_t)(void *context);
 
