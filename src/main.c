@@ -33,6 +33,11 @@ void *load_binary(const char *filename, size_t *size) {
     return data;
 }
 
+void put_char_func(u8 data) {
+    printf("%c", data);
+    fflush(stdout);
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <binary_file>\n", argv[0]);
@@ -47,7 +52,7 @@ int main(int argc, char *argv[]) {
     }
     // 初始化机器并运行
     struct SimpleMachine *machine = malloc(sizeof(struct SimpleMachine));
-    simple_machine_init(machine, binary_data, binary_size);
+    simple_machine_init(machine, binary_data, binary_size, NULL, put_char_func);
 
     simple_machine_run(machine);
     return machine->core.regs[10] != 0;

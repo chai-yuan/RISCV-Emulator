@@ -7,6 +7,8 @@
 typedef bool (*get_char_func_t)(u8 *data);
 typedef void (*put_char_func_t)(u8 data);
 
+#define UART_SIZE 8
+
 // UART 寄存器偏移量
 #define UART_RHR 0
 #define UART_THR 0
@@ -17,7 +19,7 @@ typedef void (*put_char_func_t)(u8 data);
 #define UART_LSR_TX 1 << 5
 
 struct Uart {
-    u8 data[8];               // 模拟 UART 寄存器
+    u8 data[UART_SIZE];               // 模拟 UART 寄存器
     get_char_func_t get_char; // 外部提供的输入函数
     put_char_func_t put_char; // 外部提供的输出函数
 };
