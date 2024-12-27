@@ -3,6 +3,7 @@
 
 #include "core/rvcore64.h"
 #include "device/bus.h"
+#include "device/clint.h"
 #include "device/sram.h"
 #include "device/uart.h"
 
@@ -10,10 +11,11 @@
 
 struct SimpleMachine {
     struct RiscvCore64 core;
-    struct BusDevice bus;
-    u8 sram_data[SIMPLE_MEM_SIZE];
-    struct Sram sram;
-    struct Uart uart;
+    struct BusDevice   bus;
+    u8                 sram_data[SIMPLE_MEM_SIZE];
+    struct Sram        sram;
+    struct Uart        uart;
+    struct CLINT       clint;
 };
 
 void simple_machine_init(struct SimpleMachine *machine, const u8 *mem_init_data,

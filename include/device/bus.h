@@ -6,8 +6,8 @@
 
 // 子设备描述结构体
 struct SubDevice {
-    u64 base;               // 基地址
-    u64 size;               // 地址范围大小
+    u64               base; // 基地址
+    u64               size; // 地址范围大小
     struct DeviceFunc func; // 设备函数
 };
 
@@ -16,7 +16,7 @@ struct SubDevice {
 // 总线设备结构体
 struct BusDevice {
     struct SubDevice sub_devices[MAX_BUS_DEVICES]; // 子设备数组
-    int num_sub_devices;              // 子设备数量
+    int              num_sub_devices;              // 子设备数量
 };
 
 // 总线设备初始化函数

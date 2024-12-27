@@ -3,8 +3,8 @@
 #include "device/device.h"
 
 void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put) {
-    uart->get_char = get;
-    uart->put_char = put;
+    uart->get_char       = get;
+    uart->put_char       = put;
     uart->data[UART_LSR] = UART_LSR_TX; // 初始化线路状态寄存器，发送缓冲区为空
 }
 
@@ -13,7 +13,7 @@ static enum exception uart_read(void *context, u64 address, u8 size, u64 *value)
     if (size != 1)
         return LOAD_ACCESS_FAULT; // 只支持 1 字节读取
 
-    switch (address) {
+    switch (address & 0xF) {
     case UART_RHR:
         // 读取接收保持寄存器
         if (uart->data[UART_LSR] & UART_LSR_RX) {
@@ -34,7 +34,7 @@ static enum exception uart_write(void *context, u64 address, u8 size, u64 value)
     if (size != 1)
         return STORE_AMO_ACCESS_FAULT; // 只支持 1 字节写入
 
-    switch (address) {
+    switch (address & 0xF) {
     case UART_THR:
         // 写入发送保持寄存器
         if (uart->put_char) {
@@ -64,11 +64,11 @@ static bool uart_check_external_interrupt(void *context) {
 
 struct DeviceFunc uart_get_func(struct Uart *uart) {
     return (struct DeviceFunc){
-        .context = uart,
-        .read = uart_read,
-        .write = uart_write,
-        .update = uart_update,
+        .context                  = uart,
+        .read                     = uart_read,
+        .write                    = uart_write,
+        .update                   = uart_update,
         .check_external_interrupt = uart_check_external_interrupt,
-        .check_timer_interrupt = NULL,
+        .check_timer_interrupt    = NULL,
     };
 }

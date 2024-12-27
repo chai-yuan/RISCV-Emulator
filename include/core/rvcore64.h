@@ -1,18 +1,18 @@
 #ifndef RV_CORE_64_H
 #define RV_CORE_64_H
 
-#include "types.h"
-#include "device/device.h"
 #include "core/rvcore.h"
+#include "device/device.h"
+#include "types.h"
 
 enum mode { USER = 0x0, SUPERVISOR = 0x1, MACHINE = 0x3 };
 
 struct RiscvCore64 {
-    u64 regs[32];
-    u64 pc;
-    u64 csrs[4096];
-    enum mode mode;
-    bool halt;
+    u64               regs[32];
+    u64               pc;
+    u64               csrs[4096];
+    enum mode         mode;
+    bool              halt;
     struct DeviceFunc device_func;
 };
 

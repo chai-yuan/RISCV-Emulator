@@ -5,7 +5,7 @@
 
 struct Sram {
     void *data;
-    u32 len;
+    u32   len;
 };
 
 void sram_init(struct Sram *sram, void *data, u32 len);

@@ -1,7 +1,7 @@
 #include "core/rvdecode.h"
 
 void riscv_decode_init(struct RiscvDecode *decode) {
-    decode->inst_raw = 0;
+    decode->inst_raw  = 0;
     decode->exception = EXC_NONE;
     decode->interrupt = INT_NONE;
 }
@@ -35,8 +35,8 @@ __attribute__((always_inline)) static inline void pattern_decode(const char *str
     else {                                                                                         \
         char c = str[i];                                                                           \
         if (c != ' ') {                                                                            \
-            __key = (__key << 1) | (c == '1' ? 1 : 0);                                             \
-            __mask = (__mask << 1) | (c == '?' ? 0 : 1);                                           \
+            __key   = (__key << 1) | (c == '1' ? 1 : 0);                                           \
+            __mask  = (__mask << 1) | (c == '?' ? 0 : 1);                                          \
             __shift = (c == '?' ? __shift + 1 : 0);                                                \
         }                                                                                          \
     }
@@ -63,15 +63,15 @@ __attribute__((always_inline)) static inline void pattern_decode(const char *str
     macro64(0);
 #undef macro
 finish:
-    *key = __key >> __shift;
-    *mask = __mask >> __shift;
+    *key   = __key >> __shift;
+    *mask  = __mask >> __shift;
     *shift = __shift;
 };
 
 void riscv_decode_inst(struct RiscvDecode *decode) {
     u32 inst = decode->inst_raw;
 
-    decode->rd = BITS(inst, 11, 7);
+    decode->rd  = BITS(inst, 11, 7);
     decode->rs1 = BITS(inst, 19, 15);
     decode->rs2 = BITS(inst, 24, 20);
 

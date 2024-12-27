@@ -19,9 +19,9 @@ typedef void (*put_char_func_t)(u8 data);
 #define UART_LSR_TX 1 << 5
 
 struct Uart {
-    u8 data[UART_SIZE];               // 模拟 UART 寄存器
-    get_char_func_t get_char; // 外部提供的输入函数
-    put_char_func_t put_char; // 外部提供的输出函数
+    u8              data[UART_SIZE]; // 模拟 UART 寄存器
+    get_char_func_t get_char;        // 外部提供的输入函数
+    put_char_func_t put_char;        // 外部提供的输出函数
 };
 
 void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put);

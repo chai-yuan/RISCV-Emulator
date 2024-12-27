@@ -8,7 +8,7 @@
 #define CLINT_MTIME 0xbff8
 
 struct CLINT {
-    u64 mtimecmp, mtime;
+    u8 data[CLINT_SIZE];
 };
 
 void clint_init(struct CLINT *clint);

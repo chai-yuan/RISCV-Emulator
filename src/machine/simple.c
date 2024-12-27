@@ -9,7 +9,10 @@ void simple_machine_init(struct SimpleMachine *machine, const u8 *mem_init_data,
         machine->sram_data[i] = mem_init_data[i];
     sram_init(&machine->sram, machine->sram_data, SIMPLE_MEM_SIZE);
     uart_init(&machine->uart, get_char, put_char);
+    clint_init(&machine->clint);
 
+    bus_device_add_sub_device(&machine->bus, 0x02000000, CLINT_SIZE,
+                              clint_get_func(&machine->clint));
     bus_device_add_sub_device(&machine->bus, 0x10000000, UART_SIZE, uart_get_func(&machine->uart));
     bus_device_add_sub_device(&machine->bus, 0x80000000, SIMPLE_MEM_SIZE,
                               sram_get_func(&machine->sram));
@@ -17,9 +20,14 @@ void simple_machine_init(struct SimpleMachine *machine, const u8 *mem_init_data,
 }
 
 void simple_machine_run(struct SimpleMachine *machine) {
-    struct CoreFunc func = riscvcore64_get_func(&machine->core);
+    struct CoreFunc   core     = riscvcore64_get_func(&machine->core);
+    struct DeviceFunc bus      = bus_device_get_func(&machine->bus);
+    static u64        step_cnt = 0;
 
-    while (func.check_halt(&machine->core) == false) {
-        func.step(&machine->core);
+    while (core.check_halt(core.context) == false) {
+        core.step(core.context);
+        if ((step_cnt++) % 10) {
+            bus.update(bus.context, 10);
+        }
     }
 }

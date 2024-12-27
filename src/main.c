@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
     }
 
     const char *binary_file = argv[1];
-    size_t binary_size;
-    void *binary_data = load_binary(binary_file, &binary_size);
+    size_t      binary_size;
+    void       *binary_data = load_binary(binary_file, &binary_size);
     if (!binary_data) {
         return 1;
     }

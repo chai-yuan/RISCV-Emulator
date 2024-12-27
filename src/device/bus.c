@@ -82,11 +82,11 @@ void bus_device_update(void *context, u32 interval) {
 
 struct DeviceFunc bus_device_get_func(struct BusDevice *bus) {
     return (struct DeviceFunc){
-        .context = bus,
-        .read = bus_device_read,
-        .write = bus_device_write,
-        .update = bus_device_update,
+        .context                  = bus,
+        .read                     = bus_device_read,
+        .write                    = bus_device_write,
+        .update                   = bus_device_update,
         .check_external_interrupt = bus_device_check_external_interrupt,
-        .check_timer_interrupt = bus_device_check_timer_interrupt,
+        .check_timer_interrupt    = bus_device_check_timer_interrupt,
     };
 }

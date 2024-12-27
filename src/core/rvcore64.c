@@ -1,24 +1,6 @@
 #include "core/rvcore64.h"
 #include "core/rvdecode.h"
 
-void riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
-    struct DeviceFunc device = core->device_func;
-    device.read(device.context, addr, size, data);
-}
-
-void riscvcore64_mmu_write(struct RiscvCore64 *core, u64 addr, u8 size, u64 data) {
-    struct DeviceFunc device = core->device_func;
-    device.write(device.context, addr, size, data);
-}
-
-void riscvcore64_mmu_fetch(struct RiscvCore64 *core, struct RiscvDecode *decode) {
-    u64 inst;
-    riscvcore64_mmu_read(core, core->pc, 4, &inst);
-    decode->inst_raw = inst;
-}
-
-void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
-
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
     default:                                                                                       \
@@ -34,11 +16,28 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
 #define Mr(addr, size)                                                                             \
     ({                                                                                             \
         u64 data;                                                                                  \
-        riscvcore64_mmu_read(core, addr, size, &data);                                             \
+        decode->exception = riscvcore64_mmu_read(core, addr, size, &data);                         \
         data;                                                                                      \
     })
-#define Mw(addr, size, data) riscvcore64_mmu_write(core, addr, size, data)
+#define Mw(addr, size, data) decode->exception = riscvcore64_mmu_write(core, addr, size, data)
 
+enum exception riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
+    struct DeviceFunc device = core->device_func;
+    return device.read(device.context, addr, size, data);
+}
+
+enum exception riscvcore64_mmu_write(struct RiscvCore64 *core, u64 addr, u8 size, u64 data) {
+    struct DeviceFunc device = core->device_func;
+    return device.write(device.context, addr, size, data);
+}
+
+void riscvcore64_mmu_fetch(struct RiscvCore64 *core, struct RiscvDecode *decode) {
+    u64 inst;
+    decode->exception = riscvcore64_mmu_read(core, core->pc, 4, &inst);
+    decode->inst_raw  = inst;
+}
+
+void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     u64 Rs1 = core->regs[decode->rs1], Rs2 = core->regs[decode->rs2];
     decode->next_pc = core->pc + 4;
 
@@ -104,32 +103,32 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
                                                                   : ((i64)Rs1 / (i64)Rs2););
     INSTEXE(divu, { Rd = (Rs2 == 0) ? UINT64_MAX : Rs1 / Rs2; });
     INSTEXE(divw, {
-        i32 src1 = (i32)Rs1;
-        i32 src2 = (i32)Rs2;
+        i32 src1   = (i32)Rs1;
+        i32 src2   = (i32)Rs2;
         i32 result = (src2 == 0) ? -1 : (src1 == INT32_MIN && src2 == -1) ? src1 : src1 / src2;
-        Rd = (i64)(i32)result;
+        Rd         = (i64)(i32)result;
     });
     INSTEXE(divuw, {
-        u32 src1 = (u32)Rs1;
-        u32 src2 = (u32)Rs2;
+        u32 src1   = (u32)Rs1;
+        u32 src2   = (u32)Rs2;
         u32 result = (src2 == 0) ? UINT32_MAX : src1 / src2;
-        Rd = (i64)(i32)result;
+        Rd         = (i64)(i32)result;
     });
     INSTEXE(rem, Rd = (Rs2 == 0)                                  ? Rs1
                       : ((i64)Rs1 == INT64_MIN && (i64)Rs2 == -1) ? 0
                                                                   : ((i64)Rs1 % (i64)Rs2););
     INSTEXE(remu, Rd = (Rs2 == 0) ? Rs1 : Rs1 % Rs2);
     INSTEXE(remw, {
-        i32 src1 = (i32)Rs1;
-        i32 src2 = (i32)Rs2;
+        i32 src1   = (i32)Rs1;
+        i32 src2   = (i32)Rs2;
         i32 result = (src2 == 0) ? src1 : (src1 == INT32_MIN && src2 == -1) ? 0 : src1 % src2;
-        Rd = (i64)(i32)result;
+        Rd         = (i64)(i32)result;
     });
     INSTEXE(remuw, {
-        u32 src1 = (u32)Rs1;
-        u32 src2 = (u32)Rs2;
+        u32 src1   = (u32)Rs1;
+        u32 src2   = (u32)Rs2;
         u32 result = (src2 == 0) ? src1 : src1 % src2;
-        Rd = (i64)(i32)result;
+        Rd         = (i64)(i32)result;
     });
     // SYSTEM
     INSTEXE(ebreak, core->halt = true);
@@ -141,7 +140,7 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
 
 void riscvcore64_step(void *context) {
     struct RiscvCore64 *core = (struct RiscvCore64 *)context;
-    struct RiscvDecode decode; // decode当中保存每一次执行需要用到的临时信息
+    struct RiscvDecode  decode; // decode当中保存每一次执行需要用到的临时信息
     riscv_decode_init(&decode);
 
     riscvcore64_mmu_fetch(core, &decode);
@@ -149,8 +148,7 @@ void riscvcore64_step(void *context) {
     riscvcore64_exec(core, &decode);
 
     if (decode.exception != EXC_NONE) {
-        printf("%x\n", decode.inst_raw);
-        ERROR("Exception occurred: %d", decode.exception);
+        ERROR("Exception occurred: %d at PC : %llx", decode.exception, core->pc);
     } else if (decode.interrupt != INT_NONE) {
         ERROR("Interrupt occurred: %d", decode.interrupt);
     } else {
@@ -164,16 +162,16 @@ bool riscvcore64_check_halt(void *context) {
 }
 
 void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
-    core->pc = 0x80000000;
-    core->mode = MACHINE;
-    core->halt = false;
+    core->pc          = 0x80000000;
+    core->mode        = MACHINE;
+    core->halt        = false;
     core->device_func = device_func;
 }
 
 struct CoreFunc riscvcore64_get_func(struct RiscvCore64 *core) {
     return (struct CoreFunc){
-        .context = core,
-        .step = riscvcore64_step,
+        .context    = core,
+        .step       = riscvcore64_step,
         .check_halt = riscvcore64_check_halt,
     };
 }
