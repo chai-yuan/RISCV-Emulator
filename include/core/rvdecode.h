@@ -1,38 +1,8 @@
 #ifndef RV_DECODE_H
 #define RV_DECODE_H
 
-#include "common.h"
-
-enum exception {
-    EXC_NONE                       = -1,
-    INSTRUCTION_ADDRESS_MISALIGNED = 0,
-    INSTRUCTION_ACCESS_FAULT       = 1,
-    ILLEGAL_INSTRUCTION            = 2,
-    BREAKPOINT                     = 3,
-    LOAD_ADDRESS_MISALIGNED        = 4,
-    LOAD_ACCESS_FAULT              = 5,
-    STORE_AMO_ADDRESS_MISALIGNED   = 6,
-    STORE_AMO_ACCESS_FAULT         = 7,
-    ECALL_FROM_UMODE               = 8,
-    ECALL_FROM_SMODE               = 9,
-    ECALL_FROM_MMODE               = 11,
-    INSTRUCTION_PAGE_FAULT         = 12,
-    LOAD_PAGE_FAULT                = 13,
-    STORE_AMO_PAGE_FAULT           = 15,
-};
-
-enum interrupt {
-    INT_NONE                      = -1,
-    USER_SOFTWARE_INTERRUPT       = 0,
-    SUPERVISOR_SOFTWARE_INTERRUPT = 1,
-    MACHINE_SOFTWARE_INTERRUPT    = 3,
-    USER_TIMER_INTERRUPT          = 4,
-    SUPERVISOR_TIMER_INTERRUPT    = 5,
-    MACHINE_TIMER_INTERRUPT       = 7,
-    USER_EXTERNAL_INTERRUPT       = 8,
-    SUPERVISOR_EXTERNAL_INTERRUPT = 9,
-    MACHINE_EXTERNAL_INTERRUPT    = 11,
-};
+#include "rvprivilege.h"
+#include "types.h"
 
 // clang-format off
 enum instruction {

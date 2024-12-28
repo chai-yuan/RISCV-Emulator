@@ -1,5 +1,8 @@
 #include "core/rvcore64.h"
 #include "core/rvdecode.h"
+#include "core/rvmmu.h"
+#include "core/rvprivilege.h"
+#include "debug.h"
 
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
@@ -20,22 +23,8 @@
         data;                                                                                      \
     })
 #define Mw(addr, size, data) decode->exception = riscvcore64_mmu_write(core, addr, size, data)
-
-enum exception riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
-    struct DeviceFunc device = core->device_func;
-    return device.read(device.context, addr, size, data);
-}
-
-enum exception riscvcore64_mmu_write(struct RiscvCore64 *core, u64 addr, u8 size, u64 data) {
-    struct DeviceFunc device = core->device_func;
-    return device.write(device.context, addr, size, data);
-}
-
-void riscvcore64_mmu_fetch(struct RiscvCore64 *core, struct RiscvDecode *decode) {
-    u64 inst;
-    decode->exception = riscvcore64_mmu_read(core, core->pc, 4, &inst);
-    decode->inst_raw  = inst;
-}
+#define CSRR(addr) riscv64_csr_read(core, addr)
+#define CSRW(addr, value) riscv64_csr_write(core, addr, value)
 
 void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     u64 Rs1 = core->regs[decode->rs1], Rs2 = core->regs[decode->rs2];
@@ -130,6 +119,13 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
         u32 result = (src2 == 0) ? src1 : src1 % src2;
         Rd         = (i64)(i32)result;
     });
+    // zicsr
+    INSTEXE(csrrw, Rd = CSRR(decode->immI); CSRW(decode->immI, Rs1));
+    INSTEXE(csrrs, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd | Rs1));
+    INSTEXE(csrrc, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd & ~Rs1));
+    INSTEXE(csrrwi, Rd = CSRR(decode->immI); CSRW(decode->immI, decode->rs1));
+    INSTEXE(csrrsi, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd | decode->rs1));
+    INSTEXE(csrrci, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd & ~decode->rs1));
     // SYSTEM
     INSTEXE(ebreak, core->halt = true);
 

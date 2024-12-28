@@ -1,7 +1,6 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-#include "core/rvdecode.h"
 #include "types.h"
 
 #define REG64(base, offset) *(volatile u64 *)((base) + (offset))
