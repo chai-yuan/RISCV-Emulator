@@ -1,4 +1,5 @@
 #include "device/device.h"
+#include "debug.h"
 
 enum exception read_buffer(u8 *data, u64 address, u8 size, u64 *value) {
     switch (size) {

@@ -3,6 +3,8 @@
 #include "core/rvcore64.h"
 #include "machine/simple.h"
 #include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 void *load_binary(const char *filename, size_t *size) {
     FILE *file = fopen(filename, "rb");

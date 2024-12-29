@@ -17,6 +17,8 @@ typedef signed long long i64; // 64 位有符号整数
 typedef float  f32; // 32 位浮点数
 typedef double f64; // 64 位浮点数
 
+#define NULL ((void *)0)
+
 // 布尔类型
 #ifndef bool
 #define bool unsigned char

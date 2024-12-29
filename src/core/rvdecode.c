@@ -1,4 +1,4 @@
-#include "core/rvdecode.h"
+#include "core/rvcore_priv.h"
 
 void riscv_decode_init(struct RiscvDecode *decode) {
     decode->inst_raw  = 0;

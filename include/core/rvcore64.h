@@ -5,8 +5,6 @@
 #include "device/device.h"
 #include "types.h"
 
-enum mode { USER = 0x0, SUPERVISOR = 0x1, MACHINE = 0x3 };
-
 struct RiscvCore64 {
     u64               regs[32];
     u64               pc;

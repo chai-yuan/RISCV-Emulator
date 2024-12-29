@@ -10,7 +10,6 @@ cremu
 # 忽略编译中间文件
 *.d
 *.out
-compile_commands.json
 
 # 忽略临时文件
 *.swp

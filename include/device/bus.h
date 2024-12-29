@@ -1,7 +1,6 @@
 #ifndef BUS_H
 #define BUS_H
 
-#include "common.h"
 #include "device/device.h"
 
 // 子设备描述结构体

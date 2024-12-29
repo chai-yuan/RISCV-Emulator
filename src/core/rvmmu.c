@@ -1,4 +1,4 @@
-#include "core/rvmmu.h"
+#include "core/rvcore_priv.h"
 
 enum exception riscvcore64_mmu_read(struct RiscvCore64 *core, u64 addr, u8 size, u64 *data) {
     struct DeviceFunc device = core->device_func;

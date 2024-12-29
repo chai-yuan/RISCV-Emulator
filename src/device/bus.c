@@ -1,4 +1,5 @@
 #include "device/bus.h"
+#include "debug.h"
 
 void bus_device_init(struct BusDevice *bus) { bus->num_sub_devices = 0; }
 

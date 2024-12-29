@@ -1,6 +1,6 @@
 #include "device/uart.h"
-#include "core/rvdecode.h"
 #include "device/device.h"
+#include "types.h"
 
 void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put) {
     uart->get_char       = get;

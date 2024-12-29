@@ -1,5 +1,4 @@
 #include "device/rtc.h"
-#include "core/rvdecode.h"
 #include "device/device.h"
 
 void rtc_init(struct RTC *rtc, get_time_func_t get_time) {

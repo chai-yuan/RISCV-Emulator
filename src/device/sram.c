@@ -1,4 +1,5 @@
 #include "device/sram.h"
+#include "debug.h"
 
 void sram_init(struct Sram *sram, void *data, u32 len) {
     sram->data = data;

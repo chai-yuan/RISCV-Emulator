@@ -1,7 +1,5 @@
 #include "core/rvcore64.h"
-#include "core/rvdecode.h"
-#include "core/rvmmu.h"
-#include "core/rvprivilege.h"
+#include "core/rvcore_priv.h"
 #include "debug.h"
 
 #define INSTBEGIN() switch (decode->inst) {

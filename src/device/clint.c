@@ -1,5 +1,4 @@
 #include "device/clint.h"
-#include "core/rvdecode.h"
 #include "device/device.h"
 
 void clint_init(struct CLINT *clint) {

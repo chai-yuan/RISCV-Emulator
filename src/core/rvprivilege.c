@@ -1,4 +1,4 @@
-#include "core/rvprivilege.h"
+#include "core/rvcore_priv.h"
 
 u64 riscv64_csr_read(struct RiscvCore64 *core, u16 addr) { return core->csrs[addr]; }
 
