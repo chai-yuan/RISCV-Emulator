@@ -4,25 +4,19 @@ SRCS_DIR = src
 HEADS_DIR = include
 SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
+OBJS = $(patsubst $(SRCS_DIR)/%.c, build/%.o, $(SRCS))
+
+SRCS += test/main.c
+OBJS += build/main.c
 
 CC = gcc
 CFLAGS = -Wall -Werror -I$(HEADS_DIR)
 LDFLAGS =
 
-ifeq ($(PLATFORM), debug)
-    CFLAGS += -g -DDEBUG
-else ifeq ($(PLATFORM), release)
-    CFLAGS += -O2
-else
-    CFLAGS += -O2
-endif
-
 IMG  ?= 
 ARGS ?= 
 
 # 构建命令
-OBJS = $(patsubst $(SRCS_DIR)/%.c, build/%.o, $(SRCS))
-
 $(PROJECT_NAME): $(OBJS)
 	@echo "[LINK] Linking final executable: $@"
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
