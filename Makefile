@@ -4,10 +4,8 @@ SRCS_DIR = src
 HEADS_DIR = include
 SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
-OBJS = $(patsubst $(SRCS_DIR)/%.c, build/%.o, $(SRCS))
 
-SRCS += test/main.c
-OBJS += build/main.c
+# SRCS += test/main.c
 
 CC = gcc
 CFLAGS = -Wall -Werror -I$(HEADS_DIR)
@@ -17,11 +15,19 @@ IMG  ?=
 ARGS ?= 
 
 # 构建命令
+OBJS = $(patsubst %.c, build/%.o, $(SRCS))
+LIB_NAME = lib$(PROJECT_NAME).so
+
 $(PROJECT_NAME): $(OBJS)
 	@echo "[LINK] Linking final executable: $@"
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(OBJS): build/%.o : src/%.c $(HEADS)
+lib: CFLAGS += -fPIC
+lib: $(OBJS)
+	@echo "[LINK] Linking dynamic library: $(LIB_NAME)"
+	@$(CC) -shared -o $(LIB_NAME) $^ $(LDFLAGS)
+
+build/%.o: %.c $(HEADS)
 	@echo "[CC] Compiling $< -> $@"
 	@mkdir -p $(dir $@)  
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -32,6 +38,7 @@ run: $(PROJECT_NAME)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"
-	@rm -f $(PROJECT_NAME) $(OBJS)
+	@rm -f $(PROJECT_NAME) $(LIB_NAME) $(OBJS)
+	@rm -rf build
 
 .PHONY: clean run
