@@ -125,6 +125,32 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     INSTEXE(csrrsi, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd | decode->rs1));
     INSTEXE(csrrci, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd & ~decode->rs1));
     // SYSTEM
+    INSTEXE(ecall, {
+        if (core->mode == USER) {
+            decode->exception = ECALL_FROM_UMODE;
+        } else if (core->mode == SUPERVISOR) {
+            decode->exception = ECALL_FROM_SMODE;
+        } else if (core->mode == MACHINE) {
+            decode->exception = ECALL_FROM_MMODE;
+        }
+    });
+    INSTEXE(sret, {
+        decode->next_pc = CSRR(SEPC);
+        core->mode      = ((CSRR(SSTATUS) >> 8) & 1) == 1 ? SUPERVISOR : USER;
+        CSRW(SSTATUS, ((CSRR(SSTATUS) >> 5) & 1) == 1 ? CSRR(SSTATUS) | (1 << 1)
+                                                      : CSRR(SSTATUS) & ~(1 << 1));
+        CSRW(SSTATUS, CSRR(SSTATUS) | (1 << 5));
+        CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));
+    });
+    INSTEXE(mret, {
+        decode->next_pc = CSRR(MEPC);
+        u64 mpp         = (CSRR(MSTATUS) >> 11) & 3;
+        core->mode      = mpp == 2 ? MACHINE : (mpp == 1 ? SUPERVISOR : USER);
+        CSRW(MSTATUS, (((CSRR(MSTATUS) >> 7) & 1) == 1) ? CSRR(MSTATUS) | (1 << 3)
+                                                        : CSRR(MSTATUS) & ~(1 << 3));
+        CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
+        CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
+    });
     INSTEXE(ebreak, core->halt = true);
 
     INSTEND();

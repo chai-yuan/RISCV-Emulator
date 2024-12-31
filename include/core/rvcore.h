@@ -87,7 +87,7 @@ enum instruction {
     // Zifence 类型指令
     inst_fence, inst_fence_i,
     // 特权指令
-    inst_wfi,   inst_ecall, inst_mret,  inst_ebreak,
+    inst_wfi,   inst_ecall, inst_sret,  inst_mret,  inst_ebreak,
     // 无效指令
     inst_inv
 };
