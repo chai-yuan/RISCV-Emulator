@@ -1,7 +1,6 @@
 #define ENABLE_DEBUG_MACROS 1 // 默认启用调试宏
 
-#include "core/rvcore64.h"
-#include "machine/simple.h"
+#include "machine/qemu64.h"
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,10 +51,20 @@ int main(int argc, char *argv[]) {
     if (!binary_data) {
         return 1;
     }
-    // 初始化机器并运行
-    struct SimpleMachine *machine = malloc(sizeof(struct SimpleMachine));
-    simple_machine_init(machine, binary_data, binary_size, NULL, put_char_func);
 
-    simple_machine_run(machine);
+    const u64 memory_size = 8 * 128 * 128;
+    u8       *memory      = malloc(memory_size);
+    memcpy(memory, binary_data, binary_size);
+    free(binary_data);
+    // 初始化机器并运行
+    struct Qemu64Machine *machine = malloc(sizeof(struct Qemu64Machine));
+    qemu64_machine_init(machine, (struct Qemu64PortableOperations){
+                                     .sram_data = memory,
+                                     .sram_size = memory_size,
+                                     .get_char  = NULL,
+                                     .put_char  = put_char_func,
+                                 });
+
+    qemu64_machine_run(machine);
     return machine->core.regs[10] != 0;
 }

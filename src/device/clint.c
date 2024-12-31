@@ -35,8 +35,8 @@ static enum exception clint_write(void *context, u64 address, u8 size, u64 value
 }
 
 static void clint_update(void *context, u32 interval) {
-    struct CLINT *clint = (struct CLINT *)context;
-    REG64(clint->data, CLINT_MTIME) += interval;
+    //    struct CLINT *clint = (struct CLINT *)context;
+    //   REG64(clint->data, CLINT_MTIME) += interval;
 }
 
 static bool clint_check_timer_interrupt(void *context) {

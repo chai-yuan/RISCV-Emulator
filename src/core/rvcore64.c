@@ -142,9 +142,9 @@ void riscvcore64_step(void *context) {
     riscvcore64_exec(core, &decode);
 
     if (decode.exception != EXC_NONE) {
-        ERROR("Exception occurred: %d at PC : %llx", decode.exception, core->pc);
+        WARN("Exception occurred: %d at PC : %llx", decode.exception, core->pc);
     } else if (decode.interrupt != INT_NONE) {
-        ERROR("Interrupt occurred: %d", decode.interrupt);
+        WARN("Interrupt occurred: %d", decode.interrupt);
     } else {
         core->pc = decode.next_pc;
     }
@@ -160,6 +160,10 @@ void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func) {
     core->mode        = MACHINE;
     core->halt        = false;
     core->device_func = device_func;
+    for (int i = 0; i < 32; i++)
+        core->regs[i] = 0;
+    for (int i = 0; i < 4096; i++)
+        core->csrs[i] = 0;
 }
 
 struct CoreFunc riscvcore64_get_func(struct RiscvCore64 *core) {

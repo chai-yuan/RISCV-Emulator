@@ -15,7 +15,7 @@ typedef enum {
 
 // 定义是否允许调试宏
 #ifndef ENABLE_DEBUG_MACROS
-#define ENABLE_DEBUG_MACROS 1 // 默认启用调试宏
+#define ENABLE_DEBUG_MACROS 0 // 默认关闭调试宏
 #endif
 
 #ifdef ENABLE_DEBUG_MACROS
