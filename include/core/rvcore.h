@@ -82,6 +82,8 @@ enum instruction {
     // A 类型指令
     inst_lr_w,  inst_sc_w,  inst_amoswap_w, inst_amoadd_w,  inst_amoxor_w, inst_amoor_w,
     inst_amoand_w, inst_amomin_w, inst_amomax_w, inst_amominu_w, inst_amomaxu_w,
+    inst_lr_d,  inst_sc_d,  inst_amoswap_d, inst_amoadd_d,  inst_amoxor_d, inst_amoor_d,
+    inst_amoand_d, inst_amomin_d, inst_amomax_d, inst_amominu_d, inst_amomaxu_d,
     // Zicsr 类型指令
     inst_csrrw, inst_csrrs, inst_csrrc, inst_csrrwi, inst_csrrsi, inst_csrrci,
     // Zifence 类型指令

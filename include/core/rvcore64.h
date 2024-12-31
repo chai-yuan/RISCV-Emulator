@@ -10,6 +10,8 @@ struct RiscvCore64 {
     u64               pc;
     u64               csrs[4096];
     enum mode         mode;
+    bool              reservation_valid;
+    u64               reservation_addr;
     bool              halt;
     struct DeviceFunc device_func;
 };
