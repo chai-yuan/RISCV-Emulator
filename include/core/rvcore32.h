@@ -16,6 +16,4 @@ struct RiscvCore32 {
 
 void riscvcore32_init(struct RiscvCore32 *core, struct DeviceFunc device_func);
 
-struct CoreFunc riscvcore32_get_func(struct RiscvCore32 *core);
-
 #endif

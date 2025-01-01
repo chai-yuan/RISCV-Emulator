@@ -3,15 +3,7 @@
 
 #include "types.h"
 
-typedef void (*step_func_t)(void *context);
-typedef bool (*check_halt_func_t)(void *context);
-
-struct CoreFunc {
-    void             *context;
-    step_func_t       step;
-    check_halt_func_t check_halt;
-};
-
+enum arch { RV32, RV64 };
 enum mode { USER = 0x0, SUPERVISOR = 0x1, MACHINE = 0x3 };
 
 enum exception {

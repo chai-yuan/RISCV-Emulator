@@ -18,6 +18,6 @@ struct RiscvCore64 {
 
 void riscvcore64_init(struct RiscvCore64 *core, struct DeviceFunc device_func);
 
-struct CoreFunc riscvcore64_get_func(struct RiscvCore64 *core);
+void riscvcore64_step(struct RiscvCore64 *core);
 
 #endif

@@ -16,14 +16,4 @@ void nemu_machine_init(struct NemuMachine *machine, const u8 *mem_init_data,
 }
 
 void nemu_machine_run(struct NemuMachine *machine) {
-    struct CoreFunc   core     = riscvcore64_get_func(&machine->core);
-    struct DeviceFunc bus      = bus_device_get_func(&machine->bus);
-    static u64        step_cnt = 0;
-
-    while (core.check_halt(core.context) == false) {
-        core.step(core.context);
-        if ((step_cnt++) % 10) {
-            bus.update(bus.context, 10);
-        }
-    }
 }

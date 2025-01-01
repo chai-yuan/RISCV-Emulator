@@ -15,4 +15,22 @@ void           riscvcore64_mmu_fetch(struct RiscvCore64 *core, struct RiscvDecod
 
 void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode);
 
+typedef u64 (*read_regs_func_t)(void *context, u8 regidx);
+typedef void (*write_regs_func_t)(void *context, u8 regidx, u64 data);
+typedef u64 (*read_csrs_func_t)(void *context, u16 regidx);
+typedef void (*write_csrs_func_t)(void *context, u16 regidx, u64 data);
+typedef enum mode *(*get_mode_func_t)(void *context);
+
+struct RiscvCore {
+    void     *context;
+    enum arch arch;
+    bool      halt;
+
+    read_regs_func_t  read_regs;
+    write_regs_func_t write_regs;
+    read_csrs_func_t  read_csrs;
+    write_csrs_func_t write_csrs;
+    get_mode_func_t   get_mode;
+};
+
 #endif

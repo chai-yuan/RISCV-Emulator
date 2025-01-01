@@ -16,12 +16,11 @@ void qemu64_machine_init(struct Qemu64Machine *machine, struct Qemu64PortableOpe
 }
 
 void qemu64_machine_run(struct Qemu64Machine *machine) {
-    struct CoreFunc   core     = riscvcore64_get_func(&machine->core);
     struct DeviceFunc bus      = bus_device_get_func(&machine->bus);
     static u64        step_cnt = 0;
 
-    while (core.check_halt(core.context) == false) {
-        core.step(core.context);
+    while (machine->core.halt == false) {
+        riscvcore64_step(&machine->core);
         if ((step_cnt++) % 10) {
             bus.update(bus.context, 10);
         }
