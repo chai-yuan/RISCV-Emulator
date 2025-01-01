@@ -6,7 +6,7 @@
         decode->exception = ILLEGAL_INSTRUCTION;                                                   \
         }
 #define INSTEXE(name, ...)                                                                         \
-    case inst_##name: {                                                                                  \
+    case inst_##name: {                                                                            \
         __VA_ARGS__;                                                                               \
         break;                                                                                     \
     }
@@ -257,6 +257,10 @@ void riscvcore64_exec(struct RiscvCore64 *core, struct RiscvDecode *decode) {
     INSTEXE(csrrwi, Rd = CSRR(decode->immI); CSRW(decode->immI, decode->rs1));
     INSTEXE(csrrsi, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd | decode->rs1));
     INSTEXE(csrrci, Rd = CSRR(decode->immI); CSRW(decode->immI, Rd & ~decode->rs1));
+    // zifence
+    INSTEXE(fence, {});
+    INSTEXE(fence_i, {});
+    INSTEXE(sfence_vma, {});
     // SYSTEM
     INSTEXE(ecall, {
         if (core->mode == USER) {

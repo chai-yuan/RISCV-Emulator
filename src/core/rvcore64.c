@@ -15,9 +15,8 @@ void riscvcore64_step(void *context) {
         WARN("Exception occurred: %d at PC : %llx", decode.exception, core->pc);
     } else if (decode.interrupt != INT_NONE) {
         WARN("Interrupt occurred: %d", decode.interrupt);
-    } else {
-        core->pc = decode.next_pc;
     }
+    core->pc = decode.next_pc;
 }
 
 bool riscvcore64_check_halt(void *context) {

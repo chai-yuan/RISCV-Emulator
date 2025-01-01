@@ -87,7 +87,7 @@ enum instruction {
     // Zicsr 类型指令
     inst_csrrw, inst_csrrs, inst_csrrc, inst_csrrwi, inst_csrrsi, inst_csrrci,
     // Zifence 类型指令
-    inst_fence, inst_fence_i,
+    inst_fence, inst_fence_i,   inst_sfence_vma,
     // 特权指令
     inst_wfi,   inst_ecall, inst_sret,  inst_mret,  inst_ebreak,
     // 无效指令
