@@ -1,6 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include "config.h"
+
 // 定义调试级别
 typedef enum {
     DEBUG_LEVEL_ERROR, // 仅输出错误信息
@@ -11,11 +13,6 @@ typedef enum {
 // 设置全局调试级别
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL DEBUG_LEVEL_INFO // 默认调试级别为 INFO
-#endif
-
-// 定义是否允许调试宏
-#ifndef ENABLE_DEBUG_MACROS
-#define ENABLE_DEBUG_MACROS 0 // 默认关闭调试宏
 #endif
 
 #ifdef ENABLE_DEBUG_MACROS

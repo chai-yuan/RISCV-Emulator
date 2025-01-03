@@ -1,5 +1,5 @@
-#ifndef SIMPLE_M_H
-#define SIMPLE_M_H
+#ifndef QEMU_64_H
+#define QEMU_64_H
 
 #include "core/rvcore.h"
 #include "device/bus.h"
@@ -7,7 +7,8 @@
 #include "device/sram.h"
 #include "device/uart.h"
 
-struct SimpleMachine {
+// 模拟兼容qemu rv64的机器实现
+struct QemuMachine {
     struct RiscvCore core;
     struct BusDevice bus;
     struct Sram      sram;
@@ -15,15 +16,15 @@ struct SimpleMachine {
     struct CLINT     clint;
 };
 
-struct SimplePortableOperations {
+struct QemuPortableOperations {
     u8             *sram_data;
     u64             sram_size;
     get_char_func_t get_char;
     put_char_func_t put_char;
 };
 
-void simple_machine_init(struct SimpleMachine *machine, struct SimplePortableOperations init);
+void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperations init);
 
-void simple_machine_run(struct SimpleMachine *machine);
+void qemu_machine_run(struct QemuMachine *machine);
 
 #endif
