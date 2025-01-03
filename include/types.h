@@ -1,6 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "config.h"
+
 // 无符号整数类型
 typedef unsigned char      u8;  // 8 位无符号整数
 typedef unsigned short     u16; // 16 位无符号整数
@@ -19,6 +21,14 @@ typedef double f64; // 64 位浮点数
 
 #define NULL ((void *)0)
 
+#if CURRENT_ARCH == ARCH_RV32
+typedef u32 usize;
+typedef i32 isize;
+#elif CURRENT_ARCH == ARCH_RV64
+typedef u64 usize;
+typedef i64 isize;
+#endif
+
 // 布尔类型
 #ifndef bool
 #define bool unsigned char
@@ -34,10 +44,6 @@ typedef bool bool_t; // 布尔类型的别名
 // 指针大小类型
 typedef unsigned long uptr; // 指针大小的无符号整数
 typedef signed long   iptr; // 指针大小的有符号整数
-
-// 常用类型别名
-typedef unsigned int usize; // 用于表示大小的无符号整数
-typedef signed int   isize; // 用于表示大小的有符号整数
 
 #define INT32_MIN 0x10000000
 #define UINT32_MAX 0xFFFFFFFF

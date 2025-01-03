@@ -5,8 +5,8 @@ HEADS_DIR = include
 SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
 
-#SRCS += test/main.c
-SRCS += test/difftest.c
+SRCS += test/main.c
+#SRCS += test/difftest.c
 
 CC = gcc
 CFLAGS = -Wall -Werror -I$(HEADS_DIR)

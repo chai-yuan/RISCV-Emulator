@@ -1,6 +1,5 @@
-#define ENABLE_DEBUG_MACROS 1 // 默认启用调试宏
 
-#include "machine/qemu64.h"
+#include "machine/qemu.h"
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,14 +56,14 @@ int main(int argc, char *argv[]) {
     memcpy(memory, binary_data, binary_size);
     free(binary_data);
     // 初始化机器并运行
-    struct Qemu64Machine *machine = malloc(sizeof(struct Qemu64Machine));
-    qemu64_machine_init(machine, (struct Qemu64PortableOperations){
-                                     .sram_data = memory,
-                                     .sram_size = memory_size,
-                                     .get_char  = NULL,
-                                     .put_char  = put_char_func,
-                                 });
+    struct QemuMachine *machine = malloc(sizeof(struct QemuMachine));
+    qemu_machine_init(machine, (struct QemuPortableOperations){
+                                   .sram_data = memory,
+                                   .sram_size = memory_size,
+                                   .get_char  = NULL,
+                                   .put_char  = put_char_func,
+                               });
 
-    qemu64_machine_run(machine);
+    qemu_machine_run(machine);
     return machine->core.regs[10] != 0;
 }
