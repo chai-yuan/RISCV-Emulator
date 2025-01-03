@@ -1,10 +1,8 @@
 #include "core/rvcore_priv.h"
-#include "debug.h"
 
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
     default:                                                                                       \
-        ERROR("unknow inst PC: %x : %x\n", core->pc, decode->inst_raw);                            \
         decode->exception = ILLEGAL_INSTRUCTION;                                                   \
         }
 #define INSTEXE(name, ...)                                                                         \
@@ -68,8 +66,14 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     INSTEXE(lui, RD = decode->immU);
     INSTEXE(auipc, RD = core->pc + decode->immU);
 
-    //    INSTEXE(mul, RD = ((isize)RS1 * (isize)RS2));
-    //    INSTEXE(mulh, RD = ((isize)RS1 * (isize)RS2) >> CONFIG_ARCH);
+    INSTEXE(mul, RD = RS1 * RS2);
+    INSTEXE(mulh, {
+        if (sizeof(usize) == 4) {
+            RD = ((i64)(i32)RS1 * (i64)(i32)RS2) >> 32;
+        } else {
+            // TODO
+        }
+    });
     //    INSTEXE(mulsu, RD = ((isize)RS1 * (u64)RS2) >> 32);
     //    INSTEXE(mulu, RD = ((u64)RS1 * (u64)RS2) >> 32);
     //    INSTEXE(div, RD = (RS2 == 0)                                      ? -1
@@ -142,13 +146,13 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         u32 value  = (u32)MR(RS1, 4);
         u32 result = (value < (u32)RS2) ? value : (u32)RS2;
         MW(RS1, 4, result);
-        RD = (isize)value;
+        RD = (isize)(i32)value;
     });
     INSTEXE(amomaxu_w, {
         u32 value  = (u32)MR(RS1, 4);
         u32 result = (value > (u32)RS2) ? value : (u32)RS2;
         MW(RS1, 4, result);
-        RD = (isize)value;
+        RD = (isize)(i32)value;
     });
 
     INSTEXE(csrrw, RD = CSRR(decode->immI); CSRW(decode->immI, RS1));
@@ -204,32 +208,6 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     INSTEXE(ld, RD = MR(RS1 + decode->immI, 8));
     INSTEXE(sd, MW(RS1 + decode->immS, 8, RS2));
 
-    INSTEXE(mulw, RD = (isize)((i32)RS1 * (i32)RS2));
-    INSTEXE(divw, {
-        i32 src1   = (i32)RS1;
-        i32 src2   = (i32)RS2;
-        i32 result = (src2 == 0) ? -1 : (src1 == INT32_MIN && src2 == -1) ? src1 : src1 / src2;
-        RD         = (i64)(i32)result;
-    });
-    INSTEXE(divuw, {
-        u32 src1   = (u32)RS1;
-        u32 src2   = (u32)RS2;
-        u32 result = (src2 == 0) ? UINT32_MAX : src1 / src2;
-        RD         = (i64)(i32)result;
-    });
-    INSTEXE(remw, {
-        i32 src1   = (i32)RS1;
-        i32 src2   = (i32)RS2;
-        i32 result = (src2 == 0) ? src1 : (src1 == INT32_MIN && src2 == -1) ? 0 : src1 % src2;
-        RD         = (i64)(i32)result;
-    });
-    INSTEXE(remuw, {
-        u32 src1   = (u32)RS1;
-        u32 src2   = (u32)RS2;
-        u32 result = (src2 == 0) ? src1 : src1 % src2;
-        RD         = (i64)(i32)result;
-    });
-
     INSTEXE(lr_d, {
         RD                      = MR(RS1, 8);
         core->reservation_valid = true;
@@ -251,51 +229,51 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     });
     INSTEXE(amoadd_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = value + RS2;
+        i64 result = value + (i64)RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amoxor_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = value ^ RS2;
+        i64 result = value ^ (i64)RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amoor_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = value | RS2;
+        i64 result = value | (i64)RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amoand_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = value & RS2;
+        i64 result = value & (i64)RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amomin_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = (value < RS2) ? value : RS2;
+        i64 result = (value < (i64)RS2) ? value : RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amomax_d, {
         i64 value  = MR(RS1, 8);
-        i64 result = (value > RS2) ? value : RS2;
+        i64 result = (value > (i64)RS2) ? value : RS2;
         MW(RS1, 8, result);
         RD = value;
     });
     INSTEXE(amominu_d, {
-        u64 value  = (u64)MR(RS1, 8);
-        u64 result = (value < (u64)RS2) ? value : (u64)RS2;
+        u64 value  = MR(RS1, 8);
+        u64 result = (value < (u64)RS2) ? value : RS2;
         MW(RS1, 8, result);
-        RD = (i64)value;
+        RD = value;
     });
     INSTEXE(amomaxu_d, {
-        u64 value  = (u64)MR(RS1, 8);
-        u64 result = (value > (u64)RS2) ? value : (u64)RS2;
+        u64 value  = MR(RS1, 8);
+        u64 result = (value > (u64)RS2) ? value : RS2;
         MW(RS1, 8, result);
-        RD = (i64)value;
+        RD = value;
     });
 #endif
 
