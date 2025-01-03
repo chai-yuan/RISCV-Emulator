@@ -7,7 +7,7 @@
 
 enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data) {
     struct DeviceFunc device   = core->device_func;
-    void             *mem_addr = device.get_buffer(device.context, addr);
+    u8               *mem_addr = device.get_buffer(device.context, addr);
     switch (size) {
     case 1:
         *data = REG8(mem_addr, 0);
@@ -27,7 +27,7 @@ enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, u
 
 enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, usize data) {
     struct DeviceFunc device   = core->device_func;
-    void             *mem_addr = device.get_buffer(device.context, addr);
+    u8             *mem_addr = device.get_buffer(device.context, addr);
     switch (size) {
     case 1:
         REG8(mem_addr, 0) = data;

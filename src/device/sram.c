@@ -1,7 +1,7 @@
 #include "device/sram.h"
 #include "debug.h"
 
-void sram_init(struct Sram *sram, void *data, u32 len) {
+void sram_init(struct Sram *sram, u8 *data, u32 len) {
     sram->data = data;
     sram->len  = len;
 }
@@ -12,7 +12,7 @@ static u8 *sram_get_buffer(void *context, usize address) {
         ERROR("address out of bounds");
         return NULL;
     }
-    return sram->data + address;
+    return &sram->data[address];
 }
 
 static enum exception sram_handle(void *context, usize address, u8 size, bool write) {

@@ -6,15 +6,18 @@ void riscv_decode_init(struct RiscvDecode *decode) {
     decode->interrupt = INT_NONE;
 }
 
-#define BITMASK(bits) ((1ull << (bits)) - 1)
-#define BITS(x, hi, lo) (((x) >> (lo)) & BITMASK((hi) - (lo) + 1))
-#define SEXT(x, len)                                                                               \
-    ({                                                                                             \
-        struct {                                                                                   \
-            i64 n : len;                                                                           \
-        } __x = {.n = (i64)x};                                                                     \
-        (u64) __x.n;                                                                               \
-    })
+u64 MASK(u64 n) {
+    if (n == 64)
+        return ~0ull;
+    return (1ull << n) - 1ull;
+}
+u64 BITS(u64 imm, u64 hi, u64 lo) { return (imm >> lo) & MASK(hi - lo + 1ull); }
+u64 SEXT(u64 imm, u64 n) {
+    if ((imm >> (n - 1)) & 1) {
+        return ((~0ull) << n) | imm;
+    } else
+        return imm & MASK(n);
+}
 
 #define INSTPAT(pattern, name)                                                                     \
     do {                                                                                           \
@@ -66,7 +69,7 @@ finish:
     *key   = __key >> __shift;
     *mask  = __mask >> __shift;
     *shift = __shift;
-};
+}
 
 void riscv_decode_inst(struct RiscvDecode *decode) {
     u32 inst = decode->inst_raw;

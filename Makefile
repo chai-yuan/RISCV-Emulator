@@ -9,7 +9,7 @@ SRCS += test/main.c
 #SRCS += test/difftest.c
 
 CC = gcc
-CFLAGS = -Wall -Werror -I$(HEADS_DIR)
+CFLAGS = -Wall -Werror -pedantic -I$(HEADS_DIR)
 LDFLAGS =
 
 IMG  ?= 
