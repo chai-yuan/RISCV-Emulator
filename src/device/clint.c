@@ -6,12 +6,12 @@ void clint_init(struct CLINT *clint) {
     REG64(clint->data, CLINT_MTIMECMP) = 0;
 }
 
-static u8 *clint_get_buffer(void *context, usize address) {
+static u8 *clint_get_buffer(void *context, u64 address) {
     struct CLINT *clint = (struct CLINT *)context;
     return clint->data + address;
 }
 
-static enum exception clint_handle(void *context, usize address, u8 size, bool write) {
+static enum exception clint_handle(void *context, u64 address, u8 size, bool write) {
     address = address & 0xFFF8;
 
     switch (address) {

@@ -1,4 +1,5 @@
 #include "core/rvcore_priv.h"
+#include "debug.h"
 
 usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
     if (addr == SIE) {
@@ -14,3 +15,9 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         core->csrs[addr] = value;
     }
 }
+
+void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) {
+    WARN("Exception occurred: %d", decode->exception);
+}
+
+void riscv_interrupt_handle(struct RiscvCore *core, struct RiscvDecode *decode) {}

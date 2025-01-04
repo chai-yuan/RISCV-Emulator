@@ -169,12 +169,12 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         RD = (isize)(i32)value;
     });
 
-    INSTEXE(csrrw, RD = CSRR(decode->immI); CSRW(decode->immI, RS1));
-    INSTEXE(csrrs, RD = CSRR(decode->immI); CSRW(decode->immI, RD | RS1));
-    INSTEXE(csrrc, RD = CSRR(decode->immI); CSRW(decode->immI, RD & ~RS1));
-    INSTEXE(csrrwi, RD = CSRR(decode->immI); CSRW(decode->immI, decode->rs1));
-    INSTEXE(csrrsi, RD = CSRR(decode->immI); CSRW(decode->immI, RD | decode->rs1));
-    INSTEXE(csrrci, RD = CSRR(decode->immI); CSRW(decode->immI, RD & ~decode->rs1));
+    INSTEXE(csrrw, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RS1));
+    INSTEXE(csrrs, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD | RS1));
+    INSTEXE(csrrc, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD & ~RS1));
+    INSTEXE(csrrwi, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, decode->rs1));
+    INSTEXE(csrrsi, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD | decode->rs1));
+    INSTEXE(csrrci, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD & ~decode->rs1));
 
     INSTEXE(fence, {});
     INSTEXE(fence_i, {});

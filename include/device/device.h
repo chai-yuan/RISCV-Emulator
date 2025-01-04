@@ -9,8 +9,8 @@
 #define REG16(base, offset) *(volatile u16 *)((base) + (offset))
 #define REG8(base, offset) *(volatile u8 *)((base) + (offset))
 
-typedef u8 *(*get_buffer_func_t)(void *context, usize address);
-typedef enum exception (*device_handle_func_t)(void *context, usize address, u8 size, bool write);
+typedef u8 *(*get_buffer_func_t)(void *context, u64 address);
+typedef enum exception (*device_handle_func_t)(void *context, u64 address, u8 size, bool write);
 typedef void (*update_func_t)(void *context, u32 interval);
 typedef bool (*check_external_interrupt_func_t)(void *context);
 typedef bool (*check_timer_interrupt_func_t)(void *context);

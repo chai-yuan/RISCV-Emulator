@@ -1,4 +1,3 @@
-
 #include "machine/qemu.h"
 #include "string.h"
 #include <stdio.h>
@@ -51,7 +50,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    const u64 memory_size = 8 * 128 * 128;
+    const u64 memory_size = 8 * 1024 * 1024;
     u8       *memory      = malloc(memory_size);
     memcpy(memory, binary_data, binary_size);
     free(binary_data);

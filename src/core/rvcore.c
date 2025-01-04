@@ -1,6 +1,5 @@
 #include "core/rvcore.h"
 #include "core/rvcore_priv.h"
-#include "debug.h"
 
 void riscvcore_step(struct RiscvCore *core) {
     struct RiscvDecode decode; // decode当中保存每一次执行需要用到的临时信息
@@ -10,11 +9,11 @@ void riscvcore_step(struct RiscvCore *core) {
     riscv_decode_inst(&decode);
     riscvcore_exec(core, &decode);
 
-    if (decode.exception != EXC_NONE) {
-        WARN("Exception occurred: %d", decode.exception);
-    } else if (decode.interrupt != INT_NONE) {
-        WARN("Interrupt occurred: %d", decode.interrupt);
-    }
+    if (decode.exception != EXC_NONE)
+        riscv_exception_handle(core, &decode);
+    if (decode.interrupt != INT_NONE)
+        riscv_interrupt_handle(core, &decode);
+
     core->pc = decode.next_pc;
 }
 

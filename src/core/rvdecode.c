@@ -86,6 +86,8 @@ void riscv_decode_inst(struct RiscvDecode *decode) {
                    (BITS(inst, 20, 20) << 11) | (BITS(inst, 19, 12) << 12);
     decode->immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
 
+    decode->csr_imm = BITS(inst, 31, 20);
+
     INSTPAT("0000000 ????? ????? 000 ????? 01100 11", add);
     INSTPAT("0100000 ????? ????? 000 ????? 01100 11", sub);
     INSTPAT("0000000 ????? ????? 100 ????? 01100 11", xor);

@@ -16,7 +16,7 @@ void bus_device_add_sub_device(struct BusDevice *bus, u64 base, u64 size, struct
     };
 }
 
-static u8 *bus_get_buffer(void *context, usize address) {
+static u8 *bus_get_buffer(void *context, u64 address) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
@@ -26,11 +26,11 @@ static u8 *bus_get_buffer(void *context, usize address) {
         }
     }
 
-    ERROR("address out of bounds");
+    ERROR("address out of bounds, addr : %llx",address);
     return NULL;
 }
 
-static enum exception bus_handle(void *context, usize address, u8 size, bool write) {
+static enum exception bus_handle(void *context, u64 address, u8 size, bool write) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
@@ -40,7 +40,7 @@ static enum exception bus_handle(void *context, usize address, u8 size, bool wri
         }
     }
 
-    ERROR("address out of bounds");
+    ERROR("address out of bounds, addr : %llx",address);
     return LOAD_ACCESS_FAULT;
 }
 

@@ -6,7 +6,7 @@ void sram_init(struct Sram *sram, u8 *data, u32 len) {
     sram->len  = len;
 }
 
-static u8 *sram_get_buffer(void *context, usize address) {
+static u8 *sram_get_buffer(void *context, u64 address) {
     struct Sram *sram = (struct Sram *)context;
     if (address >= sram->len) {
         ERROR("address out of bounds");
@@ -15,7 +15,7 @@ static u8 *sram_get_buffer(void *context, usize address) {
     return &sram->data[address];
 }
 
-static enum exception sram_handle(void *context, usize address, u8 size, bool write) {
+static enum exception sram_handle(void *context, u64 address, u8 size, bool write) {
     return EXC_NONE;
 }
 

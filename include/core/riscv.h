@@ -92,7 +92,7 @@ struct RiscvDecode {
     enum instruction inst;
     u8               rd, rs1, rs2;
     isize            immI, immB, immU, immJ, immS;
-    usize            next_pc;
+    usize            csr_imm,next_pc;
     usize            access_addr;
     enum exception   exception;
     enum interrupt   interrupt;

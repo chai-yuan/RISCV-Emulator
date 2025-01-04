@@ -15,4 +15,8 @@ void           riscvcore_mmu_fetch(struct RiscvCore *core, struct RiscvDecode *d
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode);
 
+void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode);
+
+void riscv_interrupt_handle(struct RiscvCore *core, struct RiscvDecode *decode);
+
 #endif

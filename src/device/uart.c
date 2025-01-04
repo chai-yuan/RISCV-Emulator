@@ -8,12 +8,12 @@ void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put) {
     uart->data[UART_LSR] = UART_LSR_TX; // 初始化线路状态寄存器，发送缓冲区为空
 }
 
-static u8 *uart_get_buffer(void *context, usize address) {
+static u8 *uart_get_buffer(void *context, u64 address) {
     struct Uart *uart = (struct Uart *)context;
     return uart->data + address;
 }
 
-static enum exception uart_handle(void *context, usize address, u8 size, bool write) {
+static enum exception uart_handle(void *context, u64 address, u8 size, bool write) {
     struct Uart *uart = (struct Uart *)context;
     if (size != 1)
         return STORE_AMO_ACCESS_FAULT; // 只支持 1 字节写入
