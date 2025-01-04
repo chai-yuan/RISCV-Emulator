@@ -43,6 +43,7 @@ enum interrupt {
 #define MIDELEG 0x303
 #define MIE 0x304
 #define MTVEC 0x305
+#define MSCRATCH 0x340
 #define MEPC 0x341
 #define MCAUSE 0x342
 #define MTVAL 0x343
@@ -52,6 +53,7 @@ enum interrupt {
 #define SSTATUS 0x100
 #define SIE 0x104
 #define STVEC 0x105
+#define SSCRATCH 0x140
 #define SEPC 0x141
 #define SCAUSE 0x142
 #define STVAL 0x143
@@ -92,7 +94,7 @@ struct RiscvDecode {
     enum instruction inst;
     u8               rd, rs1, rs2;
     isize            immI, immB, immU, immJ, immS;
-    usize            csr_imm,next_pc;
+    usize            csr_imm, next_pc;
     usize            access_addr;
     enum exception   exception;
     enum interrupt   interrupt;

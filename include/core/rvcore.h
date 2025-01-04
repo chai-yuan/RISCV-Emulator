@@ -6,9 +6,12 @@
 #include "types.h"
 
 struct RiscvCore {
-    usize             regs[32];
-    usize             pc;
-    usize             csrs[4096];
+    usize regs[32];
+    usize pc;
+
+    usize mstatus, medeleg, mideleg, mie, mtvec, mscratch, mepc, mcause, mtval, mip;
+    usize sstatus, sie, stvec, sscratch, sepc, scause, stval, sip, satp;
+
     enum mode         mode;
     bool              reservation_valid;
     usize             reservation_addr;

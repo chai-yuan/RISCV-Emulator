@@ -19,4 +19,7 @@ void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode);
 
 void riscv_interrupt_handle(struct RiscvCore *core, struct RiscvDecode *decode);
 
+#define CSRR(addr) riscv_csr_read(core, addr)
+#define CSRW(addr, value) riscv_csr_write(core, addr, value)
+
 #endif

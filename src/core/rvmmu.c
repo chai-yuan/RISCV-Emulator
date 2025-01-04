@@ -10,12 +10,12 @@ enum exception riscvcore_mmu_translate(struct RiscvCore *core, usize addr, u64 *
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     struct DeviceFunc device = core->device_func;
 
-    if ((core->csrs[SATP] >> 31) == 0) {
+    if ((CSRR(SATP) >> 31) == 0) {
         *paddr = addr;
         return EXC_NONE;
     }
 
-    u64 ppn   = core->csrs[SATP] & 0x3fffff;
+    u64 ppn   = CSRR(SATP) & 0x3fffff;
     u64 vpn[] = {
         (addr >> 12) & 0x3ff,
         (addr >> 22) & 0x3ff,

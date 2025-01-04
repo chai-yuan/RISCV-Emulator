@@ -4,7 +4,7 @@
 #define ARCH_RV32 32
 #define ARCH_RV64 64
 
-#define ENABLE_DEBUG_MACROS 1 
+// #define ENABLE_DEBUG_MACROS 1 
 #define CURRENT_ARCH ARCH_RV32
 
 #ifndef CURRENT_ARCH

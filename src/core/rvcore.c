@@ -18,13 +18,11 @@ void riscvcore_step(struct RiscvCore *core) {
 }
 
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
+    for (int i = 0; i < sizeof(struct RiscvCore); i++)
+        *((u8 *)core + i) = 0;
     core->pc                = 0x80000000;
     core->mode              = MACHINE;
     core->reservation_valid = false;
     core->halt              = false;
     core->device_func       = device_func;
-    for (int i = 0; i < 32; i++)
-        core->regs[i] = 0;
-    for (int i = 0; i < 4096; i++)
-        core->csrs[i] = 0;
 }

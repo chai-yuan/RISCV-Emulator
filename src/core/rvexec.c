@@ -14,8 +14,6 @@
 #define RD core->regs[decode->rd]
 #define MR(addr, size, data) decode->exception = riscvcore_mmu_read(core, addr, size, &data);
 #define MW(addr, size, data) decode->exception = riscvcore_mmu_write(core, addr, size, data)
-#define CSRR(addr) riscv_csr_read(core, addr)
-#define CSRW(addr, value) riscv_csr_write(core, addr, value)
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     u64 RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2];
@@ -206,7 +204,7 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
         CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
     });
-    INSTEXE(ebreak, core->halt = true);
+    INSTEXE(ebreak, decode->exception = BREAKPOINT);
 
 #if CURRENT_ARCH == ARCH_RV64
     INSTEXE(addw, RD = (i32)(RS1 + RS2));

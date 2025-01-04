@@ -22,13 +22,12 @@ void qemu_machine_run(struct QemuMachine *machine) {
 
     while (machine->core.halt == false) {
         riscvcore_step(&machine->core);
-        INFO("PC: %x %x", machine->core.pc, machine->core.csrs[SATP]);
         if ((step_cnt++) % 10) {
             bus.update(bus.context, 10);
         }
 
-        if (step_cnt > 1000) {
-            exit(0);
+        if (step_cnt > 5000) {
+            break;
         }
     }
 }
