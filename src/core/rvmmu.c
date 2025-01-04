@@ -38,11 +38,9 @@ enum exception riscvcore_mmu_translate(struct RiscvCore *core, usize addr, u64 *
     return EXC_NONE;
 }
 
-enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data) {
-    struct DeviceFunc device = core->device_func;
-    u64               paddr  = 0;
-    riscvcore_mmu_translate(core, addr, &paddr);
-    u8 *mem_addr = device.get_buffer(device.context, paddr);
+enum exception device_read(struct RiscvCore *core, usize paddr, u8 size, usize *data) {
+    struct DeviceFunc device   = core->device_func;
+    u8               *mem_addr = device.get_buffer(device.context, paddr);
     switch (size) {
     case 1:
         *data = REG8(mem_addr, 0);
@@ -57,14 +55,12 @@ enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, u
         *data = REG64(mem_addr, 0);
         break;
     }
-    return device.handle(device.context, addr, size, false);
+    return device.handle(device.context, paddr, size, false);
 }
 
-enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, usize data) {
-    struct DeviceFunc device = core->device_func;
-    u64               paddr  = 0;
-    riscvcore_mmu_translate(core, addr, &paddr);
-    u8 *mem_addr = device.get_buffer(device.context, paddr);
+enum exception device_write(struct RiscvCore *core, usize paddr, u8 size, usize data) {
+    struct DeviceFunc device   = core->device_func;
+    u8               *mem_addr = device.get_buffer(device.context, paddr);
     switch (size) {
     case 1:
         REG8(mem_addr, 0) = data;
@@ -79,11 +75,36 @@ enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, 
         REG64(mem_addr, 0) = data;
         break;
     }
-    return device.handle(device.context, addr, size, true);
+    return device.handle(device.context, paddr, size, true);
+}
+
+enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data) {
+    u64 paddr = 0;
+    if (riscvcore_mmu_translate(core, addr, &paddr) != EXC_NONE) {
+        return LOAD_PAGE_FAULT;
+    }
+    return device_read(core, paddr, size, data);
+}
+
+enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, usize data) {
+    u64 paddr = 0;
+    if (riscvcore_mmu_translate(core, addr, &paddr) != EXC_NONE) {
+        return STORE_AMO_PAGE_FAULT;
+    }
+    return device_write(core, paddr, size, data);
 }
 
 void riscvcore_mmu_fetch(struct RiscvCore *core, struct RiscvDecode *decode) {
-    usize inst;
-    decode->exception = riscvcore_mmu_read(core, core->pc, 4, &inst);
-    decode->inst_raw  = inst;
+    u64   paddr = 0;
+    usize inst  = 0;
+    if (core->pc & 0x3) {
+        decode->exception = INSTRUCTION_ADDRESS_MISALIGNED;
+    } else if ((decode->exception = riscvcore_mmu_translate(core, core->pc, &paddr)) != EXC_NONE) {
+        decode->exception = INSTRUCTION_PAGE_FAULT;
+    } else if ((decode->exception = device_read(core, paddr, 4, &inst)) != EXC_NONE) {
+        decode->exception = INSTRUCTION_ACCESS_FAULT;
+    }
+    if (decode->exception != EXC_NONE)
+        decode->exception_val = core->pc;
+    decode->inst_raw = inst;
 }

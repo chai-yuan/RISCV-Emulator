@@ -63,7 +63,7 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
 }
 
 void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) {
-    WARN("Exception occurred: %d", decode->exception);
+    WARN("Exception occurred: %d , %x", decode->exception, decode->exception_val);
     if ((core->mode <= SUPERVISOR) && ((CSRR(MEDELEG) >> decode->exception) & 1)) { // 异常委托
         if (core->mode == USER) {
             CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));
@@ -74,7 +74,7 @@ void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) 
         decode->next_pc = CSRR(STVEC) & ~1;
         CSRW(SEPC, core->pc);
         CSRW(SCAUSE, decode->exception);
-        CSRW(STVAL, 0);
+        CSRW(STVAL, decode->exception_val);
         if ((CSRR(SSTATUS) >> 1) & 1) {
             CSRW(SSTATUS, CSRR(SSTATUS) | (1 << 5));
         } else {
@@ -88,7 +88,7 @@ void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) 
 
         CSRW(MEPC, core->pc);
         CSRW(MCAUSE, decode->exception);
-        CSRW(MTVAL, 0);
+        CSRW(MTVAL, decode->exception_val);
         if ((CSRR(MSTATUS) >> 3) & 1) {
             CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
         } else {

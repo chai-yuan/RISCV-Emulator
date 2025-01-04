@@ -64,5 +64,5 @@ int main(int argc, char *argv[]) {
                                });
 
     qemu_machine_run(machine);
-    return machine->core.regs[10] != 0;
+    return machine->core.regs[10];
 }

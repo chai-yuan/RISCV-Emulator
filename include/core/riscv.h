@@ -97,6 +97,7 @@ struct RiscvDecode {
     usize            csr_imm, next_pc;
     usize            access_addr;
     enum exception   exception;
+    usize            exception_val;
     enum interrupt   interrupt;
 };
 

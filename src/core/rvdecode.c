@@ -1,9 +1,10 @@
 #include "core/rvcore_priv.h"
 
 void riscv_decode_init(struct RiscvDecode *decode) {
-    decode->inst_raw  = 0;
-    decode->exception = EXC_NONE;
-    decode->interrupt = INT_NONE;
+    decode->inst_raw      = 0;
+    decode->exception     = EXC_NONE;
+    decode->exception_val = 0;
+    decode->interrupt     = INT_NONE;
 }
 
 u64 MASK(u64 n) {

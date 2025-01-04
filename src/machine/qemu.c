@@ -1,5 +1,4 @@
 #include "machine/qemu.h"
-#include "debug.h"
 
 void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperations init) {
     bus_device_init(&machine->bus);
@@ -26,7 +25,7 @@ void qemu_machine_run(struct QemuMachine *machine) {
             bus.update(bus.context, 10);
         }
 
-        if (step_cnt > 5000) {
+        if (step_cnt > 10000) {
             break;
         }
     }

@@ -6,8 +6,10 @@ void riscvcore_step(struct RiscvCore *core) {
     riscv_decode_init(&decode);
 
     riscvcore_mmu_fetch(core, &decode);
-    riscv_decode_inst(&decode);
-    riscvcore_exec(core, &decode);
+    if (decode.exception == EXC_NONE) {
+        riscv_decode_inst(&decode);
+        riscvcore_exec(core, &decode);
+    }
 
     if (decode.exception != EXC_NONE)
         riscv_exception_handle(core, &decode);

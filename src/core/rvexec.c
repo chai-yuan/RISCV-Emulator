@@ -1,9 +1,11 @@
 #include "core/rvcore_priv.h"
+#include "debug.h"
 
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
     default:                                                                                       \
-        decode->exception = ILLEGAL_INSTRUCTION;                                                   \
+        decode->exception     = ILLEGAL_INSTRUCTION;                                               \
+        decode->exception_val = decode->inst_raw;                                                  \
         }
 #define INSTEXE(name, ...)                                                                         \
     case inst_##name: {                                                                            \
@@ -12,8 +14,16 @@
     }
 
 #define RD core->regs[decode->rd]
-#define MR(addr, size, data) decode->exception = riscvcore_mmu_read(core, addr, size, &data);
-#define MW(addr, size, data) decode->exception = riscvcore_mmu_write(core, addr, size, data)
+#define MR(addr, size, data)                                                                       \
+    do {                                                                                           \
+        if (EXC_NONE != (decode->exception = riscvcore_mmu_read(core, addr, size, &data)))         \
+            decode->exception_val = addr;                                                          \
+    } while (0);
+#define MW(addr, size, data)                                                                       \
+    do {                                                                                           \
+        if (EXC_NONE != (decode->exception = riscvcore_mmu_write(core, addr, size, data)))         \
+            decode->exception_val = addr;                                                          \
+    } while (0);
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     u64 RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2];
@@ -204,7 +214,7 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
         CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
     });
-    INSTEXE(ebreak, decode->exception = BREAKPOINT);
+    INSTEXE(ebreak, decode->exception = BREAKPOINT, decode->exception_val = core->pc);
 
 #if CURRENT_ARCH == ARCH_RV64
     INSTEXE(addw, RD = (i32)(RS1 + RS2));
