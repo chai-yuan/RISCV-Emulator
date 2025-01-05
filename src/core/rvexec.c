@@ -1,5 +1,4 @@
 #include "core/rvcore_priv.h"
-#include "debug.h"
 
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
@@ -13,7 +12,6 @@
         break;                                                                                     \
     }
 
-#define RD core->regs[decode->rd]
 #define MR(addr, size, data)                                                                       \
     do {                                                                                           \
         if (EXC_NONE != (decode->exception = riscvcore_mmu_read(core, addr, size, &data)))         \
@@ -26,7 +24,7 @@
     } while (0);
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
-    u64 RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2];
+    usize RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2], RD = core->regs[decode->rd];
     decode->next_pc = core->pc + 4;
 
     INSTBEGIN();
@@ -198,21 +196,23 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         }
     });
     INSTEXE(sret, {
-        decode->next_pc = CSRR(SEPC);
-        core->mode      = ((CSRR(SSTATUS) >> 8) & 1) == 1 ? SUPERVISOR : USER;
+        core->mode = ((CSRR(SSTATUS) >> 8) & 1) == 1 ? SUPERVISOR : USER;
         CSRW(SSTATUS, ((CSRR(SSTATUS) >> 5) & 1) == 1 ? CSRR(SSTATUS) | (1 << 1)
                                                       : CSRR(SSTATUS) & ~(1 << 1));
         CSRW(SSTATUS, CSRR(SSTATUS) | (1 << 5));
         CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));
+        decode->next_pc = CSRR(SEPC);
     });
     INSTEXE(mret, {
-        decode->next_pc = CSRR(MEPC);
-        u64 mpp         = (CSRR(MSTATUS) >> 11) & 3;
-        core->mode      = mpp == 2 ? MACHINE : (mpp == 1 ? SUPERVISOR : USER);
+        u64 mpp    = (CSRR(MSTATUS) >> 11) & 3;
+        core->mode = mpp == 3 ? MACHINE : (mpp == 1 ? SUPERVISOR : USER);
         CSRW(MSTATUS, (((CSRR(MSTATUS) >> 7) & 1) == 1) ? CSRR(MSTATUS) | (1 << 3)
                                                         : CSRR(MSTATUS) & ~(1 << 3));
         CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
         CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
+        if (mpp != 3)
+            CSRW(MSTATUS, CSRR(MSTATUS) & ~(1 << 17)); // MPRV
+        decode->next_pc = CSRR(MEPC);
     });
     INSTEXE(ebreak, decode->exception = BREAKPOINT, decode->exception_val = core->pc);
 
@@ -319,5 +319,12 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
 
     INSTEND();
 
+    if (decode->next_pc & 3) {
+        decode->exception     = INSTRUCTION_ADDRESS_MISALIGNED;
+        decode->exception_val = decode->next_pc;
+    }
+    if (decode->exception == EXC_NONE) {
+        core->regs[decode->rd] = RD; // 无异常时当前指令生效
+    }
     core->regs[0] = 0;
 }

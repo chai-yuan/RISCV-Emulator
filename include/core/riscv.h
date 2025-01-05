@@ -39,6 +39,7 @@ enum interrupt {
 
 /* Machine level CSRs */
 #define MSTATUS 0x300
+#define MISA 0x301
 #define MEDELEG 0x302
 #define MIDELEG 0x303
 #define MIE 0x304

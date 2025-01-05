@@ -9,14 +9,15 @@ struct RiscvCore {
     usize regs[32];
     usize pc;
 
-    usize mstatus, medeleg, mideleg, mie, mtvec, mscratch, mepc, mcause, mtval, mip;
+    usize mstatus, medeleg, mideleg, mie, mtvec, mscratch, mepc, mcause, mtval, mip, misa;
     usize sstatus, sie, stvec, sscratch, sepc, scause, stval, sip, satp;
 
-    enum mode         mode;
-    bool              reservation_valid;
-    usize             reservation_addr;
-    bool              halt;
-    struct DeviceFunc device_func;
+    enum mode          mode;
+    bool               reservation_valid;
+    usize              reservation_addr;
+    bool               halt;
+    struct RiscvDecode decode;
+    struct DeviceFunc  device_func;
 };
 
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func);

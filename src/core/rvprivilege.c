@@ -12,6 +12,7 @@
 usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
     switch (addr) {
         RCSR(MSTATUS, mstatus);
+        RCSR(MISA, misa);
         RCSR(MEDELEG, medeleg);
         RCSR(MIDELEG, mideleg);
         RCSR(MIE, mie);
