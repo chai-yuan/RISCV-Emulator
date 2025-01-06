@@ -21,12 +21,19 @@ typedef double f64; // 64 位浮点数
 
 #define NULL ((void *)0)
 
+#define INT32_MIN 0x80000000
+#define UINT32_MAX 0xffffffff
+#define INT64_MIN 0x8000000000000000
+#define UINT64_MAX 0xffffffffffffffff
+
 #if CURRENT_ARCH == ARCH_RV32
 typedef u32 usize;
 typedef i32 isize;
+#define INT_MIN INT32_MIN
 #elif CURRENT_ARCH == ARCH_RV64
 typedef u64 usize;
 typedef i64 isize;
+#define INT_MIN INT64_MIN
 #endif
 
 // 布尔类型
@@ -44,10 +51,5 @@ typedef bool bool_t; // 布尔类型的别名
 // 指针大小类型
 typedef unsigned long uptr; // 指针大小的无符号整数
 typedef signed long   iptr; // 指针大小的有符号整数
-
-#define INT32_MIN 0x10000000
-#define UINT32_MAX 0xFFFFFFFF
-#define INT64_MIN 0x1000000000000000
-#define UINT64_MAX 0xFFFFFFFFFFFFFFFF
 
 #endif // TYPES_H

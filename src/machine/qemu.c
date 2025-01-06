@@ -1,5 +1,4 @@
 #include "machine/qemu.h"
-#include "debug.h"
 
 void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperations init) {
     bus_device_init(&machine->bus);
@@ -25,13 +24,5 @@ void qemu_machine_run(struct QemuMachine *machine) {
         if ((step_cnt++) % 10) {
             bus.update(bus.context, 10);
         }
-
-        if (step_cnt > 400) {
-            break;
-        }
-
-        INFO("PC : %x", machine->core.pc);
-        INFO("EXC : %d , val : %x", machine->core.decode.exception,
-             machine->core.decode.exception_val);
     }
 }

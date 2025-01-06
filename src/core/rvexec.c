@@ -1,4 +1,6 @@
 #include "core/rvcore_priv.h"
+#include "debug.h"
+#include "utils.h"
 
 #define INSTBEGIN() switch (decode->inst) {
 #define INSTEND()                                                                                  \
@@ -24,6 +26,7 @@
     } while (0);
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
+    INFO("inst : %x %d", decode->inst_raw, decode->inst);
     usize RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2], RD = core->regs[decode->rd];
     decode->next_pc = core->pc + 4;
 
@@ -72,21 +75,69 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         if (sizeof(usize) == 4) {
             RD = ((i64)(i32)RS1 * (i64)(i32)RS2) >> 32;
         } else {
-            // TODO
+            struct uint128 a = signed2u128(RS1), b = signed2u128(RS2);
+            struct uint128 ans = u128mul(a, b);
+            RD                 = ((u64)ans.nums[3] << 32) | (u64)ans.nums[2];
         }
     });
-    //    INSTEXE(mulsu, RD = ((isize)RS1 * (u64)RS2) >> 32);
-    //    INSTEXE(mulu, RD = ((u64)RS1 * (u64)RS2) >> 32);
-    //    INSTEXE(div, RD = (RS2 == 0)                                      ? -1
-    //                      : ((isize)RS1 == INT64_MIN && (isize)RS2 == -1) ? RS1
-    //                                                                      : ((isize)RS1 /
-    //                                                                      (isize)RS2););
-    //    INSTEXE(divu, { RD = (RS2 == 0) ? UINT64_MAX : RS1 / RS2; });
-    //    INSTEXE(rem, RD = (RS2 == 0)                                      ? RS1
-    //                      : ((isize)RS1 == INT64_MIN && (isize)RS2 == -1) ? 0
-    //                                                                     : ((isize)RS1 %
-    //                                                                     (isize)RS2););
-    //    INSTEXE(remu, RD = (RS2 == 0) ? RS1 : RS1 % RS2);
+    INSTEXE(mulhsu, {
+        if (sizeof(usize) == 4) {
+            RD = ((i64)(i32)RS1 * (u64)RS2) >> 32;
+        } else {
+            struct uint128 a = signed2u128(RS1), b = unsigned2u128(RS2);
+            struct uint128 ans = u128mul(a, b);
+            RD                 = ((u64)ans.nums[3] << 32) | (u64)ans.nums[2];
+        }
+    });
+    INSTEXE(mulhu, {
+        if (sizeof(usize) == 4) {
+            RD = ((u64)RS1 * (u64)RS2) >> 32;
+        } else {
+            struct uint128 a = unsigned2u128(RS1), b = unsigned2u128(RS2);
+            struct uint128 ans = u128mul(a, b);
+            RD                 = ((u64)ans.nums[3] << 32) | (u64)ans.nums[2];
+        }
+    })
+    INSTEXE(div, {
+        isize src1 = RS1;
+        isize src2 = RS2;
+        if (src2 == 0) {
+            RD = (isize)-1;
+        } else if (src1 == INT_MIN && src2 == -1) {
+            RD = src1;
+        } else {
+            RD = src1 / src2;
+        }
+    });
+    INSTEXE(divu, {
+        usize src1 = RS1;
+        usize src2 = RS2;
+        if (src2 == 0) {
+            RD = (isize)-1;
+        } else {
+            RD = src1 / src2;
+        }
+    });
+    INSTEXE(rem, {
+        isize src1 = RS1;
+        isize src2 = RS2;
+        if (src2 == 0) {
+            RD = src1;
+        } else if (src1 == INT_MIN && src2 == -1) {
+            RD = 0;
+        } else {
+            RD = src1 % src2;
+        }
+    });
+    INSTEXE(remu, {
+        usize src1 = RS1;
+        usize src2 = RS2;
+        if (src2 == 0) {
+            RD = src1;
+        } else {
+            RD = src1 % src2;
+        }
+    });
 
     INSTEXE(lr_w, {
         usize data;
@@ -175,12 +226,60 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
         RD = (isize)(i32)value;
     });
 
-    INSTEXE(csrrw, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RS1));
-    INSTEXE(csrrs, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD | RS1));
-    INSTEXE(csrrc, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD & ~RS1));
-    INSTEXE(csrrwi, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, decode->rs1));
-    INSTEXE(csrrsi, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD | decode->rs1));
-    INSTEXE(csrrci, RD = CSRR(decode->csr_imm); CSRW(decode->csr_imm, RD & ~decode->rs1));
+    INSTEXE(csrrw, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, RS1);
+        }
+    });
+    INSTEXE(csrrs, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, RD | RS1);
+        }
+    });
+    INSTEXE(csrrc, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, RD & ~RS1);
+        }
+    });
+    INSTEXE(csrrwi, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, decode->rs1);
+        }
+    });
+    INSTEXE(csrrsi, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, RD | decode->rs1);
+        }
+    });
+    INSTEXE(csrrci, {
+        if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
+            decode->exception     = ILLEGAL_INSTRUCTION;
+            decode->exception_val = decode->inst_raw;
+        } else {
+            RD = CSRR(decode->csr_imm);
+            CSRW(decode->csr_imm, RD & ~decode->rs1);
+        }
+    });
 
     INSTEXE(fence, {});
     INSTEXE(fence_i, {});
@@ -229,6 +328,48 @@ void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
     INSTEXE(lwu, MR(RS1 + decode->immI, 4, RD));
     INSTEXE(ld, MR(RS1 + decode->immI, 8, RD));
     INSTEXE(sd, MW(RS1 + decode->immS, 8, RS2));
+
+    INSTEXE(mulw, RD = (i64)(i32)((u32)RS1 * (u32)RS2));
+    INSTEXE(divw, {
+        i32 src1 = RS1, src2 = RS2;
+        if (src2 == 0) {
+            RD = -1ll;
+        } else if (src1 == INT32_MIN && src2 == -1) {
+            RD = (i64)src1;
+        } else {
+            RD = (i64)(src1 / src2);
+        }
+    });
+    INSTEXE(divuw, {
+        u32 src1 = RS1;
+        u32 src2 = RS2;
+        if (src2 == 0) {
+            RD = ~0ull;
+        } else {
+            i32 result = src1 / src2;
+            RD         = (i64)result;
+        }
+    });
+    INSTEXE(remw, {
+        i32 src1 = RS1;
+        i32 src2 = RS2;
+        if (src2 == 0) {
+            RD = (i64)src1;
+        } else if (src1 == INT32_MIN && src2 == -1) {
+            RD = 0;
+        } else {
+            RD = (i64)(src1 % src2);
+        }
+    });
+    INSTEXE(remuw, {
+        u32 src1 = RS1;
+        u32 src2 = RS2;
+        if (src2 == 0) {
+            RD = (i64)(i32)src1;
+        } else {
+            RD = (i64)(i32)(src1 % src2);
+        }
+    });
 
     INSTEXE(lr_d, {
         MR(RS1, 8, RD);

@@ -13,11 +13,9 @@ usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
 void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
     if ((addr >> 10) == 0x3)
         return; // read only
-    if (((addr >> 8) & 0x3) <= core->mode) {
-        core->decode.exception     = ILLEGAL_INSTRUCTION;
-        core->decode.exception_val = core->decode.inst_raw;
+
+    if (addr == MISA)
         return;
-    }
 
     switch (addr) {
     case SIE:
@@ -29,7 +27,8 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
 }
 
 void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) {
-    WARN("Exception occurred: %d , %x", decode->exception, decode->exception_val);
+    WARN("Exception occurred: %d , %x at pc : %x", decode->exception, decode->exception_val,
+         core->pc);
     if ((core->mode <= SUPERVISOR) && ((CSRR(MEDELEG) >> decode->exception) & 1)) { // 异常委托
         if (core->mode == USER) {
             CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));

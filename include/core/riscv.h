@@ -72,7 +72,7 @@ enum instruction {
     inst_sb,    inst_sh,    inst_sw,    inst_sd,    inst_beq,   inst_bne,   inst_blt,
     inst_bge,   inst_bltu,  inst_bgeu,  inst_jal,   inst_jalr,  inst_lui,   inst_auipc,
     // M 类型指令
-    inst_mul,   inst_mulh,  inst_mulsu, inst_mulu,  inst_mulw,  inst_div,   inst_divu,
+    inst_mul,   inst_mulh,  inst_mulhsu, inst_mulhu,  inst_mulw,  inst_div,   inst_divu,
     inst_divw,  inst_divuw, inst_rem,   inst_remw,  inst_remu,  inst_remuw,
     // A 类型指令
     inst_lr_w,  inst_sc_w,  inst_amoswap_w, inst_amoadd_w,  inst_amoxor_w, inst_amoor_w,
