@@ -26,7 +26,7 @@ void qemu_machine_run(struct QemuMachine *machine) {
             bus.update(bus.context, 10);
         }
 
-        if (step_cnt > 1000) {
+        if (step_cnt > 400) {
             break;
         }
 

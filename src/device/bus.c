@@ -26,7 +26,7 @@ static u8 *bus_get_buffer(void *context, u64 address) {
         }
     }
 
-    ERROR("address out of bounds, addr : %llx", address);
+    WARN("address out of bounds, addr : %llx", address);
     return NULL;
 }
 
@@ -40,7 +40,7 @@ static enum exception bus_handle(void *context, u64 address, u8 size, bool write
         }
     }
 
-    ERROR("address out of bounds, addr : %llx", address);
+    WARN("address out of bounds, addr : %llx", address);
     return LOAD_ACCESS_FAULT;
 }
 

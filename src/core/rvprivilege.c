@@ -83,7 +83,7 @@ void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) 
         }
         CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 1));
     } else {
-        CSRW(MSTATUS, CSRR(MSTATUS) & ~(core->mode << 11));
+        CSRW(MSTATUS, (CSRR(MSTATUS) & ~(3 << 11)) | (core->mode << 11));
         core->mode      = MACHINE;
         decode->next_pc = CSRR(MTVEC) & ~1;
 
