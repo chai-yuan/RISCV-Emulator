@@ -8,9 +8,7 @@
 struct RiscvCore {
     usize regs[32];
     usize pc;
-
-    usize mstatus, medeleg, mideleg, mie, mtvec, mscratch, mepc, mcause, mtval, mip, misa;
-    usize sstatus, sie, stvec, sscratch, sepc, scause, stval, sip, satp;
+    usize csrs[4096];
 
     enum mode          mode;
     bool               reservation_valid;

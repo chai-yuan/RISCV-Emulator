@@ -1,65 +1,30 @@
 #include "core/rvcore_priv.h"
 #include "debug.h"
-#define RCSR(name, val)                                                                            \
-    case name:                                                                                     \
-        return core->val
-
-#define WCSR(name, val)                                                                            \
-    case name:                                                                                     \
-        core->val = value;                                                                         \
-        break
 
 usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
     switch (addr) {
-        RCSR(MSTATUS, mstatus);
-        RCSR(MISA, misa);
-        RCSR(MEDELEG, medeleg);
-        RCSR(MIDELEG, mideleg);
-        RCSR(MIE, mie);
-        RCSR(MTVEC, mtvec);
-        RCSR(MSCRATCH, mscratch);
-        RCSR(MEPC, mepc);
-        RCSR(MCAUSE, mcause);
-        RCSR(MTVAL, mtval);
-        RCSR(MIP, mip);
-
-        RCSR(SSTATUS, sstatus);
-        RCSR(STVEC, stvec);
-        RCSR(SSCRATCH, sscratch);
-        RCSR(SEPC, sepc);
-        RCSR(SCAUSE, scause);
-        RCSR(STVAL, stval);
-        RCSR(SIP, sip);
-        RCSR(SATP, satp);
     case SIE:
-        return core->mie & core->mideleg;
+        return core->csrs[MIE] & core->csrs[MIDELEG];
+    default:
+        return core->csrs[addr];
     }
-    return 0;
 }
 
 void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
-    switch (addr) {
-        WCSR(MSTATUS, mstatus);
-        WCSR(MEDELEG, medeleg);
-        WCSR(MIDELEG, mideleg);
-        WCSR(MIE, mie);
-        WCSR(MTVEC, mtvec);
-        WCSR(MSCRATCH, mscratch);
-        WCSR(MEPC, mepc);
-        WCSR(MCAUSE, mcause);
-        WCSR(MTVAL, mtval);
-        WCSR(MIP, mip);
+    if ((addr >> 10) == 0x3)
+        return; // read only
+    if (((addr >> 8) & 0x3) <= core->mode) {
+        core->decode.exception     = ILLEGAL_INSTRUCTION;
+        core->decode.exception_val = core->decode.inst_raw;
+        return;
+    }
 
-        WCSR(SSTATUS, sstatus);
-        WCSR(STVEC, stvec);
-        WCSR(SEPC, sepc);
-        WCSR(SSCRATCH, sscratch);
-        WCSR(SCAUSE, scause);
-        WCSR(STVAL, stval);
-        WCSR(SIP, sip);
-        WCSR(SATP, satp);
+    switch (addr) {
     case SIE:
-        core->mie = (core->mie & ~core->mideleg) | (value & core->mideleg);
+        core->csrs[MIE] = (core->csrs[MIE] & ~core->csrs[MIDELEG]) | (value & core->csrs[MIDELEG]);
+        break;
+    default:
+        core->csrs[addr] = value;
     }
 }
 
