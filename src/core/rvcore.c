@@ -1,5 +1,6 @@
 #include "core/rvcore.h"
 #include "core/rvcore_priv.h"
+#include "debug.h"
 
 void riscvcore_step(struct RiscvCore *core) {
     riscv_decode_init(&core->decode);

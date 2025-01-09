@@ -16,35 +16,35 @@ void bus_device_add_sub_device(struct BusDevice *bus, u64 base, u64 size, struct
     };
 }
 
-static u8 *bus_get_buffer(void *context, u64 address) {
+static enum exception bus_read(void *context, u64 address, u8 size, usize *data) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
         struct SubDevice *sub = &bus->sub_devices[i];
         if (address >= sub->base && address < sub->base + sub->size) {
-            return sub->func.get_buffer(sub->func.context, address - sub->base);
+            return sub->func.read(sub->func.context, address - sub->base, size, data);
         }
     }
 
-    WARN("address out of bounds, addr : %llx", address);
-    return NULL;
-}
-
-static enum exception bus_handle(void *context, u64 address, u8 size, bool write) {
-    struct BusDevice *bus = (struct BusDevice *)context;
-
-    for (int i = 0; i < bus->num_sub_devices; i++) {
-        struct SubDevice *sub = &bus->sub_devices[i];
-        if (address >= sub->base && address < sub->base + sub->size) {
-            return sub->func.handle(sub->func.context, address - sub->base, size, write);
-        }
-    }
-
-    WARN("address out of bounds, addr : %llx", address);
+    ERROR("address out of bounds, addr : %llx", address);
     return LOAD_ACCESS_FAULT;
 }
 
-static bool bus_device_check_external_interrupt(void *context) {
+static enum exception bus_write(void *context, u64 address, u8 size, usize data) {
+    struct BusDevice *bus = (struct BusDevice *)context;
+
+    for (int i = 0; i < bus->num_sub_devices; i++) {
+        struct SubDevice *sub = &bus->sub_devices[i];
+        if (address >= sub->base && address < sub->base + sub->size) {
+            return sub->func.write(sub->func.context, address - sub->base, size, data);
+        }
+    }
+
+    ERROR("address out of bounds, addr : %llx", address);
+    return STORE_AMO_ACCESS_FAULT;
+}
+
+static bool bus_check_external_interrupt(void *context) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
@@ -58,7 +58,7 @@ static bool bus_device_check_external_interrupt(void *context) {
     return false;
 }
 
-static bool bus_device_check_timer_interrupt(void *context) {
+static bool bus_check_timer_interrupt(void *context) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
@@ -71,7 +71,7 @@ static bool bus_device_check_timer_interrupt(void *context) {
     return false;
 }
 
-static void bus_device_update(void *context, u32 interval) {
+static void bus_update(void *context, u32 interval) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
     for (int i = 0; i < bus->num_sub_devices; i++) {
@@ -84,10 +84,10 @@ static void bus_device_update(void *context, u32 interval) {
 struct DeviceFunc bus_device_get_func(struct BusDevice *bus) {
     return (struct DeviceFunc){
         .context                  = bus,
-        .get_buffer               = bus_get_buffer,
-        .handle                   = bus_handle,
-        .update                   = bus_device_update,
-        .check_external_interrupt = bus_device_check_external_interrupt,
-        .check_timer_interrupt    = bus_device_check_timer_interrupt,
+        .read                     = bus_read,
+        .write                    = bus_write,
+        .update                   = bus_update,
+        .check_external_interrupt = bus_check_external_interrupt,
+        .check_timer_interrupt    = bus_check_timer_interrupt,
     };
 }

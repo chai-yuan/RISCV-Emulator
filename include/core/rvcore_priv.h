@@ -20,4 +20,7 @@ void riscv_interrupt_handle(struct RiscvCore *core);
 #define CSRR(addr) riscv_csr_read(core, addr)
 #define CSRW(addr, value) riscv_csr_write(core, addr, value)
 
+#define DR(addr, size, value) core->device_func.read(core->device_func.context, addr, size, value)
+#define DW(addr, size, value) core->device_func.write(core->device_func.context, addr, size, value)
+
 #endif

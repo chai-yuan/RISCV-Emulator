@@ -6,24 +6,30 @@ void sram_init(struct Sram *sram, u8 *data, u32 len) {
     sram->len  = len;
 }
 
-static u8 *sram_get_buffer(void *context, u64 address) {
+static enum exception sram_read(void *context, u64 address, u8 size, usize *data) {
     struct Sram *sram = (struct Sram *)context;
-    if (address >= sram->len) {
-        ERROR("address out of bounds");
-        return NULL;
-    }
-    return &sram->data[address];
+    if (sram->len < address + size)
+        return LOAD_ACCESS_FAULT;
+
+    device_read(sram->data, address, size, data);
+    return EXC_NONE;
 }
 
-static enum exception sram_handle(void *context, u64 address, u8 size, bool write) {
+static enum exception sram_write(void *context, u64 address, u8 size, usize data) {
+    struct Sram *sram = (struct Sram *)context;
+
+    if (sram->len < address + size)
+        return STORE_AMO_ACCESS_FAULT;
+
+    device_write(sram->data, address, size, data);
     return EXC_NONE;
 }
 
 struct DeviceFunc sram_get_func(struct Sram *sram) {
     return (struct DeviceFunc){
         .context                  = sram,
-        .get_buffer               = sram_get_buffer,
-        .handle                   = sram_handle,
+        .read                     = sram_read,
+        .write                    = sram_write,
         .update                   = NULL,
         .check_timer_interrupt    = NULL,
         .check_external_interrupt = NULL,

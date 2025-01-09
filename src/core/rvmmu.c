@@ -1,14 +1,9 @@
 #include "core/rvcore_priv.h"
 #include "debug.h"
 
-#define REG64(base, offset) *(volatile u64 *)((base) + (offset))
-#define REG32(base, offset) *(volatile u32 *)((base) + (offset))
-#define REG16(base, offset) *(volatile u16 *)((base) + (offset))
-#define REG8(base, offset) *(volatile u8 *)((base) + (offset))
-
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
     bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
-    if ((CSRR(MSTATUS) & (1 << 17)) && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
+    if ((CSRR(MSTATUS) & STATUS_MPRV) && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
         usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;
         enable_vm &= mpp != MACHINE;
     } else {
@@ -19,8 +14,7 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         return EXC_NONE;
     }
 
-    struct DeviceFunc device = core->device_func;
-    u64               dirty  = (exc == STORE_AMO_PAGE_FAULT) ? 1 : 0;
+    u64 dirty = (exc == STORE_AMO_PAGE_FAULT) ? 1 : 0;
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     u64 ppn   = CSRR(SATP) & 0x3fffff;
     i32 level = 2;
@@ -28,26 +22,24 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         (addr >> 12) & 0x3ff,
         (addr >> 22) & 0x3ff,
     };
-    u64 page_table_entry = 0;
-    u8 *table_memory[]   = {NULL, NULL};
+    usize page_table_entry[] = {0, 0};
+    u64   page_table_addr[]  = {0, 0};
 
     while (1) {
         level--;
         if (level < 0)
             return exc;
 
-        u64 page_table_addr = (ppn << 12) | (vpn[level] << 2);
-        table_memory[level] = device.get_buffer(device.context, page_table_addr);
-        if (table_memory[level] == NULL)
+        page_table_addr[level] = (ppn << 12) | (vpn[level] << 2);
+        if (DR(page_table_addr[level], 4, &page_table_entry[level]) != EXC_NONE)
             return exc;
-        page_table_entry = REG64(table_memory[level], 0);
-        ppn              = (page_table_entry >> 10) & 0xfffff;
+        ppn = (page_table_entry[level] >> 10) & 0xfffff;
 
-        bool v = page_table_entry & 1;
-        bool r = (page_table_entry >> 1) & 1;
-        bool w = (page_table_entry >> 2) & 1;
-        bool x = (page_table_entry >> 3) & 1;
-        bool u = (page_table_entry >> 4) & 1;
+        bool v = page_table_entry[level] & 1;
+        bool r = (page_table_entry[level] >> 1) & 1;
+        bool w = (page_table_entry[level] >> 2) & 1;
+        bool x = (page_table_entry[level] >> 3) & 1;
+        bool u = (page_table_entry[level] >> 4) & 1;
         if (v == false)
             return exc; // 检查有效位
         if (u &&
@@ -73,8 +65,14 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         return exc;
     }
 
-    for (int i = 1; i >= 0 && table_memory[i] != NULL; i--)
-        REG64(table_memory[i], 0) |= (dirty << 7);
+    if (dirty)
+        for (int i = 1; i >= 0 && page_table_addr[i] != 0; i--) {
+            page_table_entry[i] |= (1 << 7);
+            DW(page_table_addr[i], 4, page_table_entry[i]);
+        }
+
+    WARN("translate : %x -> %llx", addr, *paddr);
+
 #elif CURRENT_ARCH == ARCH_RV64 // SV39
     u64 ppn   = CSRR(SATP) & 0xfffffffffff;
     i32 level = 3;
@@ -142,64 +140,20 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
     return EXC_NONE;
 }
 
-enum exception device_read(struct RiscvCore *core, usize paddr, u8 size, usize *data) {
-    struct DeviceFunc device   = core->device_func;
-    u8               *mem_addr = device.get_buffer(device.context, paddr);
-    if (mem_addr == NULL)
-        return LOAD_ACCESS_FAULT;
-    switch (size) {
-    case 1:
-        *data = REG8(mem_addr, 0);
-        break;
-    case 2:
-        *data = REG16(mem_addr, 0);
-        break;
-    case 4:
-        *data = REG32(mem_addr, 0);
-        break;
-    case 8:
-        *data = REG64(mem_addr, 0);
-        break;
-    }
-    return device.handle(device.context, paddr, size, false);
-}
-
-enum exception device_write(struct RiscvCore *core, usize paddr, u8 size, usize data) {
-    struct DeviceFunc device   = core->device_func;
-    u8               *mem_addr = device.get_buffer(device.context, paddr);
-    if (mem_addr == NULL)
-        return LOAD_ACCESS_FAULT;
-    switch (size) {
-    case 1:
-        REG8(mem_addr, 0) = data;
-        break;
-    case 2:
-        REG16(mem_addr, 0) = data;
-        break;
-    case 4:
-        REG32(mem_addr, 0) = data;
-        break;
-    case 8:
-        REG64(mem_addr, 0) = data;
-        break;
-    }
-    return device.handle(device.context, paddr, size, true);
-}
-
 enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data) {
-    u64 paddr = 0;
+    u64 paddr = addr;
     if (mmu_translate(core, LOAD_PAGE_FAULT, addr, &paddr) != EXC_NONE) {
         return LOAD_PAGE_FAULT;
     }
-    return device_read(core, paddr, size, data);
+    return DR(paddr, size, data);
 }
 
 enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, usize data) {
-    u64 paddr = 0;
+    u64 paddr = addr;
     if (mmu_translate(core, STORE_AMO_PAGE_FAULT, addr, &paddr) != EXC_NONE) {
         return STORE_AMO_PAGE_FAULT;
     }
-    return device_write(core, paddr, size, data);
+    return DW(paddr, size, data);
 }
 
 void riscvcore_mmu_fetch(struct RiscvCore *core) {
@@ -207,7 +161,7 @@ void riscvcore_mmu_fetch(struct RiscvCore *core) {
     usize inst  = 0;
     if (mmu_translate(core, INSTRUCTION_PAGE_FAULT, core->pc, &paddr) != EXC_NONE) {
         core->decode.exception = INSTRUCTION_PAGE_FAULT;
-    } else if (device_read(core, paddr, 4, &inst) != EXC_NONE) {
+    } else if (DR(core->pc, 4, &inst) != EXC_NONE) {
         core->decode.exception = INSTRUCTION_ACCESS_FAULT;
     }
     if (core->decode.exception != EXC_NONE)

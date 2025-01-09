@@ -71,6 +71,7 @@ enum {
     STATUS_FS   = 0x6000,
     STATUS_XS   = 0x18000,
     STATUS_SUM  = 0x40000,
+    STATUS_MPRV = (1 << 17),
     STATUS_MXR  = 0x80000,
 };
 #define STATUS_UXL 0x300000000

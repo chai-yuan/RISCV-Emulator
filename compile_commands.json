@@ -4,223 +4,239 @@
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/machine/simple.o",
+      "build/src/machine/simple.o",
       "src/machine/simple.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/machine/simple.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/machine/simple.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/machine/simple.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/machine/nemu.o",
-      "src/machine/nemu.c"
+      "build/src/machine/qemu.o",
+      "src/machine/qemu.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/machine/nemu.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/machine/nemu.o"
+    "file": "/home/charain/Project/RISCV-Emulator/src/machine/qemu.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/machine/qemu.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/main.o",
-      "src/main.c"
-    ],
-    "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/main.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/main.o"
-  },
-  {
-    "arguments": [
-      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
-      "-Wall",
-      "-Werror",
-      "-Iinclude",
-      "-O2",
-      "-c",
-      "-o",
-      "build/device/uart.o",
+      "build/src/device/uart.o",
       "src/device/uart.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/device/uart.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/uart.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/uart.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/device/rtc.o",
-      "src/device/rtc.c"
-    ],
-    "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/device/rtc.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/rtc.o"
-  },
-  {
-    "arguments": [
-      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
-      "-Wall",
-      "-Werror",
-      "-Iinclude",
-      "-O2",
-      "-c",
-      "-o",
-      "build/device/device.o",
+      "build/src/device/device.o",
       "src/device/device.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/device/device.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/device.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/device.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/device/clint.o",
+      "build/src/device/clint.o",
       "src/device/clint.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/device/clint.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/clint.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/clint.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/device/bus.o",
+      "build/src/device/bus.o",
       "src/device/bus.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/device/bus.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/bus.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/bus.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/device/sram.o",
+      "build/src/device/sram.o",
       "src/device/sram.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/device/sram.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/device/sram.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/sram.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/core/rvcore32.o",
-      "src/core/rvcore32.c"
+      "build/src/utils/uint128.o",
+      "src/utils/uint128.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvcore32.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/core/rvcore32.o"
+    "file": "/home/charain/Project/RISCV-Emulator/src/utils/uint128.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/utils/uint128.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/core/rvmmu.o",
+      "build/src/core/rvcsr.o",
+      "src/core/rvcsr.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvcsr.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvcsr.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/src/core/rvexec.o",
+      "src/core/rvexec.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvexec.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvexec.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/src/core/rvcore.o",
+      "src/core/rvcore.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvcore.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvcore.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/src/core/rvmmu.o",
       "src/core/rvmmu.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/core/rvmmu.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/core/rvmmu.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvmmu.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/core/rvprivilege.o",
-      "src/core/rvprivilege.c"
+      "build/src/core/rvtrap.o",
+      "src/core/rvtrap.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvprivilege.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/core/rvprivilege.o"
+    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvtrap.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvtrap.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/core/rvdecode.o",
+      "build/src/core/rvdecode.o",
       "src/core/rvdecode.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
     "file": "/home/charain/Project/RISCV-Emulator/src/core/rvdecode.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/core/rvdecode.o"
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvdecode.o"
   },
   {
     "arguments": [
       "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
       "-Wall",
       "-Werror",
+      "-pedantic",
       "-Iinclude",
-      "-O2",
       "-c",
       "-o",
-      "build/core/rvcore64.o",
-      "src/core/rvcore64.c"
+      "build/test/main.o",
+      "test/main.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvcore64.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/core/rvcore64.o"
+    "file": "/home/charain/Project/RISCV-Emulator/test/main.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/test/main.o"
   }
 ]
