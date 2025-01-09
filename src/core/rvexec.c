@@ -1,5 +1,4 @@
 #include "core/rvcore_priv.h"
-#include "debug.h"
 #include "utils.h"
 
 #define INSTBEGIN() switch (decode->inst) {
@@ -26,7 +25,6 @@
     } while (0);
 
 void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode) {
-    INFO("inst : %x %d", decode->inst_raw, decode->inst);
     usize RS1 = core->regs[decode->rs1], RS2 = core->regs[decode->rs2], RD = core->regs[decode->rd];
     decode->next_pc = core->pc + 4;
 

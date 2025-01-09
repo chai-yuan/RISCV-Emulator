@@ -5,6 +5,18 @@
 #include "device/device.h"
 #include "types.h"
 
+struct RiscvDecode {
+    u32              inst_raw;
+    enum instruction inst;
+    u8               rd, rs1, rs2;
+    isize            immI, immB, immU, immJ, immS;
+    usize            csr_imm, next_pc;
+    usize            access_addr;
+    enum exception   exception;
+    usize            exception_val;
+    enum interrupt   interrupt;
+};
+
 struct RiscvCore {
     usize regs[32];
     usize pc;

@@ -28,6 +28,7 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->device_func       = device_func;
     riscv_decode_init(&core->decode);
     core->csrs[MISA] = sizeof(usize) == 4 ? (0x1 << 30) : (0x2LL << 62);
+    core->csrs[MISA] |= 0x141105; // TODO
 
 #if CURRENT_ARCH == ARCH_RV64
     core->csrs[MSTATUS] |= (1ull << 32) | (1ull << 34); // UXL SXL
