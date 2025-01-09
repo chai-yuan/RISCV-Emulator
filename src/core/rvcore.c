@@ -4,16 +4,16 @@
 void riscvcore_step(struct RiscvCore *core) {
     riscv_decode_init(&core->decode);
 
-    riscvcore_mmu_fetch(core, &core->decode);
+    riscvcore_mmu_fetch(core);
     if (core->decode.exception == EXC_NONE) {
         riscv_decode_inst(&core->decode);
-        riscvcore_exec(core, &core->decode);
+        riscvcore_exec(core);
     }
 
     if (core->decode.exception != EXC_NONE)
-        riscv_exception_handle(core, &core->decode);
+        riscv_exception_handle(core);
     else if (core->decode.interrupt != INT_NONE)
-        riscv_interrupt_handle(core, &core->decode);
+        riscv_interrupt_handle(core);
 
     core->pc = core->decode.next_pc;
 }

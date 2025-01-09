@@ -202,15 +202,15 @@ enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, 
     return device_write(core, paddr, size, data);
 }
 
-void riscvcore_mmu_fetch(struct RiscvCore *core, struct RiscvDecode *decode) {
+void riscvcore_mmu_fetch(struct RiscvCore *core) {
     u64   paddr = 0;
     usize inst  = 0;
     if (mmu_translate(core, INSTRUCTION_PAGE_FAULT, core->pc, &paddr) != EXC_NONE) {
-        decode->exception = INSTRUCTION_PAGE_FAULT;
+        core->decode.exception = INSTRUCTION_PAGE_FAULT;
     } else if (device_read(core, paddr, 4, &inst) != EXC_NONE) {
-        decode->exception = INSTRUCTION_ACCESS_FAULT;
+        core->decode.exception = INSTRUCTION_ACCESS_FAULT;
     }
-    if (decode->exception != EXC_NONE)
-        decode->exception_val = core->pc;
-    decode->inst_raw = inst;
+    if (core->decode.exception != EXC_NONE)
+        core->decode.exception_val = core->pc;
+    core->decode.inst_raw = inst;
 }

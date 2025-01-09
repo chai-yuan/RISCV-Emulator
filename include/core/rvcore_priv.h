@@ -11,13 +11,11 @@ void  riscv_csr_write(struct RiscvCore *core, u16 addr, usize value);
 
 enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data);
 enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, usize data);
-void           riscvcore_mmu_fetch(struct RiscvCore *core, struct RiscvDecode *decode);
+void           riscvcore_mmu_fetch(struct RiscvCore *core);
 
-void riscvcore_exec(struct RiscvCore *core, struct RiscvDecode *decode);
-
-void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode);
-
-void riscv_interrupt_handle(struct RiscvCore *core, struct RiscvDecode *decode);
+void riscvcore_exec(struct RiscvCore *core);
+void riscv_exception_handle(struct RiscvCore *core);
+void riscv_interrupt_handle(struct RiscvCore *core);
 
 #define CSRR(addr) riscv_csr_read(core, addr)
 #define CSRW(addr, value) riscv_csr_write(core, addr, value)

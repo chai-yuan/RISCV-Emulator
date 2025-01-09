@@ -1,7 +1,8 @@
 #include "core/rvcore_priv.h"
 #include "debug.h"
 
-void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) {
+void riscv_exception_handle(struct RiscvCore *core) {
+    struct RiscvDecode *decode = &core->decode;
     WARN("Exception occurred: %d , %x at pc : %x", decode->exception, decode->exception_val,
          core->pc);
     if ((core->mode <= SUPERVISOR) && ((CSRR(MEDELEG) >> decode->exception) & 1)) { // 异常委托
@@ -38,6 +39,7 @@ void riscv_exception_handle(struct RiscvCore *core, struct RiscvDecode *decode) 
     }
 }
 
-void riscv_interrupt_handle(struct RiscvCore *core, struct RiscvDecode *decode) {
+void riscv_interrupt_handle(struct RiscvCore *core) {
+    struct RiscvDecode *decode = &core->decode;
     WARN("interrupt occurred: %d", decode->interrupt);
 }
