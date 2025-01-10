@@ -3,11 +3,12 @@
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
     bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
-    if ((CSRR(MSTATUS) & STATUS_MPRV) && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
-        usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;
-        enable_vm &= mpp != MACHINE;
-    } else {
-        enable_vm &= (core->mode != MACHINE);
+    if (core->mode == MACHINE) {
+        if ((CSRR(MSTATUS) & STATUS_MPRV) && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
+            usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;
+            enable_vm = enable_vm && mpp != MACHINE;
+        } else
+            enable_vm = false;
     }
     if (!enable_vm) {
         *paddr = addr;
@@ -157,11 +158,11 @@ enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, 
 }
 
 void riscvcore_mmu_fetch(struct RiscvCore *core) {
-    u64   paddr = 0;
+    u64   paddr = core->pc;
     usize inst  = 0;
     if (mmu_translate(core, INSTRUCTION_PAGE_FAULT, core->pc, &paddr) != EXC_NONE) {
         core->decode.exception = INSTRUCTION_PAGE_FAULT;
-    } else if (DR(core->pc, 4, &inst) != EXC_NONE) {
+    } else if (DR(paddr, 4, &inst) != EXC_NONE) {
         core->decode.exception = INSTRUCTION_ACCESS_FAULT;
     }
     if (core->decode.exception != EXC_NONE)

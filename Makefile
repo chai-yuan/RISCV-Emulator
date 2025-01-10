@@ -9,7 +9,7 @@ HEADS = $(shell find $(HEADS_DIR) -name '*.h')
 SRCS += test/difftest.c
 
 CC = gcc
-CFLAGS = -Wall -Werror -pedantic -I$(HEADS_DIR)
+CFLAGS = -Wall -Werror -pedantic -O2 -I$(HEADS_DIR)
 LDFLAGS =
 
 IMG  ?= 
