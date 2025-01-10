@@ -118,6 +118,13 @@ enum instruction {
     inst_amoand_w, inst_amomin_w, inst_amomax_w, inst_amominu_w, inst_amomaxu_w,
     inst_lr_d,  inst_sc_d,  inst_amoswap_d, inst_amoadd_d,  inst_amoxor_d, inst_amoor_d,
     inst_amoand_d, inst_amomin_d, inst_amomax_d, inst_amominu_d, inst_amomaxu_d,
+    // C 类型指令
+    inst_c_lwsp,    inst_c_ldsp,    inst_c_swsp,    inst_c_sdsp,    inst_c_lw,  inst_c_ld,
+    inst_c_sw,      inst_c_sd,      inst_c_j,       inst_c_jal,     inst_c_jr,  inst_c_jalr,
+    inst_c_beqz,    inst_c_bnez,    inst_c_li,      inst_c_lui,     inst_c_addi,inst_c_addiw,
+    inst_c_addi16sp,inst_c_addi4spn,inst_c_srli,    inst_c_srai,    inst_c_andi,inst_c_mv,
+    inst_c_add,     inst_c_and,     inst_c_or,      inst_c_xor,     inst_c_sub, inst_c_subw,
+    inst_c_addw,    inst_c_ebreak,  inst_c_slli,
     // Zicsr 类型指令
     inst_csrrw, inst_csrrs, inst_csrrc, inst_csrrwi, inst_csrrsi, inst_csrrci,
     // Zifence 类型指令
