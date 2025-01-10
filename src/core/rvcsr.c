@@ -18,6 +18,10 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         return; // read only
 
     switch (addr) {
+    case SSTATUS: {
+        core->csrs[MSTATUS] = (core->csrs[MSTATUS] & ~SSTATUS_VISIBLE) | (value & SSTATUS_VISIBLE);
+        break;
+    }
     case SIE: {
         usize mask      = core->csrs[MIDELEG];
         core->csrs[MIE] = (core->csrs[MIE] & ~mask) | (value & mask);

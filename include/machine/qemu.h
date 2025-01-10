@@ -4,6 +4,7 @@
 #include "core/rvcore.h"
 #include "device/bus.h"
 #include "device/clint.h"
+#include "device/plic.h"
 #include "device/sram.h"
 #include "device/uart.h"
 
@@ -14,6 +15,7 @@ struct QemuMachine {
     struct Sram      sram;
     struct Uart      uart;
     struct CLINT     clint;
+    struct PLIC      plic;
 };
 
 struct QemuPortableOperations {

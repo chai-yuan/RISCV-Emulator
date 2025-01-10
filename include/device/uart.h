@@ -7,16 +7,18 @@
 typedef bool (*get_char_func_t)(u8 *data);
 typedef void (*put_char_func_t)(u8 data);
 
-#define UART_SIZE 8
-
-// UART 寄存器偏移量
-#define UART_RHR 0
-#define UART_THR 0
-#define UART_LCR 3
-#define UART_LSR 5
+#define UART_SIZE (0x8)
+#define UART_THR (0)  // TX
+#define UART_RHR (0)  // RX
+#define UART_IER (1)
+#define UART_IIR (2)
+#define UART_FCR (2)
+#define UART_LSR (5)
+#define UART_LSR (5)
 // 线路状态寄存器标志位
-#define UART_LSR_RX 1
-#define UART_LSR_TX 1 << 5
+#define UART_LSR_RX_EMPTY (1 << 0)
+#define UART_LSR_TX_EMPTY (1 << 5)
+#define UART_LSR_THR_SR_EMPTY (1 << 6)
 
 struct Uart {
     u8              data[UART_SIZE]; // 模拟 UART 寄存器

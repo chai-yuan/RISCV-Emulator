@@ -2,6 +2,7 @@
 #include "debug.h"
 
 void device_read(u8 *buf, u64 address, u8 size, usize *data) {
+    *data = 0;
     switch (size) {
     case 1:
         *data = REG8(buf, address);
