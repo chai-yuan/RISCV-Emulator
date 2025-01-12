@@ -5,8 +5,7 @@ HEADS_DIR = include
 SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
 
-#SRCS += test/main.c
-SRCS += test/difftest.c
+SRCS += test/main.c
 
 CC = gcc
 CFLAGS = -Wall -Werror -pedantic -O2 -I$(HEADS_DIR)
@@ -23,11 +22,6 @@ $(PROJECT_NAME): $(OBJS)
 	@echo "[LINK] Linking final executable: $@"
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-lib: CFLAGS += -fPIC
-lib: $(OBJS)
-	@echo "[LINK] Linking dynamic library: $(LIB_NAME)"
-	@$(CC) -shared -o $(LIB_NAME) $^ $(LDFLAGS)
-
 build/%.o: %.c $(HEADS)
 	@echo "[CC] Compiling $< -> $@"
 	@mkdir -p $(dir $@)  
@@ -36,6 +30,12 @@ build/%.o: %.c $(HEADS)
 run: $(PROJECT_NAME)
 	@echo "[RUN] Running the program: ./$(PROJECT_NAME) $(ARGS) $(IMG)"
 	@./$(PROJECT_NAME) $(ARGS) $(IMG)
+
+lib: CFLAGS += -fPIC
+lib: SRCS += test/difftest.c
+lib: $(OBJS)
+	@echo "[LINK] Linking dynamic library: $(LIB_NAME)"
+	@$(CC) -shared -o $(LIB_NAME) $^ $(LDFLAGS)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"

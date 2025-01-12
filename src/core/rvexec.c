@@ -30,7 +30,7 @@ void riscvcore_exec(struct RiscvCore *core) {
     decode->next_pc = core->pc + 4;
 
     INSTBEGIN();
-
+    // RV32I
     INSTEXE(add, RD = RS1 + RS2);
     INSTEXE(sub, RD = RS1 - RS2);
     INSTEXE(xor, RD = RS1 ^ RS2);
@@ -68,7 +68,7 @@ void riscvcore_exec(struct RiscvCore *core) {
     INSTEXE(jalr, decode->next_pc = (RS1 + decode->immI) & ~1; RD = core->pc + 4);
     INSTEXE(lui, RD = decode->immU);
     INSTEXE(auipc, RD = core->pc + decode->immU);
-
+    // RV32M
     INSTEXE(mul, RD = RS1 * RS2);
     INSTEXE(mulh, {
         if (sizeof(usize) == 4) {
@@ -137,7 +137,7 @@ void riscvcore_exec(struct RiscvCore *core) {
             RD = src1 % src2;
         }
     });
-
+    // RV32A
     INSTEXE(lr_w, {
         usize data;
         MR(RS1, 4, data);
@@ -224,7 +224,7 @@ void riscvcore_exec(struct RiscvCore *core) {
         MW(RS1, 4, result);
         RD = (isize)(i32)value;
     });
-
+    // RV32Zicsr
     INSTEXE(csrrw, {
         if (((decode->csr_imm >> 8) & 0x3) > core->mode) {
             decode->exception     = ILLEGAL_INSTRUCTION;
@@ -279,7 +279,7 @@ void riscvcore_exec(struct RiscvCore *core) {
             CSRW(decode->csr_imm, RD & ~decode->rs1);
         }
     });
-
+    // RV32Zifencei
     INSTEXE(fence, {});
     INSTEXE(fence_i, {});
     INSTEXE(sfence_vma, {});
@@ -315,6 +315,7 @@ void riscvcore_exec(struct RiscvCore *core) {
     INSTEXE(ebreak, decode->exception = BREAKPOINT, decode->exception_val = core->pc);
 
 #if CURRENT_ARCH == ARCH_RV64
+    // RV64I
     INSTEXE(addw, RD = (i32)(RS1 + RS2));
     INSTEXE(subw, RD = (i32)(RS1 - RS2));
     INSTEXE(sllw, RD = (i32)(RS1 << (RS2 & 0x1F)));
@@ -327,7 +328,7 @@ void riscvcore_exec(struct RiscvCore *core) {
     INSTEXE(lwu, MR(RS1 + decode->immI, 4, RD));
     INSTEXE(ld, MR(RS1 + decode->immI, 8, RD));
     INSTEXE(sd, MW(RS1 + decode->immS, 8, RS2));
-
+    // RV64M
     INSTEXE(mulw, RD = (i64)(i32)((u32)RS1 * (u32)RS2));
     INSTEXE(divw, {
         i32 src1 = RS1, src2 = RS2;
@@ -369,7 +370,7 @@ void riscvcore_exec(struct RiscvCore *core) {
             RD = (i64)(i32)(src1 % src2);
         }
     });
-
+    // RV64A
     INSTEXE(lr_d, {
         MR(RS1, 8, RD);
         core->reservation_valid = true;

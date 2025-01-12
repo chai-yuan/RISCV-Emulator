@@ -23,24 +23,11 @@ void riscv_interrupt_handle(struct RiscvCore *core);
 #define DR(addr, size, value) core->device_func.read(core->device_func.context, addr, size, value)
 #define DW(addr, size, value) core->device_func.write(core->device_func.context, addr, size, value)
 
-u64 MASK(u64 n) {
-    if (n == 64)
-        return ~0ull;
-    return (1ull << n) - 1ull;
-}
-u64 BITS(u64 imm, u64 hi, u64 lo) { return (imm >> lo) & MASK(hi - lo + 1ull); }
-u64 SEXT(u64 imm, u64 n) {
-    if ((imm >> (n - 1)) & 1) {
-        return ((~0ull) << n) | imm;
-    } else
-        return imm & MASK(n);
-}
-
 #define INSTPAT(pattern, name)                                                                     \
     do {                                                                                           \
         u64 key, mask, shift;                                                                      \
         pattern_decode(pattern, (sizeof(pattern) - 1), &key, &mask, &shift);                       \
-        if ((((u64)decode->inst_raw >> shift) & mask) == key) {                                                \
+        if ((((u64)decode->inst_raw >> shift) & mask) == key) {                                    \
             decode->inst = inst_##name;                                                            \
             return;                                                                                \
         }                                                                                          \
