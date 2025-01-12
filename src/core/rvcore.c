@@ -25,7 +25,6 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->pc                = 0x80000000;
     core->mode              = MACHINE;
     core->reservation_valid = false;
-    core->halt              = false;
     core->device_func       = device_func;
     riscv_decode_init(&core->decode);
     core->csrs[MISA] = sizeof(usize) == 4 ? (0x1 << 30) : (0x2LL << 62);

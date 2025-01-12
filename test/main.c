@@ -1,4 +1,4 @@
-#include "machine/qemu.h"
+#include "machine/nemu.h"
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,14 +55,14 @@ int main(int argc, char *argv[]) {
     memcpy(memory, binary_data, binary_size);
     free(binary_data);
     // 初始化机器并运行
-    struct QemuMachine *machine = malloc(sizeof(struct QemuMachine));
-    qemu_machine_init(machine, (struct QemuPortableOperations){
+    struct NemuMachine *machine = malloc(sizeof(struct NemuMachine));
+    nemu_machine_init(machine, (struct NemuPortableOperations){
                                    .sram_data = memory,
                                    .sram_size = memory_size,
                                    .get_char  = NULL,
                                    .put_char  = put_char_func,
                                });
 
-    qemu_machine_run(machine);
+    nemu_machine_run(machine);
     return machine->core.regs[10];
 }

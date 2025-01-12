@@ -19,7 +19,7 @@ void simple_machine_run(struct SimpleMachine *machine) {
     struct DeviceFunc bus      = bus_device_get_func(&machine->bus);
     static u64        step_cnt = 0;
 
-    while (machine->core.halt == false) {
+    while (true) {
         riscvcore_step(&machine->core);
         if ((step_cnt++) % 10) {
             bus.update(bus.context, 10);

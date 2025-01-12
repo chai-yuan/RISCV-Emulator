@@ -25,7 +25,6 @@ struct RiscvCore {
     enum mode          mode;
     bool               reservation_valid;
     usize              reservation_addr;
-    bool               halt;
     struct RiscvDecode decode;
     struct DeviceFunc  device_func;
 };
