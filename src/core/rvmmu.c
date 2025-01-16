@@ -1,5 +1,4 @@
 #include "core.h"
-#include "debug.h"
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
     bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
@@ -15,7 +14,7 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         return EXC_NONE;
     }
 
-    u64 dirty = (exc == STORE_AMO_PAGE_FAULT) ? 1 : 0;
+    // u64 dirty = (exc == STORE_AMO_PAGE_FAULT) ? 1 : 0;
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     u64 ppn   = CSRR(SATP) & 0x3fffff;
     i32 level = 2;
@@ -65,14 +64,13 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
     default:
         return exc;
     }
-
-    if (dirty)
-        for (int i = 1; i >= 0 && page_table_addr[i] != 0; i--) {
-            page_table_entry[i] |= (1 << 7);
-            DW(page_table_addr[i], 4, page_table_entry[i]);
-        }
-
-    WARN("translate : %x -> %llx", addr, *paddr);
+    /*
+        if (dirty)
+            for (int i = 1; i >= 0 && page_table_addr[i] != 0; i--) {
+                page_table_entry[i] |= (1 << 7);
+                DW(page_table_addr[i], 4, page_table_entry[i]);
+            }
+    */
 
 #elif CURRENT_ARCH == ARCH_RV64 // SV39
     u64 ppn   = CSRR(SATP) & 0xfffffffffff;
@@ -167,5 +165,5 @@ void riscvcore_mmu_fetch(struct RiscvCore *core) {
     }
     if (core->decode.exception != EXC_NONE)
         core->decode.exception_val = core->pc;
-    core->decode.inst_raw = inst;
+    core->decode.inst = inst;
 }

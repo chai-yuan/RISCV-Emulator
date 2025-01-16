@@ -6,7 +6,10 @@ void clint_init(struct CLINT *clint) {
     REG64(clint->data, CLINT_MTIMECMP) = 0;
 }
 
-static enum exception clint_read(void *context, u64 addr, u8 size, usize *data) { return EXC_NONE; }
+static enum exception clint_read(void *context, u64 addr, u8 size, usize *data) {
+    *data = 0;
+    return EXC_NONE;
+}
 
 static enum exception clint_write(void *context, u64 addr, u8 size, usize data) { return EXC_NONE; }
 

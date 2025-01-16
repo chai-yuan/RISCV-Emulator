@@ -6,14 +6,14 @@
 #include "types.h"
 
 struct RiscvDecode {
-    u32              inst_raw;
-    u8               rd, rs1, rs2;
-    isize            immI, immB, immU, immJ, immS;
-    usize            csr_imm, next_pc;
-    usize            access_addr;
-    enum exception   exception;
-    usize            exception_val;
-    enum interrupt   interrupt;
+    u32            inst;
+    u8             rd, rs1, rs2, rs1_, rs2_;
+    isize          immI, immB, immU, immJ, immS;
+    usize          csr_imm, next_pc;
+    bool           is_inst16;
+    enum exception exception;
+    usize          exception_val;
+    enum interrupt interrupt;
 };
 
 struct RiscvCore {

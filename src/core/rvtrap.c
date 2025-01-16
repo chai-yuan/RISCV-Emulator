@@ -40,6 +40,4 @@ void riscv_exception_handle(struct RiscvCore *core) {
 }
 
 void riscv_interrupt_handle(struct RiscvCore *core) {
-    struct RiscvDecode *decode = &core->decode;
-    WARN("interrupt occurred: %d", decode->interrupt);
 }

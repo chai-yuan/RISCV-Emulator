@@ -17,7 +17,16 @@ static enum exception uart_read(void *context, u64 addr, u8 size, usize *data) {
     return EXC_NONE;
 }
 
-static enum exception uart_write(void *context, u64 addr, u8 size, usize data) { return EXC_NONE; }
+static enum exception uart_write(void *context, u64 addr, u8 size, usize data) {
+    struct Uart *uart = (struct Uart *)context;
+    if (size != 1)
+        return LOAD_ACCESS_FAULT;
+
+    if (addr == 0)
+        uart->put_char(data);
+
+    return EXC_NONE;
+}
 
 static void uart_update(void *context, u32 interval) {}
 

@@ -34,13 +34,15 @@ struct Instruction {
 #define DEC core->decode
 #define MR(addr, size, data)                                                                       \
     do {                                                                                           \
-        if (EXC_NONE != (DEC.exception = riscvcore_mmu_read(core, addr, size, &data)))         \
-            DEC.exception_val = addr;                                                          \
+        if (EXC_NONE != (DEC.exception = riscvcore_mmu_read(core, addr, size, &data))) {           \
+            DEC.exception_val = addr;                                                              \
+            return;                                                                                \
+        }                                                                                          \
     } while (0);
 #define MW(addr, size, data)                                                                       \
     do {                                                                                           \
-        if (EXC_NONE != (DEC.exception = riscvcore_mmu_write(core, addr, size, data)))         \
-            DEC.exception_val = addr;                                                          \
+        if (EXC_NONE != (DEC.exception = riscvcore_mmu_write(core, addr, size, data)))             \
+            DEC.exception_val = addr;                                                              \
     } while (0);
 
 #endif

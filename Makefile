@@ -6,6 +6,7 @@ SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
 
 SRCS += test/main.c
+#SRCS += test/difftest.c
 
 CC = gcc
 CFLAGS = -Wall -Werror -pedantic -O2 -I$(HEADS_DIR)
@@ -32,7 +33,6 @@ run: $(PROJECT_NAME)
 	@./$(PROJECT_NAME) $(ARGS) $(IMG)
 
 lib: CFLAGS += -fPIC
-lib: SRCS += test/difftest.c
 lib: $(OBJS)
 	@echo "[LINK] Linking dynamic library: $(LIB_NAME)"
 	@$(CC) -shared -o $(LIB_NAME) $^ $(LDFLAGS)
