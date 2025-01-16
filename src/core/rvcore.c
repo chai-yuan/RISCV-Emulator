@@ -1,15 +1,12 @@
 #include "core/rvcore.h"
-#include "core/rvcore_priv.h"
-#include "debug.h"
+#include "core.h"
 
 void riscvcore_step(struct RiscvCore *core) {
     riscv_decode_init(&core->decode);
 
     riscvcore_mmu_fetch(core);
-    if (core->decode.exception == EXC_NONE) {
-        riscv_decode_inst(&core->decode);
+    if (core->decode.exception == EXC_NONE)
         riscvcore_exec(core);
-    }
 
     if (core->decode.exception != EXC_NONE)
         riscv_exception_handle(core);

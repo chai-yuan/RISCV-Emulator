@@ -1,4 +1,4 @@
-#include "core/rvcore_priv.h"
+#include "core.h"
 #include "debug.h"
 
 void riscv_exception_handle(struct RiscvCore *core) {

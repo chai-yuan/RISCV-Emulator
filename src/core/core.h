@@ -4,7 +4,6 @@
 #include "core/rvcore.h"
 
 void riscv_decode_init(struct RiscvDecode *decode);
-void riscv_decode_inst(struct RiscvDecode *decode);
 
 usize riscv_csr_read(struct RiscvCore *core, u16 addr);
 void  riscv_csr_write(struct RiscvCore *core, u16 addr, usize value);
@@ -23,14 +22,25 @@ void riscv_interrupt_handle(struct RiscvCore *core);
 #define DR(addr, size, value) core->device_func.read(core->device_func.context, addr, size, value)
 #define DW(addr, size, value) core->device_func.write(core->device_func.context, addr, size, value)
 
-#define INSTPAT(pattern, name)                                                                     \
+typedef void (*instruction_func_t)(struct RiscvCore *core);
+struct Instruction {
+    u32                mask, match;
+    instruction_func_t func;
+};
+
+#define RD core->regs[core->decode.rd]
+#define RS1 core->regs[core->decode.rs1]
+#define RS2 core->regs[core->decode.rs2]
+#define DEC core->decode
+#define MR(addr, size, data)                                                                       \
     do {                                                                                           \
-        u64 key, mask, shift;                                                                      \
-        pattern_decode(pattern, (sizeof(pattern) - 1), &key, &mask, &shift);                       \
-        if ((((u64)decode->inst_raw >> shift) & mask) == key) {                                    \
-            decode->inst = inst_##name;                                                            \
-            return;                                                                                \
-        }                                                                                          \
-    } while (0)
+        if (EXC_NONE != (DEC.exception = riscvcore_mmu_read(core, addr, size, &data)))         \
+            DEC.exception_val = addr;                                                          \
+    } while (0);
+#define MW(addr, size, data)                                                                       \
+    do {                                                                                           \
+        if (EXC_NONE != (DEC.exception = riscvcore_mmu_write(core, addr, size, data)))         \
+            DEC.exception_val = addr;                                                          \
+    } while (0);
 
 #endif

@@ -7,7 +7,6 @@
 
 struct RiscvDecode {
     u32              inst_raw;
-    enum instruction inst;
     u8               rd, rs1, rs2;
     isize            immI, immB, immU, immJ, immS;
     usize            csr_imm, next_pc;

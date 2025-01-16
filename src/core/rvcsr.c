@@ -1,4 +1,4 @@
-#include "core/rvcore_priv.h"
+#include "core.h"
 
 usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
     switch (addr) {

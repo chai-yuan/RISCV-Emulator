@@ -1,4 +1,4 @@
-#include "core/rvcore_priv.h"
+#include "core.h"
 #include "debug.h"
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
