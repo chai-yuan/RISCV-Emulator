@@ -302,6 +302,31 @@ void inst_fence(struct RiscvCore *core) {}
 void inst_fence_i(struct RiscvCore *core) {}
 void inst_sfence_vma(struct RiscvCore *core) {}
 
+void inst_c_lwsp(struct RiscvCore *core) {}
+void inst_c_swsp(struct RiscvCore *core) {}
+void inst_c_lw(struct RiscvCore *core) {}
+void inst_c_sw(struct RiscvCore *core) {}
+void inst_c_j(struct RiscvCore *core) {}
+void inst_c_jal(struct RiscvCore *core) {}
+void inst_c_jalr(struct RiscvCore *core) {}
+void inst_c_beqz(struct RiscvCore *core) {}
+void inst_c_bnez(struct RiscvCore *core) {}
+void inst_c_li(struct RiscvCore *core) {}
+void inst_c_lui(struct RiscvCore *core) {}
+void inst_c_addi(struct RiscvCore *core) {}
+void inst_c_addi16sp(struct RiscvCore *core) {}
+void inst_c_addi4spn(struct RiscvCore *core) {}
+void inst_c_slli(struct RiscvCore *core) {}
+void inst_c_srai(struct RiscvCore *core) {}
+void inst_c_andi(struct RiscvCore *core) {}
+void inst_c_mv(struct RiscvCore *core) {}
+void inst_c_add(struct RiscvCore *core) {}
+void inst_c_and(struct RiscvCore *core) {}
+void inst_c_or(struct RiscvCore *core) {}
+void inst_c_xor(struct RiscvCore *core) {}
+void inst_c_sub(struct RiscvCore *core) {}
+void inst_c_ebreak(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
+
 void inst_ecall(struct RiscvCore *core) {
     if (core->mode == USER) {
         DEC.exception = ECALL_FROM_UMODE;
