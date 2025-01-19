@@ -5,6 +5,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -21,6 +22,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -37,6 +39,24 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/src/machine/nemu.o",
+      "src/machine/nemu.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/machine/nemu.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/machine/nemu.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -53,6 +73,24 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/src/device/plic.o",
+      "src/device/plic.c"
+    ],
+    "directory": "/home/charain/Project/RISCV-Emulator",
+    "file": "/home/charain/Project/RISCV-Emulator/src/device/plic.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/device/plic.o"
+  },
+  {
+    "arguments": [
+      "/nix/store/4apajimszc47rxwcpvc3g3rj2icinl71-gcc-wrapper-13.3.0/bin/gcc",
+      "-Wall",
+      "-Werror",
+      "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -69,6 +107,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -85,6 +124,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -101,6 +141,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -117,6 +158,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -133,6 +175,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -149,6 +192,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -165,6 +209,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -181,6 +226,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -197,6 +243,7 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
@@ -213,15 +260,16 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
-      "build/src/core/rvdecode.o",
-      "src/core/rvdecode.c"
+      "build/src/core/rvinst.o",
+      "src/core/rvinst.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvdecode.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvdecode.o"
+    "file": "/home/charain/Project/RISCV-Emulator/src/core/rvinst.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/src/core/rvinst.o"
   },
   {
     "arguments": [
@@ -229,14 +277,15 @@
       "-Wall",
       "-Werror",
       "-pedantic",
+      "-O2",
       "-Iinclude",
       "-c",
       "-o",
-      "build/test/main.o",
-      "test/main.c"
+      "build/platform/linux/main.o",
+      "platform/linux/main.c"
     ],
     "directory": "/home/charain/Project/RISCV-Emulator",
-    "file": "/home/charain/Project/RISCV-Emulator/test/main.c",
-    "output": "/home/charain/Project/RISCV-Emulator/build/test/main.o"
+    "file": "/home/charain/Project/RISCV-Emulator/platform/linux/main.c",
+    "output": "/home/charain/Project/RISCV-Emulator/build/platform/linux/main.o"
   }
 ]
