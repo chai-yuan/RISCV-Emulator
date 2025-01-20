@@ -13,7 +13,16 @@ static enum exception uart_read(void *context, u64 addr, u8 size, usize *data) {
     if (size != 1)
         return LOAD_ACCESS_FAULT;
 
-    device_read(uart->data, addr, size, data);
+    switch (addr) {
+    case UART_RHR:
+        *data = uart->data[UART_RHR];
+        uart->data[UART_LSR] &= ~UART_LSR_RX_EMPTY;
+        break;
+    default:
+        *data = uart->data[addr];
+        break;
+    }
+
     return EXC_NONE;
 }
 
@@ -22,23 +31,50 @@ static enum exception uart_write(void *context, u64 addr, u8 size, usize data) {
     if (size != 1)
         return LOAD_ACCESS_FAULT;
 
-    if (addr == 0)
-        uart->put_char(data);
+    switch (addr) {
+    case UART_THR:
+        if (uart->put_char)
+            uart->put_char((u8)data);
+        uart->data[UART_LSR] |= UART_LSR_TX_EMPTY;
+        break;
+    default:
+        uart->data[addr] = (u8)data;
+        break;
+    }
 
     return EXC_NONE;
 }
 
-static void uart_update(void *context, u32 interval) {}
+static void uart_update(void *context, u32 interval) {
+    struct Uart *uart = (struct Uart *)context;
+    uart->last_update += interval;
+    if (!uart->get_char || uart->last_update < 100000)
+        return;
 
-static bool uart_check_external_interrupt(void *context) { return false; }
+    uart->last_update = 0;
+    u8 input_char;
+    if (uart->get_char(&input_char)) {
+        if (uart->data[UART_LSR] & UART_LSR_RX_EMPTY) {
+            uart->data[UART_RHR] = input_char;
+            uart->data[UART_LSR] |= UART_LSR_RX_EMPTY;
+        }
+    }
+}
+
+static bool uart_check_interrupt(void *context) {
+    struct Uart *uart = (struct Uart *)context;
+    if ((uart->data[UART_IER] & 0x01) && (uart->data[UART_LSR] & UART_LSR_RX_EMPTY)) {
+        return true;
+    }
+    return false;
+}
 
 struct DeviceFunc uart_get_func(struct Uart *uart) {
     return (struct DeviceFunc){
-        .context                  = uart,
-        .read                     = uart_read,
-        .write                    = uart_write,
-        .update                   = uart_update,
-        .check_external_interrupt = uart_check_external_interrupt,
-        .check_timer_interrupt    = NULL,
+        .context         = uart,
+        .read            = uart_read,
+        .write           = uart_write,
+        .update          = uart_update,
+        .check_interrupt = uart_check_interrupt,
     };
 }

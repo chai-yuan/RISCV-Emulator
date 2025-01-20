@@ -1,7 +1,9 @@
 #include "machine/qemu.h"
 #include "string.h"
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 void *load_binary(const char *filename, size_t *size) {
     FILE *file = fopen(filename, "rb");
@@ -32,9 +34,23 @@ void *load_binary(const char *filename, size_t *size) {
     return data;
 }
 
-void put_char_func(u8 data) {
-    printf("%c", data);
-    fflush(stdout);
+bool get_char(u8 *data) {
+    char c;
+    if (read(STDIN_FILENO, &c, 1) > 0) {
+        *data = (u8)c;
+        return true;
+    }
+    return false;
+}
+
+void put_char(u8 data) {
+    char c = (char)data;
+    if (write(STDOUT_FILENO, &c, 1) != 0) {
+        return;
+    }
+    if (fsync(STDOUT_FILENO) != 0) {
+        return;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -43,6 +59,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // 设置 STDIN_FILENO 为非阻塞模式
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
     const char *binary_file = argv[1];
     size_t      binary_size;
     void       *binary_data = load_binary(binary_file, &binary_size);
@@ -59,8 +78,8 @@ int main(int argc, char *argv[]) {
     qemu_machine_init(machine, (struct QemuPortableOperations){
                                    .sram_data = memory,
                                    .sram_size = memory_size,
-                                   .get_char  = NULL,
-                                   .put_char  = put_char_func,
+                                   .get_char  = get_char,
+                                   .put_char  = put_char,
                                });
 
     qemu_machine_run(machine);

@@ -8,8 +8,8 @@ typedef bool (*get_char_func_t)(u8 *data);
 typedef void (*put_char_func_t)(u8 data);
 
 #define UART_SIZE (0x8)
-#define UART_THR (0)  // TX
-#define UART_RHR (0)  // RX
+#define UART_THR (0) // TX
+#define UART_RHR (0) // RX
 #define UART_IER (1)
 #define UART_IIR (2)
 #define UART_FCR (2)
@@ -22,8 +22,9 @@ typedef void (*put_char_func_t)(u8 data);
 
 struct Uart {
     u8              data[UART_SIZE]; // 模拟 UART 寄存器
-    get_char_func_t get_char;        // 外部提供的输入函数
-    put_char_func_t put_char;        // 外部提供的输出函数
+    u32             last_update;
+    get_char_func_t get_char; // 外部提供的输入函数
+    put_char_func_t put_char; // 外部提供的输出函数
 };
 
 void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put);

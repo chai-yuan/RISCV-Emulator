@@ -27,11 +27,10 @@ static enum exception sram_write(void *context, u64 address, u8 size, usize data
 
 struct DeviceFunc sram_get_func(struct Sram *sram) {
     return (struct DeviceFunc){
-        .context                  = sram,
-        .read                     = sram_read,
-        .write                    = sram_write,
-        .update                   = NULL,
-        .check_timer_interrupt    = NULL,
-        .check_external_interrupt = NULL,
+        .context         = sram,
+        .read            = sram_read,
+        .write           = sram_write,
+        .update          = NULL,
+        .check_interrupt = NULL,
     };
 }

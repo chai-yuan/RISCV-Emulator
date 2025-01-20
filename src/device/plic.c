@@ -58,11 +58,10 @@ static enum exception plic_write(void *context, u64 addr, u8 size, usize data) {
 
 struct DeviceFunc plic_get_func(struct PLIC *plic) {
     return (struct DeviceFunc){
-        .context                  = plic,
-        .read                     = plic_read,
-        .write                    = plic_write,
-        .update                   = NULL,
-        .check_timer_interrupt    = NULL,
-        .check_external_interrupt = NULL,
+        .context         = plic,
+        .read            = plic_read,
+        .write           = plic_write,
+        .update          = NULL,
+        .check_interrupt = NULL,
     };
 }
