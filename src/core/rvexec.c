@@ -57,9 +57,6 @@ void riscvcore_exec(struct RiscvCore *core) {
     for (u32 i = 0;; i++) {
         if ((DEC.inst & instructions[i].mask) == instructions[i].match) {
             instructions[i].func(core);
-            if (core->pc == 0x622)
-                INFO("mask : %x ,match : %x ,inst : %x", instructions[i].mask,
-                     instructions[i].match, DEC.inst);
             break;
         }
     }

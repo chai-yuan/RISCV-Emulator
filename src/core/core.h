@@ -13,8 +13,8 @@ enum exception riscvcore_mmu_write(struct RiscvCore *core, usize addr, u8 size, 
 void           riscvcore_mmu_fetch(struct RiscvCore *core);
 
 void riscvcore_exec(struct RiscvCore *core);
-void riscv_exception_handle(struct RiscvCore *core);
-void riscv_interrupt_handle(struct RiscvCore *core);
+void riscv_trap_handle(struct RiscvCore *core);
+bool riscv_check_pending_interrupt(struct RiscvCore *core);
 
 #define CSRR(addr) riscv_csr_read(core, addr)
 #define CSRW(addr, value) riscv_csr_write(core, addr, value)

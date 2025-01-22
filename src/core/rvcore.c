@@ -8,10 +8,8 @@ void riscvcore_step(struct RiscvCore *core) {
     if (core->decode.exception == EXC_NONE)
         riscvcore_exec(core);
 
-    if (core->decode.exception != EXC_NONE)
-        riscv_exception_handle(core);
-    else if (core->decode.interrupt != INT_NONE)
-        riscv_interrupt_handle(core);
+    if (core->decode.exception != EXC_NONE || riscv_check_pending_interrupt(core))
+        riscv_trap_handle(core);
 
     core->pc = core->decode.next_pc;
 }
