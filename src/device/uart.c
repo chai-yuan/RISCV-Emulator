@@ -52,12 +52,12 @@ static void uart_update(void *context, u32 interval) {
     uart->last_update += interval;
     if (!uart->get_char || uart->last_update < 10000)
         return;
-
     uart->last_update = 0;
+
     u8 input_char;
     if (uart->get_char(&input_char)) {
         if (!(uart->data[UART_LSR] & UART_LSR_RX_EMPTY)) {
-INFO("get char! : %x",uart->data[UART_LSR]);
+            INFO("get char! : %x", uart->data[UART_LSR]);
             uart->data[UART_RHR] = input_char;
             uart->data[UART_LSR] |= UART_LSR_RX_EMPTY;
             uart->interrupting = true;
@@ -68,7 +68,7 @@ INFO("get char! : %x",uart->data[UART_LSR]);
 static bool uart_check_interrupt(void *context) {
     struct Uart *uart = (struct Uart *)context;
     if (uart->interrupting) {
-    INFO("check_interrupt!");
+        INFO("check_interrupt!");
         uart->interrupting = false;
         return true;
     }
