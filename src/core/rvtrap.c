@@ -65,16 +65,6 @@ bool riscv_check_pending_interrupt(struct RiscvCore *core) {
     } else if (core->mode == SUPERVISOR && (CSRR(SSTATUS) & STATUS_SIE) == 0) {
         return false;
     }
-    // 检查并设置外部中断
-    if (core->device_func.check_interrupt(core->device_func.context)) {
-        if (core->mode == MACHINE) {
-            CSRW(MIP, CSRR(MIP) | IP_MEIP);
-        } else if (core->mode == SUPERVISOR) {
-            CSRW(MIP, CSRR(MIP) | IP_SEIP);
-        } else if (core->mode == USER) {
-            CSRW(MIP, CSRR(MIP) | IP_UEIP);
-        }
-    }
 
     u32 pending = CSRR(MIE) & CSRR(MIP);
     if (pending & IP_MEIP) {

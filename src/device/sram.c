@@ -31,6 +31,5 @@ struct DeviceFunc sram_get_func(struct Sram *sram) {
         .read            = sram_read,
         .write           = sram_write,
         .update          = NULL,
-        .check_interrupt = NULL,
     };
 }

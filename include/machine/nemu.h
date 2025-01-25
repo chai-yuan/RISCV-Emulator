@@ -2,14 +2,12 @@
 #define NEMU_M_H
 
 #include "core/rvcore.h"
-#include "device/bus.h"
 #include "device/clint.h"
 #include "device/sram.h"
 #include "device/uart.h"
 
 struct NemuMachine {
     struct RiscvCore core;
-    struct BusDevice bus;
     struct Sram      sram;
     struct Uart      uart;
     struct CLINT     clint;

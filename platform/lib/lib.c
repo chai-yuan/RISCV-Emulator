@@ -19,9 +19,8 @@ struct RiscvCore *difftest_init(const u8 *data, u64 data_size) {
     return &machine.core;
 }
 
-void difftest_step(void) {
-    //   struct DeviceFunc bus      = bus_device_get_func(&machine.bus);
-    //    static u64        step_cnt = 0;
+void difftest_step(void) { riscvcore_step(&machine.core); }
 
-    riscvcore_step(&machine.core);
+void difftest_raise_irq(void) {
+    riscvcore_raise_irq(&machine.core, 1);
 }

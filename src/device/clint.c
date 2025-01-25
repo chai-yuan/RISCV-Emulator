@@ -21,7 +21,6 @@ struct DeviceFunc clint_get_func(struct CLINT *clint) {
         .read            = clint_read,
         .write           = clint_write,
         .update          = clint_update,
-        .check_interrupt = NULL,
     };
     return func;
 }

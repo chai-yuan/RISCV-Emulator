@@ -44,19 +44,6 @@ static enum exception bus_write(void *context, u64 address, u8 size, usize data)
     return STORE_AMO_ACCESS_FAULT;
 }
 
-static bool bus_check_interrupt(void *context) {
-    struct BusDevice *bus = (struct BusDevice *)context;
-
-    for (int i = 0; i < bus->num_sub_devices; i++) {
-        struct SubDevice *sub = &bus->sub_devices[i];
-        if (sub->func.check_interrupt && sub->func.check_interrupt(sub->func.context)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 static void bus_update(void *context, u32 interval) {
     struct BusDevice *bus = (struct BusDevice *)context;
 
@@ -73,6 +60,5 @@ struct DeviceFunc bus_device_get_func(struct BusDevice *bus) {
         .read            = bus_read,
         .write           = bus_write,
         .update          = bus_update,
-        .check_interrupt = bus_check_interrupt,
     };
 }

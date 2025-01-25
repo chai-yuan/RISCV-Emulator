@@ -2,10 +2,10 @@
 #define QEMU_64_H
 
 #include "core/rvcore.h"
-#include "device/bus.h"
 #include "device/clint.h"
 #include "device/plic.h"
 #include "device/sram.h"
+#include "device/bus.h"
 #include "device/uart.h"
 
 // 模拟兼容qemu rv64的机器实现

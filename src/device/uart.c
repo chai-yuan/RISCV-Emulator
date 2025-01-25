@@ -3,10 +3,11 @@
 #include "device/device.h"
 #include "types.h"
 
-void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put) {
-    uart->get_char     = get;
-    uart->put_char     = put;
-    uart->interrupting = false;
+void uart_init(struct Uart *uart, struct InterruptFunc interrupt, get_char_func_t get,
+               put_char_func_t put) {
+    uart->get_char  = get;
+    uart->put_char  = put;
+    uart->interrupt = interrupt;
     uart->data[UART_LSR] |= (UART_LSR_TX_EMPTY | UART_LSR_THR_SR_EMPTY);
 }
 
@@ -57,30 +58,18 @@ static void uart_update(void *context, u32 interval) {
     u8 input_char;
     if (uart->get_char(&input_char)) {
         if (!(uart->data[UART_LSR] & UART_LSR_RX_EMPTY)) {
-            INFO("get char! : %x", uart->data[UART_LSR]);
             uart->data[UART_RHR] = input_char;
             uart->data[UART_LSR] |= UART_LSR_RX_EMPTY;
-            uart->interrupting = true;
+            uart->interrupt.raise_irq(uart->interrupt.context, uart->interrupt.interrupt_num);
         }
     }
 }
 
-static bool uart_check_interrupt(void *context) {
-    struct Uart *uart = (struct Uart *)context;
-    if (uart->interrupting) {
-        INFO("check_interrupt!");
-        uart->interrupting = false;
-        return true;
-    }
-    return false;
-}
-
 struct DeviceFunc uart_get_func(struct Uart *uart) {
     return (struct DeviceFunc){
-        .context         = uart,
-        .read            = uart_read,
-        .write           = uart_write,
-        .update          = uart_update,
-        .check_interrupt = uart_check_interrupt,
+        .context = uart,
+        .read    = uart_read,
+        .write   = uart_write,
+        .update  = uart_update,
     };
 }

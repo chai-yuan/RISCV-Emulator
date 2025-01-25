@@ -1,6 +1,7 @@
 #ifndef UART_H
 #define UART_H
 
+#include "device/device.h"
 #include "types.h"
 
 // 输入输出函数，返回值表示是否成功(是否读取到数据)
@@ -21,14 +22,16 @@ typedef void (*put_char_func_t)(u8 data);
 #define UART_LSR_THR_SR_EMPTY (1 << 6)
 
 struct Uart {
-    u8              data[UART_SIZE]; // 模拟 UART 寄存器
-    u32             last_update;
-    bool            interrupting;
-    get_char_func_t get_char; // 外部提供的输入函数
-    put_char_func_t put_char; // 外部提供的输出函数
+    u8  data[UART_SIZE]; // 模拟 UART 寄存器
+    u32 last_update;
+
+    struct InterruptFunc interrupt;
+    get_char_func_t      get_char; // 外部提供的输入函数
+    put_char_func_t      put_char; // 外部提供的输出函数
 };
 
-void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put);
+void uart_init(struct Uart *uart, struct InterruptFunc interrupt, get_char_func_t get,
+               put_char_func_t put);
 
 struct DeviceFunc uart_get_func(struct Uart *uart);
 

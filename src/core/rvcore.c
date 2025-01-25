@@ -14,6 +14,18 @@ void riscvcore_step(struct RiscvCore *core) {
     core->pc = core->decode.next_pc;
 }
 
+void riscvcore_raise_irq(void *context, u32 interrupt_num) {
+    struct RiscvCore *core = context;
+
+    if (core->mode == MACHINE) {
+        CSRW(MIP, CSRR(MIP) | IP_MEIP);
+    } else if (core->mode == SUPERVISOR) {
+        CSRW(MIP, CSRR(MIP) | IP_SEIP);
+    } else if (core->mode == USER) {
+        CSRW(MIP, CSRR(MIP) | IP_UEIP);
+    }
+}
+
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     for (int i = 0; i < sizeof(struct RiscvCore); i++)
         *((u8 *)core + i) = 0;
