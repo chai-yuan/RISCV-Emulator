@@ -60,7 +60,6 @@ typedef enum {
 
 #else
 
-// 如果调试宏被禁用或调试级别为 NONE，则定义空宏
 #define ERROR(fmt, ...)
 #define WARN(fmt, ...)
 #define INFO(fmt, ...)

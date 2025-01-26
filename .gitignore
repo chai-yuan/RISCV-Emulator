@@ -23,6 +23,8 @@ cremu
 
 # 忽略二进制文件
 *.bin
+*.wasm
+*.js
 
 # 忽略构建目录
 build/

@@ -23,14 +23,9 @@ run: $(PROJECT_NAME)
 	@echo "[RUN] Running the program: ./$(PROJECT_NAME) $(ARGS) $(IMG)"
 	@./$(PROJECT_NAME) $(ARGS) $(IMG)
 
-lib: CFLAGS += -fPIC
-lib: $(OBJS)
-	@echo "[LINK] Linking dynamic library: $(LIB_NAME)"
-	@$(CC) -shared -o $(LIB_NAME) $^ $(LDFLAGS)
-
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"
-	@rm -f $(PROJECT_NAME) $(LIB_NAME) $(OBJS)
+	@rm -f $(PROJECT_NAME) $(OBJS)
 	@rm -rf build
 
 .PHONY: clean run

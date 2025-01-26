@@ -1,0 +1,23 @@
+SRCS += $(wildcard $(PLATFORM_DIR)/*.c)
+
+CC = emcc
+CFLAGS = -Wall -O2 -I$(HEADS_DIR)
+LDFLAGS = 
+EMFLAGS = -s INITIAL_MEMORY=64MB -s MAXIMUM_MEMORY=1GB \
+          -s ALLOW_MEMORY_GROWTH=1 \
+          -s FORCE_FILESYSTEM=1 \
+          -s EXPORTED_FUNCTIONS='["_machine_start","_machine_step"]' \
+          -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
+
+$(PROJECT_NAME): $(SRCS) $(HEADS)
+	$(CC) -o $(PROJECT_NAME).js $(SRCS) $(CFLAGS) $(EMFLAGS)
+
+run: $(PROJECT_NAME)
+	@echo "[RUN] Starting HTTP server and opening browser..."
+	python3 -m http.server
+
+clean:
+	@echo "[CLEAN] Cleaning up build artifacts"
+	@rm -f $(PROJECT_NAME).wasm $(PROJECT_NAME).js
+
+.PHONY: clean run

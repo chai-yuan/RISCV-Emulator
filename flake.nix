@@ -22,6 +22,7 @@
 
         packages = [
           pkgs.gcc
+          pkgs.emscripten
           pkgs.gnumake
           pkgs.bear
           pkgs.clang-tools
