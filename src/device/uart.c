@@ -60,7 +60,8 @@ static void uart_update(void *context, u32 interval) {
         if (!(uart->data[UART_LSR] & UART_LSR_RX_EMPTY)) {
             uart->data[UART_RHR] = input_char;
             uart->data[UART_LSR] |= UART_LSR_RX_EMPTY;
-            uart->interrupt.raise_irq(uart->interrupt.context, uart->interrupt.interrupt_num);
+            if (uart->interrupt.raise_irq)
+                uart->interrupt.raise_irq(uart->interrupt.context, uart->interrupt.interrupt_num);
         }
     }
 }
