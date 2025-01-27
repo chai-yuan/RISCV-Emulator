@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebAssembly CREMU</title>
+    <!-- 引入 xterm.js 的样式 -->
+    <link rel="stylesheet" href="lib/xterm.min.css">
+    <!-- 引入自定义的 CSS 文件 -->
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <!-- 按钮容器 -->
+    <div class="button-container">
+        <!-- 文件上传按钮 -->
+        <input type="file" id="upload-button" class="button" />
+        <!-- 运行按钮 -->
+        <button id="run-button" class="button">启动运行</button>
+    </div>
+
+    <!-- 终端容器 -->
+    <div id="terminal"></div>
+
+    <!-- 引入 xterm.js 核心库 -->
+    <script src="lib/xterm.js"></script>
+    <!-- 引入 Emscripten 生成的 JavaScript 胶水代码 -->
+    <script src="cremu.js"></script>
+    <!-- 引入自定义的 JavaScript 文件 -->
+    <script src="main.js"></script>
+</body>
+</html>
