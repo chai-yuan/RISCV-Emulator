@@ -6,18 +6,18 @@ LDFLAGS =
 EMFLAGS = -s INITIAL_MEMORY=64MB -s MAXIMUM_MEMORY=1GB \
           -s ALLOW_MEMORY_GROWTH=1 \
           -s FORCE_FILESYSTEM=1 \
-          -s EXPORTED_FUNCTIONS='["_machine_start","_machine_step"]' \
+          -s EXPORTED_FUNCTIONS='["_input_char", "_check_output_size", "_output_char","_machine_init","_machine_step"]' \
           -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]'
 
 $(PROJECT_NAME): $(SRCS) $(HEADS)
-	$(CC) -o $(PROJECT_NAME).js $(SRCS) $(CFLAGS) $(EMFLAGS)
+	$(CC) -o $(PLATFORM_DIR)/$(PROJECT_NAME).js $(SRCS) $(CFLAGS) $(EMFLAGS)
 
 run: $(PROJECT_NAME)
 	@echo "[RUN] Starting HTTP server and opening browser..."
-	python3 -m http.server
+	python3 -m http.server --directory $(PLATFORM_DIR)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"
-	@rm -f $(PROJECT_NAME).wasm $(PROJECT_NAME).js
+	@rm -f $(PLATFORM_DIR)/$(PROJECT_NAME).wasm $(PLATFORM_DIR)/$(PROJECT_NAME).js
 
 .PHONY: clean run
