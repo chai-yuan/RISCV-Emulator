@@ -24,11 +24,6 @@ cremu
 # 忽略二进制文件
 *.bin
 
-# 忽略网页部署文件
-cremu.wasm
-cremu.js
-platform/web/lib
-
 # 忽略构建目录
 build/
 
