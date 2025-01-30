@@ -3,7 +3,7 @@
 
 void bus_device_init(struct BusDevice *bus) { bus->num_sub_devices = 0; }
 
-void bus_device_add_sub_device(struct BusDevice *bus, u64 base, u64 size, struct DeviceFunc func) {
+void bus_device_add(struct BusDevice *bus, u64 base, u64 size, struct DeviceFunc func) {
     bus->num_sub_devices++;
     if (bus->num_sub_devices >= MAX_BUS_DEVICES) {
         ERROR("Failed to allocate memory for sub devices");

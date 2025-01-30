@@ -3,17 +3,24 @@
 #include "device/device.h"
 #include "types.h"
 
-void uart_init(struct Uart *uart, struct InterruptFunc interrupt, get_char_func_t get,
-               put_char_func_t put) {
+void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put) {
     uart->get_char  = get;
     uart->put_char  = put;
-    uart->interrupt = interrupt;
+    uart->interrupt = false;
     uart->data[UART_LSR] |= (UART_LSR_TX_EMPTY | UART_LSR_THR_SR_EMPTY);
+}
+
+bool uart_check_irq(struct Uart *uart) {
+    if (uart->interrupt) {
+        uart->interrupt = false;
+        return true;
+    }
+    return false;
 }
 
 static enum exception uart_read(void *context, u64 addr, u8 size, usize *data) {
     struct Uart *uart = (struct Uart *)context;
-    if (size != 1)
+    if (size != 1 || addr > UART_SIZE)
         return LOAD_ACCESS_FAULT;
 
     switch (addr) {
@@ -31,7 +38,7 @@ static enum exception uart_read(void *context, u64 addr, u8 size, usize *data) {
 
 static enum exception uart_write(void *context, u64 addr, u8 size, usize data) {
     struct Uart *uart = (struct Uart *)context;
-    if (size != 1)
+    if (size != 1 || addr > UART_SIZE)
         return LOAD_ACCESS_FAULT;
 
     switch (addr) {
@@ -50,8 +57,9 @@ static enum exception uart_write(void *context, u64 addr, u8 size, usize data) {
 
 static void uart_update(void *context, u32 interval) {
     struct Uart *uart = (struct Uart *)context;
+
     uart->last_update += interval;
-    if (!uart->get_char || uart->last_update < 10000)
+    if (!uart->get_char || uart->last_update < 20000)
         return;
     uart->last_update = 0;
 
@@ -60,8 +68,7 @@ static void uart_update(void *context, u32 interval) {
         if (!(uart->data[UART_LSR] & UART_LSR_RX_EMPTY)) {
             uart->data[UART_RHR] = input_char;
             uart->data[UART_LSR] |= UART_LSR_RX_EMPTY;
-            if (uart->interrupt.raise_irq)
-                uart->interrupt.raise_irq(uart->interrupt.context, uart->interrupt.interrupt_num);
+            uart->interrupt = true;
         }
     }
 }

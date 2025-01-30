@@ -22,7 +22,7 @@ struct BusDevice {
 void bus_device_init(struct BusDevice *bus);
 
 // 向总线当中添加子设备
-void bus_device_add_sub_device(struct BusDevice *bus, u64 base, u64 size, struct DeviceFunc func);
+void bus_device_add(struct BusDevice *bus, u64 base, u64 size, struct DeviceFunc func);
 
 // 获得总线设备
 struct DeviceFunc bus_device_get_func(struct BusDevice *bus);

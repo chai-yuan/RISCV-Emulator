@@ -1,9 +1,22 @@
 #include "core/rvcore.h"
 #include "core.h"
 
-void riscvcore_step(struct RiscvCore *core) {
-    riscv_decode_init(&core->decode);
+void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
+    if (envinfo.eint) {
+        if (core->mode == MACHINE) {
+            CSRW(MIP, CSRR(MIP) | IP_MEIP);
+        } else if (core->mode == SUPERVISOR) {
+            CSRW(MIP, CSRR(MIP) | IP_SEIP);
+        } else if (core->mode == USER) {
+            CSRW(MIP, CSRR(MIP) | IP_UEIP);
+        }
+    }
+}
 
+void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
+    riscvcore_update(core, envinfo);
+
+    riscv_decode_init(&core->decode);
     riscvcore_mmu_fetch(core);
     if (core->decode.exception == EXC_NONE)
         riscvcore_exec(core);
@@ -14,18 +27,6 @@ void riscvcore_step(struct RiscvCore *core) {
     core->pc = core->decode.next_pc;
 }
 
-void riscvcore_raise_irq(void *context, u32 interrupt_num) {
-    struct RiscvCore *core = context;
-
-    if (core->mode == MACHINE) {
-        CSRW(MIP, CSRR(MIP) | IP_MEIP);
-    } else if (core->mode == SUPERVISOR) {
-        CSRW(MIP, CSRR(MIP) | IP_SEIP);
-    } else if (core->mode == USER) {
-        CSRW(MIP, CSRR(MIP) | IP_UEIP);
-    }
-}
-
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     for (int i = 0; i < sizeof(struct RiscvCore); i++)
         *((u8 *)core + i) = 0;
@@ -33,7 +34,6 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->mode              = MACHINE;
     core->reservation_valid = false;
     core->device_func       = device_func;
-    riscv_decode_init(&core->decode);
     core->csrs[MISA] = sizeof(usize) == 4 ? (0x1 << 30) : (0x2LL << 62);
     core->csrs[MISA] |= 0x141105; // TODO
 

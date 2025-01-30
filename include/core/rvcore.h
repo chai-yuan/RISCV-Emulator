@@ -16,13 +16,17 @@ struct RiscvDecode {
     enum interrupt interrupt;
 };
 
+struct RiscvEnvInfo {
+    bool eint;
+};
+
 struct RiscvCore {
-    usize regs[32];
-    usize pc;
-    usize csrs[4096];
-    enum mode          mode;
-    bool               reservation_valid;
-    usize              reservation_addr;
+    usize     regs[32];
+    usize     pc;
+    usize     csrs[4096];
+    enum mode mode;
+    bool      reservation_valid;
+    usize     reservation_addr;
 
     struct RiscvDecode decode;
     struct DeviceFunc  device_func;
@@ -30,8 +34,6 @@ struct RiscvCore {
 
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func);
 
-void riscvcore_step(struct RiscvCore *core);
-
-void riscvcore_raise_irq(void *context, u32 interrupt_num);
+void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo);
 
 #endif

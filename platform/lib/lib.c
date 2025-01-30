@@ -4,6 +4,7 @@
 
 u8                 sram_data[128 * 1024 * 1024];
 struct QemuMachine machine;
+bool               interrupt = false;
 
 struct RiscvCore *difftest_init(const u8 *data, u64 data_size) {
     INFO("difftest_init");
@@ -19,8 +20,13 @@ struct RiscvCore *difftest_init(const u8 *data, u64 data_size) {
     return &machine.core;
 }
 
-void difftest_step(void) { riscvcore_step(&machine.core); }
+void difftest_step(void) {
+    riscvcore_step(&machine.core,
+                   (struct RiscvEnvInfo){.seinterrupt = interrupt, .meinterrupt = false});
+    interrupt = false;
+}
 
 void difftest_raise_irq(void) {
-    riscvcore_raise_irq(&machine.core, 1);
+    interrupt           = true;
+    machine.plic.sclaim = 10;
 }

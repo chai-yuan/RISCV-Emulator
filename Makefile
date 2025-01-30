@@ -4,6 +4,6 @@ HEADS_DIR = include
 SRCS = $(shell find $(SRCS_DIR) -name '*.c')
 HEADS = $(shell find $(HEADS_DIR) -name '*.h')
 
-PLATFORM ?= web
+PLATFORM ?= linux
 PLATFORM_DIR = platform/$(PLATFORM)
 include $(PLATFORM_DIR)/Makefile.$(PLATFORM)

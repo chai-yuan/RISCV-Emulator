@@ -2,13 +2,13 @@
 #define QEMU_64_H
 
 #include "core/rvcore.h"
+#include "device/bus.h"
 #include "device/clint.h"
 #include "device/plic.h"
 #include "device/sram.h"
-#include "device/bus.h"
 #include "device/uart.h"
 
-// 模拟兼容qemu rv64的机器实现
+// 模拟兼容qemu的机器实现
 struct QemuMachine {
     struct RiscvCore core;
     struct BusDevice bus;
@@ -27,6 +27,6 @@ struct QemuPortableOperations {
 
 void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperations init);
 
-void qemu_machine_run(struct QemuMachine *machine);
+void qemu_machine_step(struct QemuMachine *machine);
 
 #endif

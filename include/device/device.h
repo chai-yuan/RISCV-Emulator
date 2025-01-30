@@ -19,13 +19,6 @@ struct DeviceFunc {
     update_func_t       update;
 };
 
-typedef void (*interrupt_func_t)(void *context, u32 interrupt_num);
-struct InterruptFunc {
-    void            *context;
-    u32              interrupt_num;
-    interrupt_func_t raise_irq;
-};
-
 void device_read(u8 *buf, u64 address, u8 size, usize *data);
 
 void device_write(u8 *buf, u64 address, u8 size, usize data);

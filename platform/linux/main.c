@@ -45,12 +45,8 @@ bool get_char(u8 *data) {
 
 void put_char(u8 data) {
     char c = (char)data;
-    if (write(STDOUT_FILENO, &c, 1) != 0) {
-        return;
-    }
-    if (fsync(STDOUT_FILENO) != 0) {
-        return;
-    }
+    printf("%c", c);
+    fflush(stdout);
 }
 
 int main(int argc, char *argv[]) {
@@ -82,6 +78,8 @@ int main(int argc, char *argv[]) {
                                    .put_char  = put_char,
                                });
 
-    qemu_machine_run(machine);
-    return machine->core.regs[10];
+    while (1) {
+        qemu_machine_step(machine);
+    }
+    return 0;
 }

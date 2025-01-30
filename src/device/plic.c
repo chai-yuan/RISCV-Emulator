@@ -1,17 +1,26 @@
 #include "device/plic.h"
 #include "core/riscv.h"
 
-void plic_init(struct PLIC *plic, struct InterruptFunc interrupt) {
+void plic_init(struct PLIC *plic) {
     for (int i = 0; i < sizeof(struct PLIC); i++)
         *((u8 *)plic + i) = 0;
-
-    plic->interrupt = interrupt;
+    plic->pending = 0;
+    plic->sclaim  = 0;
 }
 
-void plic_raise_irq(void *context, u32 interrupt_num) {
-    struct PLIC *plic = context;
-    plic->interrupt.raise_irq(plic->interrupt.context, plic->interrupt.interrupt_num);
-    plic->mclaim = plic->sclaim = interrupt_num;
+bool plic_check_irq(struct PLIC *plic, u32 context_id) {
+    if (plic->pending != 0) {
+        plic->pending = 0;
+        return true;
+    }
+    return false;
+}
+
+void plic_update_intterupt(struct PLIC *plic, bool interrupt, u32 interrupt_num) {
+    if (interrupt) {
+        plic->pending |= 1u << (interrupt_num % 32);
+        plic->mclaim = plic->sclaim = interrupt_num;
+    }
 }
 
 static enum exception plic_read(void *context, u64 addr, u8 size, usize *data) {
