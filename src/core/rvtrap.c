@@ -7,7 +7,6 @@ void riscv_trap_handle(struct RiscvCore *core) {
         cause = DEC.exception;
     } else if (DEC.interrupt != INT_NONE) {
         cause = DEC.interrupt | INT_MIN;
-        pc = core->decode.next_pc;
     } else {
         return;
     }
