@@ -1,19 +1,19 @@
-#ifndef QEMU_64_H
-#define QEMU_64_H
+#ifndef QEMU_H
+#define QEMU_H
 
 #include "core/rvcore.h"
 #include "device/bus.h"
 #include "device/clint.h"
 #include "device/plic.h"
 #include "device/sram.h"
-#include "device/uart.h"
+#include "device/uart16550.h"
 
 // 模拟兼容qemu的机器实现
 struct QemuMachine {
     struct RiscvCore core;
     struct BusDevice bus;
     struct Sram      sram;
-    struct Uart      uart;
+    struct UART16550 uart;
     struct CLINT     clint;
     struct PLIC      plic;
 };

@@ -1,5 +1,5 @@
-#ifndef UART_H
-#define UART_H
+#ifndef UART_16550_H
+#define UART_16550_H
 
 #include "device/device.h"
 #include "types.h"
@@ -21,7 +21,7 @@ typedef void (*put_char_func_t)(u8 data);
 #define UART_LSR_TX_EMPTY (1 << 5)
 #define UART_LSR_THR_SR_EMPTY (1 << 6)
 
-struct Uart {
+struct UART16550 {
     u8   data[UART_SIZE]; // 模拟 UART 寄存器
     u32  last_update;
     bool interrupt;
@@ -30,10 +30,10 @@ struct Uart {
     put_char_func_t put_char; // 外部提供的输出函数
 };
 
-void uart_init(struct Uart *uart, get_char_func_t get, put_char_func_t put);
+void uart_init(struct UART16550 *uart, get_char_func_t get, put_char_func_t put);
 
-bool uart_check_irq(struct Uart *uart);
+bool uart_check_irq(struct UART16550 *uart);
 
-struct DeviceFunc uart_get_func(struct Uart *uart);
+struct DeviceFunc uart_get_func(struct UART16550 *uart);
 
 #endif
