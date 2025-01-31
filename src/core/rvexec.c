@@ -1,5 +1,4 @@
 #include "core.h"
-#include "debug.h"
 
 void riscv_decode_init(struct RiscvDecode *decode) {
     decode->inst          = 0;
