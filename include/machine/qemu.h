@@ -13,6 +13,7 @@ struct QemuMachine {
     struct RiscvCore core;
     struct BusDevice bus;
     struct Sram      sram;
+    struct Sram      rom;
     struct Uart      uart;
     struct CLINT     clint;
     struct PLIC      plic;
