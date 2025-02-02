@@ -26,7 +26,7 @@ static enum exception bus_read(void *context, u64 address, u8 size, usize *data)
         }
     }
 
-    WARN("address out of bounds, addr : %llx", address);
+    ERROR("address out of bounds, addr : %llx", address);
     return LOAD_ACCESS_FAULT;
 }
 
@@ -40,7 +40,7 @@ static enum exception bus_write(void *context, u64 address, u8 size, usize data)
         }
     }
 
-    WARN("address out of bounds, addr : %llx", address);
+    ERROR("address out of bounds, addr : %llx", address);
     return STORE_AMO_ACCESS_FAULT;
 }
 

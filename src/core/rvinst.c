@@ -455,6 +455,20 @@ void inst_mret(struct RiscvCore *core) {
     DEC.next_pc = CSRR(MEPC);
 }
 void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
+
+void inst_addw(struct RiscvCore *core) { RD = (i32)(RS1 + RS2); }
+void inst_subw(struct RiscvCore *core) { RD = (i32)(RS1 - RS2); }
+void inst_sllw(struct RiscvCore *core) { RD = (i32)(RS1 << (RS2 & 0x1F)); }
+void inst_srlw(struct RiscvCore *core) { RD = (i32)((u32)RS1 >> (RS2 & 0x1F)); }
+void inst_sraw(struct RiscvCore *core) { RD = (i32)RS1 >> (RS2 & 0x1F); }
+void inst_addiw(struct RiscvCore *core) { RD = (RS1 + (i64)DEC.immI); }
+void inst_slliw(struct RiscvCore *core) { RD = (i32)(RS1 << (DEC.immI & 0x1F)); }
+void inst_srliw(struct RiscvCore *core) { RD = (i32)((u32)RS1 >> (DEC.immI & 0x1F)); }
+void inst_sraiw(struct RiscvCore *core) { RD = (i32)RS1 >> (DEC.immI & 0x1F); }
+void inst_lwu(struct RiscvCore *core) { MR(RS1 + DEC.immI, 4, RD); }
+void inst_ld(struct RiscvCore *core) { MR(RS1 + DEC.immI, 8, RD); }
+void inst_sd(struct RiscvCore *core) { MW(RS1 + DEC.immS, 8, RS2); }
+
 void inst_inv(struct RiscvCore *core) {
     DEC.exception     = ILLEGAL_INSTRUCTION;
     DEC.exception_val = DEC.inst;
@@ -564,6 +578,21 @@ struct Instruction instructions[] = {
     {.mask = 0xffffffff, .match = 0x10200073, .func = inst_sret},
     {.mask = 0xffffffff, .match = 0x30200073, .func = inst_mret},
     {.mask = 0xffffffff, .match = 0x100073, .func = inst_ebeark},
+
+#if CURRENT_ARCH == ARCH_RV64
+    {.mask = 0xfe00707f, .match = 0x3b, .func = inst_addw},
+   {.mask = 0xfe00707f, .match = 0x4000003b, .func = inst_subw},
+    {.mask = 0xfe00707f, .match = 0x103b, .func = inst_sllw},
+    {.mask = 0xfe00707f, .match = 0x503b, .func = inst_srlw},
+    {.mask = 0xfe00707f, .match = 0x4000503b, .func = inst_sraw},
+    {.mask = 0xfe00707f, .match = 0x101b, .func = inst_slliw},
+    {.mask = 0xfe00707f, .match = 0x501b, .func = inst_srliw},
+    {.mask = 0xfe00707f, .match = 0x4000501b, .func = inst_sraiw},
+    {.mask = 0x707f, .match = 0x1b, .func = inst_addiw},
+    {.mask = 0x707f, .match = 0x6003, .func = inst_lwu},
+    {.mask = 0x707f, .match = 0x3003, .func = inst_ld},
+    {.mask = 0x707f, .match = 0x3023, .func = inst_sd},
+#endif
 
     {.mask = 0x0, .match = 0x0, .func = inst_inv},
 };

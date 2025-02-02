@@ -1,4 +1,5 @@
 #include "core.h"
+#include "debug.h"
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
     bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
@@ -73,66 +74,6 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
     */
 
 #elif CURRENT_ARCH == ARCH_RV64 // SV39
-    u64 ppn   = CSRR(SATP) & 0xfffffffffff;
-    i32 level = 3;
-    u64 vpn[] = {
-        (addr >> 12) & 0x3ff,
-        (addr >> 21) & 0x1ff,
-        (addr >> 30) & 0x1ff,
-    };
-    u64 page_table_entry = 0;
-    u8 *table_memory[]   = {NULL, NULL, NULL};
-
-    while (1) {
-        level--;
-        if (level < 0)
-            return exc;
-
-        u64 page_table_addr = (ppn << 12) | (vpn[level] << 3);
-        table_memory[level] = device.get_buffer(device.context, page_table_addr);
-        if (table_memory[level] == NULL)
-            return exc;
-        page_table_entry = REG64(table_memory[level], 0);
-        ppn              = (page_table_entry >> 10) & 0xfffffffffff;
-
-        bool v = page_table_entry & 1;
-        bool r = (page_table_entry >> 1) & 1;
-        bool w = (page_table_entry >> 2) & 1;
-        bool x = (page_table_entry >> 3) & 1;
-        bool u = (page_table_entry >> 4) & 1;
-        if (v == false)
-            return exc; // 检查有效位
-        if (u &&
-            !((core->mode == USER) || (core->mode == SUPERVISOR && CSRR(SSTATUS) & (1 << 18)) ||
-              (core->mode == MACHINE && CSRR(MSTATUS) & (1 << 18))))
-            return exc; // 检查U页面权限
-        if (r || x || w)
-            break; // 检查叶子节点页
-    }
-
-    switch (level) {
-    case 0: {
-        *paddr = (ppn << 12) | (addr & 0xfff);
-        break;
-    }
-    case 1: {
-        if (ppn & 0x1ff)
-            return exc; // 超级页低位需要置0
-        *paddr = (ppn << 12) | (vpn[0] << 12) | (addr & 0xfff);
-        break;
-    }
-    case 2: {
-        if (ppn & 0x3ffff)
-            return exc; // 超级页低位需要置0
-        *paddr = (ppn << 12) | (vpn[1] << 21) | (vpn[0] << 12) | (addr & 0xfff);
-        break;
-    }
-    default:
-        return exc;
-    }
-
-    for (int i = 1; i >= 0 && table_memory[i] != NULL; i--)
-        REG64(table_memory[i], 0) |= (dirty << 7);
 
     INFO("vm translate : %llx -> %llx", addr, *paddr);
 #endif

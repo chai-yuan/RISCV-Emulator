@@ -3,7 +3,6 @@
 
 #include "core/rvcore.h"
 #include "device/bus.h"
-#include "device/clint.h"
 #include "device/sram.h"
 #include "device/uart16550.h"
 
@@ -12,7 +11,6 @@ struct NemuMachine {
     struct BusDevice bus;
     struct Sram      sram;
     struct UART16550 uart;
-    struct CLINT     clint;
 };
 
 struct NemuPortableOperations {
@@ -24,6 +22,6 @@ struct NemuPortableOperations {
 
 void nemu_machine_init(struct NemuMachine *machine, struct NemuPortableOperations init);
 
-void nemu_machine_run(struct NemuMachine *machine);
+void nemu_machine_step(struct NemuMachine *machine);
 
 #endif

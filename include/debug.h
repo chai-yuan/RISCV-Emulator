@@ -60,10 +60,10 @@ typedef enum {
 
 #else
 
-#define ERROR(fmt, ...)
-#define WARN(fmt, ...)
-#define INFO(fmt, ...)
-#define ASSERT(condition, fmt, ...)
+#define ERROR(...)
+#define WARN(...)
+#define INFO(...)
+#define ASSERT(condition, ...)
 
 #endif // ENABLE_DEBUG_MACROS && DEBUG_LEVEL != DEBUG_LEVEL_NONE
 

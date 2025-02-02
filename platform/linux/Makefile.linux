@@ -4,7 +4,6 @@ CC = gcc
 CFLAGS = -Wall -Werror -pedantic -O2 -I$(HEADS_DIR)
 LDFLAGS =
 
-IMG  ?= 
 ARGS ?= 
 
 OBJS = $(patsubst %.c, build/%.o, $(SRCS))
@@ -20,8 +19,8 @@ build/%.o: %.c $(HEADS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(PROJECT_NAME)
-	@echo "[RUN] Running the program: ./$(PROJECT_NAME) $(ARGS) $(IMG)"
-	@./$(PROJECT_NAME) $(ARGS) $(IMG)
+	@echo "[RUN] Running the program: ./$(PROJECT_NAME) $(ARGS)"
+	@./$(PROJECT_NAME) $(ARGS)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"
