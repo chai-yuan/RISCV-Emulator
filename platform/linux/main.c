@@ -47,5 +47,7 @@ int main(int argc, char *argv[]) {
         }
         ret_val = machine->core.regs[10];
     }
+
+    ASSERT(ret_val == 0, "ret_val : %d", ret_val);
     return ret_val;
 }

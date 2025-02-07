@@ -56,9 +56,9 @@ static void bus_update(void *context, u32 interval) {
 
 struct DeviceFunc bus_device_get_func(struct BusDevice *bus) {
     return (struct DeviceFunc){
-        .context         = bus,
-        .read            = bus_read,
-        .write           = bus_write,
-        .update          = bus_update,
+        .context = bus,
+        .read    = bus_read,
+        .write   = bus_write,
+        .update  = bus_update,
     };
 }
