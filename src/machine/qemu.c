@@ -4,7 +4,11 @@ u32 boot_rom[] = {
     0x00000297, // auipc t0, 0x0: 将当前PC值的高20位与立即数0相加，结果存入t0
     0x02028593, // addi a1, t0, 32: 将t0的值与立即数32相加，结果存入a1
     0xf1402573, // csrr a0, mhartid: 读取mhartid寄存器的值，存入a0
+#if CURRENT_ARCH == ARCH_RV32
     0x0182a283, // lw t0, 24(t0): 从内存地址t0 + 24处加载一个字到t0
+#elif CURRENT_ARCH == ARCH_RV64
+    0x0182b283, // ld t0, 24(t0): 从内存地址t0 + 24处加载一个字到t0
+#endif
     0x00028067, // jr t0: 跳转到t0寄存器中的地址
     0x00000000, // 未使用（填充）
     0x80000000, // 0x1018处的值：跳转目标地址
@@ -34,6 +38,5 @@ void qemu_machine_step(struct QemuMachine *machine) {
 
     plic_update_intterupt(&machine->plic, uart_check_irq(&machine->uart), 10);
 
-    riscvcore_step(&machine->core,
-                   (struct RiscvEnvInfo){.eint = plic_check_irq(&machine->plic, 1)});
+    riscvcore_step(&machine->core, (struct RiscvEnvInfo){.eint = plic_check_irq(&machine->plic, 1)});
 }
