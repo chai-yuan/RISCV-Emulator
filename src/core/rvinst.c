@@ -319,42 +319,37 @@ void inst_c_lui(struct RiscvCore *core) {
     core->regs[DEC.rd] = imm;
 }
 void inst_c_addi16sp(struct RiscvCore *core) {
-    isize imm = ((DEC.inst >> 12) & 0x1) << 9 | ((DEC.inst >> 2) & 0x1) << 5 |
-                ((DEC.inst >> 3) & 0x3) << 7 | ((DEC.inst >> 5) & 0x1) << 6 |
-                ((DEC.inst >> 6) & 0x1) << 4;
+    isize imm = ((DEC.inst >> 12) & 0x1) << 9 | ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 7 |
+                ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 4;
     imm |= (imm & 0x200) ? ~0x1ff : 0;
     if (imm != 0)
         core->regs[2] = ((isize)core->regs[2] + imm);
 }
 void inst_c_j(struct RiscvCore *core) {
-    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 |
-                 ((DEC.inst >> 6) & 0x1) << 7 | ((DEC.inst >> 7) & 0x1) << 6 |
-                 ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
+    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
+                 ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
                  ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
     offset |= (offset & 0x800) ? ~0x3ff : 0;
     DEC.next_pc = core->pc + offset;
 }
 void inst_c_jal(struct RiscvCore *core) {
-    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 |
-                 ((DEC.inst >> 6) & 0x1) << 7 | ((DEC.inst >> 7) & 0x1) << 6 |
-                 ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
+    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
+                 ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
                  ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
     offset |= (offset & 0x800) ? ~0x3ff : 0;
     core->regs[1] = core->pc + 2;
     DEC.next_pc   = core->pc + offset;
 }
 void inst_c_beqz(struct RiscvCore *core) {
-    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 |
-                 ((DEC.inst >> 5) & 0x3) << 6 | ((DEC.inst >> 10) & 0x3) << 3 |
-                 ((DEC.inst >> 12) & 0x1) << 8;
+    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 | ((DEC.inst >> 5) & 0x3) << 6 |
+                 ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
     offset |= (offset & 0x100) ? ~0xff : 0;
     if (core->regs[DEC.rs1_] == 0)
         DEC.next_pc = core->pc + offset;
 }
 void inst_c_bnez(struct RiscvCore *core) {
-    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 |
-                 ((DEC.inst >> 5) & 0x3) << 6 | ((DEC.inst >> 10) & 0x3) << 3 |
-                 ((DEC.inst >> 12) & 0x1) << 8;
+    u32 offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 | ((DEC.inst >> 5) & 0x3) << 6 |
+                 ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
     offset |= (offset & 0x100) ? ~0xff : 0;
     if (core->regs[DEC.rs1_] != 0)
         DEC.next_pc = core->pc + offset;
@@ -366,8 +361,7 @@ void inst_c_li(struct RiscvCore *core) {
 }
 void inst_c_nop(struct RiscvCore *core) {}
 void inst_c_lwsp(struct RiscvCore *core) {
-    usize offset =
-        ((DEC.inst >> 2) & 0x3) << 6 | ((DEC.inst >> 4) & 0x7) << 2 | ((DEC.inst >> 12) & 0x1) << 5;
+    usize offset = ((DEC.inst >> 2) & 0x3) << 6 | ((DEC.inst >> 4) & 0x7) << 2 | ((DEC.inst >> 12) & 0x1) << 5;
     usize data;
     MR(core->regs[2] + offset, 4, data);
     RD = (isize)data;
@@ -377,15 +371,13 @@ void inst_c_swsp(struct RiscvCore *core) {
     MW(core->regs[2] + offset, 4, RS2);
 }
 void inst_c_lw(struct RiscvCore *core) {
-    usize imm =
-        ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
     usize data;
     MR(core->regs[DEC.rs1_] + imm, 4, data);
     core->regs[DEC.rs2_] = (i32)data;
 }
 void inst_c_sw(struct RiscvCore *core) {
-    usize imm =
-        ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
     MW(core->regs[DEC.rs1_] + imm, 4, core->regs[DEC.rs2_]);
 }
 void inst_c_jalr(struct RiscvCore *core) {
@@ -400,8 +392,8 @@ void inst_c_addi(struct RiscvCore *core) {
         core->regs[DEC.rd] = (u32)((isize)core->regs[DEC.rd] + imm);
 }
 void inst_c_addi4spn(struct RiscvCore *core) {
-    usize imm = ((DEC.inst >> 5) & 0x1) << 3 | ((DEC.inst >> 6) & 0x1) << 2 |
-                ((DEC.inst >> 7) & 0xf) << 6 | ((DEC.inst >> 11) & 0x3) << 4;
+    usize imm = ((DEC.inst >> 5) & 0x1) << 3 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 7) & 0xf) << 6 |
+                ((DEC.inst >> 11) & 0x3) << 4;
     if (imm != 0)
         core->regs[DEC.rs2_] = core->regs[2] + imm;
 }
@@ -437,8 +429,7 @@ void inst_ecall(struct RiscvCore *core) {
 }
 void inst_sret(struct RiscvCore *core) {
     core->mode = ((CSRR(SSTATUS) >> 8) & 1) == 1 ? SUPERVISOR : USER;
-    CSRW(SSTATUS,
-         ((CSRR(SSTATUS) >> 5) & 1) == 1 ? CSRR(SSTATUS) | (1 << 1) : CSRR(SSTATUS) & ~(1 << 1));
+    CSRW(SSTATUS, ((CSRR(SSTATUS) >> 5) & 1) == 1 ? CSRR(SSTATUS) | (1 << 1) : CSRR(SSTATUS) & ~(1 << 1));
     CSRW(SSTATUS, CSRR(SSTATUS) | (1 << 5));
     CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));
     DEC.next_pc = CSRR(SEPC);
@@ -446,8 +437,7 @@ void inst_sret(struct RiscvCore *core) {
 void inst_mret(struct RiscvCore *core) {
     u64 mpp    = (CSRR(MSTATUS) >> 11) & 3;
     core->mode = mpp == 3 ? MACHINE : (mpp == 1 ? SUPERVISOR : USER);
-    CSRW(MSTATUS,
-         (((CSRR(MSTATUS) >> 7) & 1) == 1) ? CSRR(MSTATUS) | (1 << 3) : CSRR(MSTATUS) & ~(1 << 3));
+    CSRW(MSTATUS, (((CSRR(MSTATUS) >> 7) & 1) == 1) ? CSRR(MSTATUS) | (1 << 3) : CSRR(MSTATUS) & ~(1 << 3));
     CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
     CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
     if (mpp != 3)
@@ -455,7 +445,6 @@ void inst_mret(struct RiscvCore *core) {
     DEC.next_pc = CSRR(MEPC);
 }
 void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
-
 void inst_addw(struct RiscvCore *core) { RD = (i32)(RS1 + RS2); }
 void inst_subw(struct RiscvCore *core) { RD = (i32)(RS1 - RS2); }
 void inst_sllw(struct RiscvCore *core) { RD = (i32)(RS1 << (RS2 & 0x1F)); }
@@ -468,6 +457,133 @@ void inst_sraiw(struct RiscvCore *core) { RD = (i32)RS1 >> (DEC.immI & 0x1F); }
 void inst_lwu(struct RiscvCore *core) { MR(RS1 + DEC.immI, 4, RD); }
 void inst_ld(struct RiscvCore *core) { MR(RS1 + DEC.immI, 8, RD); }
 void inst_sd(struct RiscvCore *core) { MW(RS1 + DEC.immS, 8, RS2); }
+
+void inst_mulw(struct RiscvCore *core) { RD = (i64)(i32)((u32)RS1 * (u32)RS2); }
+void inst_divw(struct RiscvCore *core) {
+    i32 src1 = RS1, src2 = RS2;
+    if (src2 == 0) {
+        RD = -1ll;
+    } else if (src1 == INT32_MIN && src2 == -1) {
+        RD = (i64)src1;
+    } else {
+        RD = (i64)(src1 / src2);
+    }
+}
+void inst_divuw(struct RiscvCore *core) {
+    u32 src1 = RS1;
+    u32 src2 = RS2;
+    if (src2 == 0) {
+        RD = ~0ull;
+    } else {
+        i32 result = src1 / src2;
+        RD         = (i64)result;
+    }
+}
+void inst_remw(struct RiscvCore *core) {
+    i32 src1 = RS1;
+    i32 src2 = RS2;
+    if (src2 == 0) {
+        RD = (i64)src1;
+    } else if (src1 == INT32_MIN && src2 == -1) {
+        RD = 0;
+    } else {
+        RD = (i64)(src1 % src2);
+    }
+}
+void inst_remuw(struct RiscvCore *core) {
+    u32 src1 = RS1;
+    u32 src2 = RS2;
+    if (src2 == 0) {
+        RD = (i64)(i32)src1;
+    } else {
+        RD = (i64)(i32)(src1 % src2);
+    }
+}
+void inst_lr_d(struct RiscvCore *core) {
+    MR(RS1, 8, RD);
+    core->reservation_valid = true;
+    core->reservation_addr  = RS1;
+}
+void inst_sc_d(struct RiscvCore *core) {
+    if (core->reservation_valid && core->reservation_addr == RS1) {
+        MW(RS1, 8, RS2);
+        RD = 0;
+    } else {
+        RD = 1;
+    }
+    core->reservation_valid = false;
+}
+void inst_amoswap_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value = data;
+    MW(RS1, 8, RS2);
+    RD = value;
+}
+void inst_amoadd_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = value + (i64)RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amoxor_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = value ^ (i64)RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amoor_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = value | (i64)RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amoand_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = value & (i64)RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amomin_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = (value < (i64)RS2) ? value : RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amomax_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    i64 value  = data;
+    i64 result = (value > (i64)RS2) ? value : RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amominu_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    u64 value  = data;
+    u64 result = (value < (u64)RS2) ? value : RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
+void inst_amomaxu_d(struct RiscvCore *core) {
+    usize data;
+    MR(RS1, 8, data);
+    u64 value  = data;
+    u64 result = (value > (u64)RS2) ? value : RS2;
+    MW(RS1, 8, result);
+    RD = value;
+}
 
 void inst_inv(struct RiscvCore *core) {
     DEC.exception     = ILLEGAL_INSTRUCTION;
@@ -514,6 +630,7 @@ struct Instruction instructions[] = {
     {.mask = 0x7f, .match = 0x6f, .func = inst_jal},
     {.mask = 0x7f, .match = 0x17, .func = inst_auipc},
 
+#if CURRENT_ARCH == ARCH_RV32
     {.mask = 0xef83, .match = 0x6101, .func = inst_c_addi16sp},
     {.mask = 0xef83, .match = 0x1, .func = inst_c_nop},
     {.mask = 0xec03, .match = 0x8001, .func = inst_c_srli},
@@ -541,6 +658,7 @@ struct Instruction instructions[] = {
     {.mask = 0xe003, .match = 0x2, .func = inst_c_slli},
     {.mask = 0xf003, .match = 0x9002, .func = inst_c_add},
     {.mask = 0xf003, .match = 0x8002, .func = inst_c_mv},
+#endif
 
     {.mask = 0xfe00707f, .match = 0x2000033, .func = inst_mul},
     {.mask = 0xfe00707f, .match = 0x2001033, .func = inst_mulh},
@@ -581,7 +699,7 @@ struct Instruction instructions[] = {
 
 #if CURRENT_ARCH == ARCH_RV64
     {.mask = 0xfe00707f, .match = 0x3b, .func = inst_addw},
-   {.mask = 0xfe00707f, .match = 0x4000003b, .func = inst_subw},
+    {.mask = 0xfe00707f, .match = 0x4000003b, .func = inst_subw},
     {.mask = 0xfe00707f, .match = 0x103b, .func = inst_sllw},
     {.mask = 0xfe00707f, .match = 0x503b, .func = inst_srlw},
     {.mask = 0xfe00707f, .match = 0x4000503b, .func = inst_sraw},
@@ -592,6 +710,23 @@ struct Instruction instructions[] = {
     {.mask = 0x707f, .match = 0x6003, .func = inst_lwu},
     {.mask = 0x707f, .match = 0x3003, .func = inst_ld},
     {.mask = 0x707f, .match = 0x3023, .func = inst_sd},
+
+    {.mask = 0xfe00707f, .match = 0x200003b, .func = inst_mulw},
+    {.mask = 0xfe00707f, .match = 0x200403b, .func = inst_divw},
+    {.mask = 0xfe00707f, .match = 0x200503b, .func = inst_divuw},
+    {.mask = 0xfe00707f, .match = 0x200603b, .func = inst_remw},
+    {.mask = 0xfe00707f, .match = 0x200703b, .func = inst_remuw},
+    {.mask = 0xf9f0707f, .match = 0x1000302f, .func = inst_lr_d},
+    {.mask = 0xf800707f, .match = 0x1800302f, .func = inst_sc_d},
+    {.mask = 0xf800707f, .match = 0x800302f, .func = inst_amoswap_d},
+    {.mask = 0xf800707f, .match = 0x302f, .func = inst_amoadd_d},
+    {.mask = 0xf800707f, .match = 0x2000302f, .func = inst_amoxor_d},
+    {.mask = 0xf800707f, .match = 0x4000302f, .func = inst_amoor_d},
+    {.mask = 0xf800707f, .match = 0x6000302f, .func = inst_amoand_d},
+    {.mask = 0xf800707f, .match = 0x8000302f, .func = inst_amomin_d},
+    {.mask = 0xf800707f, .match = 0xa000302f, .func = inst_amomax_d},
+    {.mask = 0xf800707f, .match = 0xc000302f, .func = inst_amominu_d},
+    {.mask = 0xf800707f, .match = 0xe000302f, .func = inst_amomaxu_d},
 #endif
 
     {.mask = 0x0, .match = 0x0, .func = inst_inv},
