@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 
     size_t    binary_size;
     void     *binary_data = load_binary(config.bin, &binary_size);
-    const u64 memory_size = 16 * 1024 * 1024;
+    const u64 memory_size = 128 * 1024 * 1024;
     u8       *memory      = malloc(memory_size);
     memcpy(memory, binary_data, binary_size);
     free(binary_data);
