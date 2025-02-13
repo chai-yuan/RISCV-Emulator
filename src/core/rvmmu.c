@@ -2,9 +2,11 @@
 #include "debug.h"
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
+    struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
+
     bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
     if (core->mode == MACHINE) {
-        if ((CSRR(MSTATUS) & STATUS_MPRV) && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
+        if (mstatus->mprv && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
             usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;
             enable_vm = enable_vm && mpp != MACHINE;
         } else
@@ -43,9 +45,8 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         bool u = (page_table_entry[level] >> 4) & 1;
         if (v == false)
             return exc; // 检查有效位
-        if (u &&
-            !((core->mode == USER) || (core->mode == SUPERVISOR && CSRR(SSTATUS) & (1 << 18)) ||
-              (core->mode == MACHINE && CSRR(MSTATUS) & (1 << 18))))
+        if (u && !((core->mode == USER) || (core->mode == SUPERVISOR && CSRR(SSTATUS) & (1 << 18)) ||
+                   (core->mode == MACHINE && CSRR(MSTATUS) & (1 << 18))))
             return exc; // 检查U页面权限
         if (r || x || w)
             break; // 检查叶子节点页

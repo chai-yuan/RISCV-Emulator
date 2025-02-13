@@ -1,6 +1,7 @@
 #ifndef RVCODE_H
 #define RVCODE_H
 
+#include "config.h"
 #include "types.h"
 
 enum arch { RV32, RV64 };
@@ -37,67 +38,126 @@ enum interrupt {
     MACHINE_EXTERNAL_INTERRUPT    = 11,
 };
 
-/* Machine level CSRs */
-#define MSTATUS 0x300
-#define MISA 0x301
-#define MEDELEG 0x302
-#define MIDELEG 0x303
-#define MIE 0x304
-#define MTVEC 0x305
-#define MSCRATCH 0x340
-#define MEPC 0x341
-#define MCAUSE 0x342
-#define MTVAL 0x343
-#define MIP 0x344
-/* Supervisor level CSRs */
-#define SSTATUS 0x100
-#define SIE 0x104
-#define STVEC 0x105
-#define SSCRATCH 0x140
-#define SEPC 0x141
-#define SCAUSE 0x142
-#define STVAL 0x143
-#define SIP 0x144
-#define SATP 0x180
+enum csraddr {
+    // Unprivileged Counter/Timers
+    CYCLE   = 0xc00,
+    TIME    = 0xc01,
+    INSTRET = 0xc02,
+    // Supervisor Trap Setup
+    SSTATUS    = 0x100,
+    SIE        = 0x104,
+    STVEC      = 0x105,
+    SCOUNTEREN = 0x106,
+    // Supervisor Trap Handling
+    SSCRATCH = 0x140,
+    SEPC     = 0x141,
+    SCAUSE   = 0x142,
+    STVAL    = 0x143,
+    SIP      = 0x144,
+    // Supervisor Protection and Translation
+    SATP = 0x180,
+    // Machine Information Registers
+    MVENDORID  = 0xf11,
+    MARCHID    = 0xf12,
+    MIMPID     = 0xf13,
+    MHARTID    = 0xf14,
+    MCONFIGPTR = 0xf15,
+    // Machine Trap Setup
+    MSTATUS    = 0x300,
+    MISA       = 0x301,
+    MEDELEG    = 0x302,
+    MIDELEG    = 0x303,
+    MIE        = 0x304,
+    MTVEC      = 0x305,
+    MCOUNTEREN = 0x306,
+    // Machine Trap Handling
+    MSCRATCH = 0x340,
+    MEPC     = 0x341,
+    MCAUSE   = 0x342,
+    MTVAL    = 0x343,
+    MIP      = 0x344,
+    // Machine Memory Protection
+    PMPCFG0   = 0x3a0,
+    PMPCFG1   = 0x3a1,
+    PMPCFG2   = 0x3a2,
+    PMPCFG3   = 0x3a3,
+    PMPADDR0  = 0x3b0,
+    PMPADDR1  = 0x3b1,
+    PMPADDR2  = 0x3b2,
+    PMPADDR3  = 0x3b3,
+    PMPADDR4  = 0x3b4,
+    PMPADDR5  = 0x3b5,
+    PMPADDR6  = 0x3b6,
+    PMPADDR7  = 0x3b7,
+    PMPADDR8  = 0x3b8,
+    PMPADDR9  = 0x3b9,
+    PMPADDR10 = 0x3ba,
+    PMPADDR11 = 0x3bb,
+    PMPADDR12 = 0x3bc,
+    PMPADDR13 = 0x3bd,
+    PMPADDR14 = 0x3be,
+    PMPADDR15 = 0x3bf,
+    // Machine Counter/Timers
+    MCYCLE   = 0xb00,
+    MINSTRET = 0xb02,
+    TSELECT  = 0x7a0,
+    TDATA1   = 0x7a1
+};
 
-/* STATUS */
-enum {
-    STATUS_MIE  = 0x8,  // 1:Enable, 0:Disable
-    STATUS_MPIE = 0x80, // Save Previous MSTATUS_MIE value
-    STATUS_MPP  = 0x1800,
-    STATUS_SIE  = 0x2,
-    STATUS_SPIE = 0x20,
-    STATUS_SPP  = 0x100,
-    STATUS_FS   = 0x6000,
-    STATUS_XS   = 0x18000,
-    STATUS_SUM  = 0x40000,
-    STATUS_MPRV = (1 << 17),
-    STATUS_MXR  = 0x80000,
+struct misadef {
+    usize ext : 26;
+    IS_RV64(usize blank : 36, usize blank : 4);
+    usize mxl : 2;
 };
-#define STATUS_UXL 0x300000000
-#define SSTATUS_VISIBLE                                                                            \
-    (STATUS_SIE | STATUS_SPIE | STATUS_SPP | STATUS_FS | STATUS_XS | STATUS_SUM | STATUS_MXR |     \
-     STATUS_UXL)
 
-/* IE */
-enum {
-    IE_MSIE = (1 << 3),  // software
-    IE_MTIE = (1 << 7),  // timer
-    IE_MEIE = (1 << 11), // external
+struct mstatusdef {
+    usize blank0 : 1;
+    usize sie : 1; // supervisor interrupt enable
+    usize blank1 : 1;
+    usize mie : 1; // machine interrupt enable
+    usize blank2 : 1;
+    usize spie : 1; // sie prior to trapping
+    usize ube : 1;  // u big-endian, zero
+    usize mpie : 1; // mie prior to trapping
+    usize spp : 1;  // supervisor previous privilege mode.
+    usize vs : 2;   // without vector, zero
+    usize mpp : 2;  // machine previous privilege mode.
+    usize fs : 2;   // without float, zero
+    usize xs : 2;   // without user ext, zero
+    usize mprv : 1; // Modify PRiVilege (Turn on virtual memory and protection for load/store in M-Mode) when mpp is not
+                    // M-Mode
+    usize sum : 1;  // permit Supervisor User Memory access
+    usize mxr : 1;  // Make eXecutable Readable
+    usize tvm : 1;  // Trap Virtual Memory (raise trap when sfence.vma and sinval.vma executing in S-Mode)
+    usize tw : 1;   // Timeout Wait for WFI
+    usize tsr : 1;  // Trap SRET
+#if CURRENT_ARCH == ARCH_RV64
+    usize blank3 : 9;
+    usize uxl : 2; // user xlen
+    usize sxl : 2; // supervisor xlen
+    usize sbe : 1; // s big-endian
+    usize mbe : 1; // m big-endian
+    usize blank4 : 25;
+#else
+    usize blank3 : 8;
+#endif
+    usize sd : 1; // no vs,fs,xs, zero
 };
-/* MIP */
-enum {
-    IP_USIP = (1 << 0),
-    IP_UTIP = (1 << 4),
-    IP_UEIP = (1 << 8),
-    IP_SSIP = (1 << 1),
-    IP_STIP = (1 << 5),
-    IP_SEIP = (1 << 9),
-    IP_MSIP = (1 << 3),
-    IP_MTIP = (1 << 7),
-    IP_MEIP = (1 << 11),
+#define SSTATUS_VISIBLE 0x7fffe2
+
+struct ipdef { // interrupt pending
+    usize blank0 : 1;
+    usize s_s_ip : 1; // 1
+    usize blank1 : 1;
+    usize m_s_ip : 1; // 3
+    usize blank2 : 1;
+    usize s_t_ip : 1; // 5
+    usize blank3 : 1;
+    usize m_t_ip : 1; // 7
+    usize blank4 : 1;
+    usize s_e_ip : 1; // 9
+    usize blank5 : 1;
+    usize m_e_ip : 1; // 11
 };
-#define SIP_WRITABLE (IP_SSIP | IP_USIP | IP_UEIP)
-#define MIDELEG_WRITABLE (IP_SSIP | IP_STIP | IP_SEIP)
 
 #endif

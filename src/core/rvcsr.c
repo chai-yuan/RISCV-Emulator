@@ -28,13 +28,8 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         break;
     }
     case SIP: {
-        usize mask      = core->csrs[MIDELEG] & SIP_WRITABLE;
+        usize mask      = core->csrs[MIDELEG];
         core->csrs[MIP] = (core->csrs[MIP] & ~mask) | (value & mask);
-        break;
-    }
-    case MIDELEG: {
-        core->csrs[MIDELEG] =
-            (core->csrs[MIDELEG] & ~MIDELEG_WRITABLE) | (value & MIDELEG_WRITABLE);
         break;
     }
     default:

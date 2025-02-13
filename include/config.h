@@ -15,4 +15,10 @@
 #error "Unsupported architecture."
 #endif
 
+#if CURRENT_ARCH == ARCH_RV64
+    #define IS_RV64(rv64, rv32) rv64
+#else
+    #define IS_RV64(rv64, rv32) rv32
+#endif
+
 #endif

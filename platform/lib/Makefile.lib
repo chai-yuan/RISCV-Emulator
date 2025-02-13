@@ -1,7 +1,7 @@
 SRCS += $(wildcard $(PLATFORM_DIR)/*.c)
 
 CC = gcc
-CFLAGS = -Wall -Werror -pedantic -std=c11 -O2 -fPIC -I$(HEADS_DIR)
+CFLAGS = -Wall -Werror -pedantic -std=c99 -O2 -fPIC -I$(HEADS_DIR)
 LDFLAGS =
 
 IMG  ?= 

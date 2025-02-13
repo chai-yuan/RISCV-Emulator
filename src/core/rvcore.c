@@ -1,14 +1,14 @@
 #include "core/rvcore.h"
 #include "core.h"
+#include "core/riscv.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
+    struct ipdef *mip = (struct ipdef *)&core->csrs[MIP];
     if (envinfo.eint) {
         if (core->mode == MACHINE) {
-            CSRW(MIP, CSRR(MIP) | IP_MEIP);
-        } else if (core->mode == SUPERVISOR) {
-            CSRW(MIP, CSRR(MIP) | IP_SEIP);
-        } else if (core->mode == USER) {
-            CSRW(MIP, CSRR(MIP) | IP_UEIP);
+            mip->m_e_ip = 1;
+        } else {
+            mip->s_e_ip = 1;
         }
     }
 }
