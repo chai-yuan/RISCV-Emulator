@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "linux_plat.h"
 #include "machine/nemu.h"
-#include "machine/qemu.h"
+#include "machine/spike.h"
 #include "parse_args.h"
 #include <fcntl.h>
 #include <stdio.h>
@@ -21,17 +21,17 @@ int main(int argc, char *argv[]) {
     free(binary_data);
 
     int ret_val = 0;
-    if (strcmp(config.machine, "qemu") == 0) {
-        INFO("qemu start!");
-        struct QemuMachine *machine = malloc(sizeof(struct QemuMachine));
-        qemu_machine_init(machine, (struct QemuPortableOperations){
-                                       .sram_data = memory,
-                                       .sram_size = memory_size,
-                                       .get_char  = get_char,
-                                       .put_char  = put_char,
-                                   });
+    if (strcmp(config.machine, "spike") == 0) {
+        INFO("spike start!");
+        struct SpikeMachine *machine = malloc(sizeof(struct SpikeMachine));
+        spike_machine_init(machine, (struct SpikePortableOperations){
+                                        .sram_data = memory,
+                                        .sram_size = memory_size,
+                                        .get_char  = get_char,
+                                        .put_char  = put_char,
+                                    });
         while (config.step--) {
-            qemu_machine_step(machine);
+            spike_machine_step(machine);
         }
     } else if (strcmp(config.machine, "nemu") == 0) {
         INFO("nemu start!");

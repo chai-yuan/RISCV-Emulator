@@ -29,7 +29,7 @@ static OptionInfo options[] = {{"bin", required_argument, 0, 'b', "Specify the b
 
 static Config default_config = {
     .bin     = "test.bin",
-    .machine = "qemu",
+    .machine = "spike",
     .step    = -1,
 };
 

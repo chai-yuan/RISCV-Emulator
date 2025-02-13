@@ -1,6 +1,6 @@
-#include "machine/qemu.h"
+#include "machine/spike.h"
 
-u32 boot_rom[] = {
+u32 boot_rom[0x1000] = {
     0x00000297, // auipc t0, 0x0: 将当前PC值的高20位与立即数0相加，结果存入t0
     0x02028593, // addi a1, t0, 32: 将t0的值与立即数32相加，结果存入a1
     0xf1402573, // csrr a0, mhartid: 读取mhartid寄存器的值，存入a0
@@ -11,11 +11,11 @@ u32 boot_rom[] = {
 #endif
     0x00028067, // jr t0: 跳转到t0寄存器中的地址
     0x00000000, // 未使用（填充）
-    0x80000000, // 0x1018处的值：跳转目标地址
-    0x00000000, // 未使用（填充）
+    0x80000000, // 0x1018处的值：复位目标地址
+    0x00000000,
 };
 
-void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperations init) {
+void spike_machine_init(struct SpikeMachine *machine, struct SpikePortableOperations init) {
     bus_device_init(&machine->bus);
     sram_init(&machine->sram, init.sram_data, init.sram_size);
     sram_init(&machine->rom, (u8 *)boot_rom, sizeof(boot_rom));
@@ -32,7 +32,7 @@ void qemu_machine_init(struct QemuMachine *machine, struct QemuPortableOperation
     riscvcore_init(&machine->core, bus_device_get_func(&machine->bus));
 }
 
-void qemu_machine_step(struct QemuMachine *machine) {
+void spike_machine_step(struct SpikeMachine *machine) {
     struct DeviceFunc bus = bus_device_get_func(&machine->bus);
     bus.update(bus.context, 1);
 
