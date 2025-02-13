@@ -364,11 +364,21 @@ void inst_c_lwsp(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x3) << 6 | ((DEC.inst >> 4) & 0x7) << 2 | ((DEC.inst >> 12) & 0x1) << 5;
     usize data;
     MR(core->regs[2] + offset, 4, data);
+    RD = (isize)(i32)data;
+}
+void inst_c_ldsp(struct RiscvCore *core) {
+    usize offset = ((DEC.inst >> 2) & 0x3) << 6 | ((DEC.inst >> 4) & 0x7) << 2 | ((DEC.inst >> 12) & 0x1) << 5;
+    usize data;
+    MR(core->regs[2] + offset, 8, data);
     RD = (isize)data;
 }
 void inst_c_swsp(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 7) & 0x3) << 6 | ((DEC.inst >> 9) & 0xf) << 2;
     MW(core->regs[2] + offset, 4, RS2);
+}
+void inst_c_sdsp(struct RiscvCore *core) {
+    usize offset = ((DEC.inst >> 7) & 0x3) << 6 | ((DEC.inst >> 9) & 0xf) << 2;
+    MW(core->regs[2] + offset, 8, RS2);
 }
 void inst_c_lw(struct RiscvCore *core) {
     usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
@@ -376,9 +386,19 @@ void inst_c_lw(struct RiscvCore *core) {
     MR(core->regs[DEC.rs1_] + imm, 4, data);
     core->regs[DEC.rs2_] = (i32)data;
 }
+void inst_c_ld(struct RiscvCore *core) {
+    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    usize data;
+    MR(core->regs[DEC.rs1_] + imm, 8, data);
+    core->regs[DEC.rs2_] = (i64)data;
+}
 void inst_c_sw(struct RiscvCore *core) {
     usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
     MW(core->regs[DEC.rs1_] + imm, 4, core->regs[DEC.rs2_]);
+}
+void inst_c_sd(struct RiscvCore *core) {
+    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    MW(core->regs[DEC.rs1_] + imm, 8, core->regs[DEC.rs2_]);
 }
 void inst_c_jalr(struct RiscvCore *core) {
     DEC.next_pc   = core->regs[DEC.rs1];
@@ -389,7 +409,13 @@ void inst_c_addi(struct RiscvCore *core) {
     isize imm = ((DEC.inst >> 12) & 0x1) << 5 | ((DEC.inst >> 2) & 0x1f);
     imm |= (imm & 0x20) ? ~0x1f : 0;
     if (imm != 0)
-        core->regs[DEC.rd] = (u32)((isize)core->regs[DEC.rd] + imm);
+        core->regs[DEC.rd] = (usize)((isize)core->regs[DEC.rd] + imm);
+}
+void inst_c_addiw(struct RiscvCore *core) {
+    isize imm = ((DEC.inst >> 12) & 0x1) << 5 | ((DEC.inst >> 2) & 0x1f);
+    imm |= (imm & 0x20) ? ~0x1f : 0;
+    if (imm != 0)
+        core->regs[DEC.rd] = (i32)((isize)core->regs[DEC.rd] + imm);
 }
 void inst_c_addi4spn(struct RiscvCore *core) {
     usize imm = ((DEC.inst >> 5) & 0x1) << 3 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 7) & 0xf) << 6 |
@@ -445,6 +471,9 @@ void inst_mret(struct RiscvCore *core) {
     DEC.next_pc = CSRR(MEPC);
 }
 void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
+
+
+#if CURRENT_ARCH == ARCH_RV64
 void inst_addw(struct RiscvCore *core) { RD = (i32)(RS1 + RS2); }
 void inst_subw(struct RiscvCore *core) { RD = (i32)(RS1 - RS2); }
 void inst_sllw(struct RiscvCore *core) { RD = (i32)(RS1 << (RS2 & 0x1F)); }
@@ -457,7 +486,6 @@ void inst_sraiw(struct RiscvCore *core) { RD = (i32)RS1 >> (DEC.immI & 0x1F); }
 void inst_lwu(struct RiscvCore *core) { MR(RS1 + DEC.immI, 4, RD); }
 void inst_ld(struct RiscvCore *core) { MR(RS1 + DEC.immI, 8, RD); }
 void inst_sd(struct RiscvCore *core) { MW(RS1 + DEC.immS, 8, RS2); }
-
 void inst_mulw(struct RiscvCore *core) { RD = (i64)(i32)((u32)RS1 * (u32)RS2); }
 void inst_divw(struct RiscvCore *core) {
     i32 src1 = RS1, src2 = RS2;
@@ -584,12 +612,16 @@ void inst_amomaxu_d(struct RiscvCore *core) {
     MW(RS1, 8, result);
     RD = value;
 }
+void inst_c_addw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->regs[DEC.rs1_] + core->regs[DEC.rs2_]); }
+void inst_c_subw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->regs[DEC.rs1_] - core->regs[DEC.rs2_]); }
+#endif
 
 void inst_inv(struct RiscvCore *core) {
     DEC.exception     = ILLEGAL_INSTRUCTION;
     DEC.exception_val = DEC.inst;
     ERROR("Unknow instruction : %x", DEC.inst);
 }
+
 
 struct Instruction instructions[] = {
     {.mask = 0xfe00707f, .match = 0x33, .func = inst_add},
@@ -630,7 +662,7 @@ struct Instruction instructions[] = {
     {.mask = 0x7f, .match = 0x6f, .func = inst_jal},
     {.mask = 0x7f, .match = 0x17, .func = inst_auipc},
 
-#if CURRENT_ARCH == ARCH_RV32
+    {.mask = 0xe003, .match = 0x2001, .func = inst_c_addiw},
     {.mask = 0xef83, .match = 0x6101, .func = inst_c_addi16sp},
     {.mask = 0xef83, .match = 0x1, .func = inst_c_nop},
     {.mask = 0xec03, .match = 0x8001, .func = inst_c_srli},
@@ -643,6 +675,8 @@ struct Instruction instructions[] = {
     {.mask = 0xfc63, .match = 0x8c61, .func = inst_c_and},
     {.mask = 0xf07f, .match = 0x8002, .func = inst_c_jr},
     {.mask = 0xf07f, .match = 0x9002, .func = inst_c_jalr},
+    {.mask = 0xf003, .match = 0x9002, .func = inst_c_add},
+    {.mask = 0xf003, .match = 0x8002, .func = inst_c_mv},
     {.mask = 0xe003, .match = 0x0, .func = inst_c_addi4spn},
     {.mask = 0xe003, .match = 0x1, .func = inst_c_addi},
     {.mask = 0xe003, .match = 0x4000, .func = inst_c_lw},
@@ -656,9 +690,6 @@ struct Instruction instructions[] = {
     {.mask = 0xe003, .match = 0xc002, .func = inst_c_swsp},
     {.mask = 0xe003, .match = 0x4002, .func = inst_c_lwsp},
     {.mask = 0xe003, .match = 0x2, .func = inst_c_slli},
-    {.mask = 0xf003, .match = 0x9002, .func = inst_c_add},
-    {.mask = 0xf003, .match = 0x8002, .func = inst_c_mv},
-#endif
 
     {.mask = 0xfe00707f, .match = 0x2000033, .func = inst_mul},
     {.mask = 0xfe00707f, .match = 0x2001033, .func = inst_mulh},
@@ -716,6 +747,7 @@ struct Instruction instructions[] = {
     {.mask = 0xfe00707f, .match = 0x200503b, .func = inst_divuw},
     {.mask = 0xfe00707f, .match = 0x200603b, .func = inst_remw},
     {.mask = 0xfe00707f, .match = 0x200703b, .func = inst_remuw},
+
     {.mask = 0xf9f0707f, .match = 0x1000302f, .func = inst_lr_d},
     {.mask = 0xf800707f, .match = 0x1800302f, .func = inst_sc_d},
     {.mask = 0xf800707f, .match = 0x800302f, .func = inst_amoswap_d},
@@ -727,6 +759,13 @@ struct Instruction instructions[] = {
     {.mask = 0xf800707f, .match = 0xa000302f, .func = inst_amomax_d},
     {.mask = 0xf800707f, .match = 0xc000302f, .func = inst_amominu_d},
     {.mask = 0xf800707f, .match = 0xe000302f, .func = inst_amomaxu_d},
+
+    {.mask = 0xfc63, .match = 0x9c01, .func = inst_c_subw},
+    {.mask = 0x9c21, .match = 0x9c21, .func = inst_c_addw},
+    {.mask = 0xe003, .match = 0x6002, .func = inst_c_ldsp},
+    {.mask = 0xe003, .match = 0xe002, .func = inst_c_sdsp},
+    {.mask = 0xe003, .match = 0x6000, .func = inst_c_ld},
+    {.mask = 0xe003, .match = 0xe000, .func = inst_c_sd},
 #endif
 
     {.mask = 0x0, .match = 0x0, .func = inst_inv},
