@@ -28,34 +28,35 @@ typedef enum {
 #define COLOR_RESET "\x1b[0m"
 
 // 调试日志宏
-#define DEBUG_PRINT(level, color, fmt, ...)                                                        \
-    do {                                                                                           \
-        if (level <= DEBUG_LEVEL) {                                                                \
-            printf("%s[%s] %s:%d: " fmt COLOR_RESET "\n", color, #level, __FILE__, __LINE__,       \
-                   ##__VA_ARGS__);                                                                 \
-        }                                                                                          \
+#define DEBUG_PRINT(level, color, ...)                                                                                 \
+    do {                                                                                                               \
+        if (level <= DEBUG_LEVEL) {                                                                                    \
+            printf("%s[%s] %s:%d: ", color, #level, __FILE__, __LINE__);                                               \
+            printf(__VA_ARGS__);                                                                                       \
+            printf("%s\n", COLOR_RESET);                                                                               \
+        }                                                                                                              \
     } while (0)
 
 // 错误日志
-#define ERROR(fmt, ...)                                                                            \
-    do {                                                                                           \
-        DEBUG_PRINT(DEBUG_LEVEL_ERROR, COLOR_RED, "ERROR: " fmt, ##__VA_ARGS__);                   \
-        exit(1);                                                                                   \
+#define ERROR(...)                                                                                                     \
+    do {                                                                                                               \
+        DEBUG_PRINT(DEBUG_LEVEL_ERROR, COLOR_RED, __VA_ARGS__);                                                        \
+        exit(1);                                                                                                       \
     } while (0)
 
 // 警告日志
-#define WARN(fmt, ...) DEBUG_PRINT(DEBUG_LEVEL_WARN, COLOR_YELLOW, "WARN: " fmt, ##__VA_ARGS__)
+#define WARN(...) DEBUG_PRINT(DEBUG_LEVEL_WARN, COLOR_YELLOW, __VA_ARGS__)
 
 // 信息日志
-#define INFO(fmt, ...) DEBUG_PRINT(DEBUG_LEVEL_INFO, COLOR_GREEN, "INFO: " fmt, ##__VA_ARGS__)
+#define INFO(...) DEBUG_PRINT(DEBUG_LEVEL_INFO, COLOR_GREEN, __VA_ARGS__)
 
 // 检查条件并输出错误日志
-#define ASSERT(condition, fmt, ...)                                                                \
-    do {                                                                                           \
-        if (!(condition)) {                                                                        \
-            WARN("Assertion failed: %s at %s:%d", #condition, __FILE__, __LINE__);              \
-            ERROR(fmt, ##__VA_ARGS__);                                                             \
-        }                                                                                          \
+#define ASSERT(condition, ...)                                                                                         \
+    do {                                                                                                               \
+        if (!(condition)) {                                                                                            \
+            WARN("Assertion failed: %s at %s:%d", #condition, __FILE__, __LINE__);                                     \
+            ERROR(__VA_ARGS__);                                                                                        \
+        }                                                                                                              \
     } while (0)
 
 #else

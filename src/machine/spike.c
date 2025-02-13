@@ -30,6 +30,13 @@ void spike_machine_init(struct SpikeMachine *machine, struct SpikePortableOperat
     bus_device_add(&machine->bus, 0x00001000, machine->rom.len, sram_get_func(&machine->rom));
 
     riscvcore_init(&machine->core, bus_device_get_func(&machine->bus));
+
+    // 如果存在设备树文件，写入rom中
+    if (init.dtb_data != NULL && init.dtb_size != 0) {
+        u8 *boot_rom_p = (u8 *)(&boot_rom[8]);
+        for (int i = 0; i < init.dtb_size; i++)
+            boot_rom_p[i] = init.dtb_data[i];
+    }
 }
 
 void spike_machine_step(struct SpikeMachine *machine) {
