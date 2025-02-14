@@ -14,8 +14,12 @@ usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
 }
 
 void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
-    if ((addr >> 10) == 0x3 || addr == MISA)
-        return; // read only
+    if ((addr >> 10) == 0x3) // read only
+        return;
+    if (addr == MISA) // 简化实现，misa不可写
+        return;
+    if ((addr >= 0x3c0 && addr <= 0x3ef) || (addr >= 0x3a4 && addr <= 0x3af)) // pmp仅开启前16项
+        return;
 
     switch (addr) {
     case SSTATUS: {
