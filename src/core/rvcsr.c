@@ -18,7 +18,9 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         return;
     if (addr == MISA) // 简化实现，misa不可写
         return;
-    if ((addr >= 0x3c0 && addr <= 0x3ef) || (addr >= 0x3a4 && addr <= 0x3af)) // pmp仅开启前16项
+    if ((0x3c0 <= addr && addr <= 0x3ef) || (0x3a4 <= addr && addr <= 0x3af)) // pmp仅开启前16项
+        return;
+    if ((0xb03 <= addr && addr <= 0xb1f) || (0xb83 <= addr && addr <= 0xb9f)) // 忽略事件触发CSR计数器
         return;
 
     switch (addr) {
