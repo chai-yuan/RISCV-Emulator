@@ -2,20 +2,20 @@
 #include "debug.h"
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
-    struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
+    // struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
 
-    bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));
-    if (core->mode == MACHINE) {
-        if (mstatus->mprv && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV
-            usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;
-            enable_vm = enable_vm && mpp != MACHINE;
-        } else
-            enable_vm = false;
-    }
-    if (!enable_vm) {
-        *paddr = addr;
-        return EXC_NONE;
-    }
+    /*bool enable_vm = (CSRR(SATP) >> (sizeof(usize) * 8 - 1));*/
+    /*if (core->mode == MACHINE) {*/
+    /*    if (mstatus->mprv && (exc != INSTRUCTION_PAGE_FAULT)) { // MPRV*/
+    /*        usize mpp = (CSRR(MSTATUS) & (0x3 << 11)) >> 11;*/
+    /*        enable_vm = enable_vm && mpp != MACHINE;*/
+    /*    } else*/
+    /*        enable_vm = false;*/
+    /*}*/
+    /*if (!enable_vm) {*/
+    /*    *paddr = addr;*/
+    /*    return EXC_NONE;*/
+    /*}*/
 
     // u64 dirty = (exc == STORE_AMO_PAGE_FAULT) ? 1 : 0;
 #if CURRENT_ARCH == ARCH_RV32 // SV32

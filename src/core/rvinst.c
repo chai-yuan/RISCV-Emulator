@@ -239,69 +239,40 @@ void inst_amomaxu_w(struct RiscvCore *core) {
 }
 
 void inst_csrrw(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, RS1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, RS1);
+    RD = data;
 }
-
 void inst_csrrs(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, data | RS1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, data | RS1);
+    RD = data;
 }
-
 void inst_csrrc(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, data & ~RS1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, data & ~RS1);
+    RD = data;
 }
-
 void inst_csrrwi(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, DEC.rs1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, DEC.rs1);
+    RD = data;
 }
-
 void inst_csrrsi(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, data | DEC.rs1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, data | DEC.rs1);
+    RD = data;
 }
-
 void inst_csrrci(struct RiscvCore *core) {
-    if (((DEC.csr_imm >> 8) & 0x3) > core->mode) {
-        DEC.exception     = ILLEGAL_INSTRUCTION;
-        DEC.exception_val = DEC.inst;
-    } else {
-        usize data = CSRR(DEC.csr_imm);
-        CSRW(DEC.csr_imm, data & ~DEC.rs1);
-        RD = data;
-    }
+    usize data;
+    CSRR(DEC.csr_imm, data);
+    CSRW(DEC.csr_imm, data & ~DEC.rs1);
+    RD = data;
 }
 
 void inst_fence(struct RiscvCore *core) {}
@@ -327,29 +298,29 @@ void inst_c_addi16sp(struct RiscvCore *core) {
 }
 void inst_c_j(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
-                 ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
-                 ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
+                   ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
+                   ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
     offset |= (offset & 0x800) ? ~0x3ff : 0;
     DEC.next_pc = core->pc + offset;
 }
 void inst_c_jal(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
-                 ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
-                 ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
+                   ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
+                   ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
     offset |= (offset & 0x800) ? ~0x3ff : 0;
     core->regs[1] = core->pc + 2;
     DEC.next_pc   = core->pc + offset;
 }
 void inst_c_beqz(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 | ((DEC.inst >> 5) & 0x3) << 6 |
-                 ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
+                   ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
     offset |= (offset & 0x100) ? ~0xff : 0;
     if (core->regs[DEC.rs1_] == 0)
         DEC.next_pc = core->pc + offset;
 }
 void inst_c_bnez(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x3) << 1 | ((DEC.inst >> 5) & 0x3) << 6 |
-                 ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
+                   ((DEC.inst >> 10) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 8;
     offset |= (offset & 0x100) ? ~0xff : 0;
     if (core->regs[DEC.rs1_] != 0)
         DEC.next_pc = core->pc + offset;
@@ -454,24 +425,26 @@ void inst_ecall(struct RiscvCore *core) {
     }
 }
 void inst_sret(struct RiscvCore *core) {
-    core->mode = ((CSRR(SSTATUS) >> 8) & 1) == 1 ? SUPERVISOR : USER;
-    CSRW(SSTATUS, ((CSRR(SSTATUS) >> 5) & 1) == 1 ? CSRR(SSTATUS) | (1 << 1) : CSRR(SSTATUS) & ~(1 << 1));
-    CSRW(SSTATUS, CSRR(SSTATUS) | (1 << 5));
-    CSRW(SSTATUS, CSRR(SSTATUS) & ~(1 << 8));
-    DEC.next_pc = CSRR(SEPC);
+    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
+
+    core->mode   = status->spp;
+    status->sie  = status->spie;
+    status->spie = 1;
+    status->spp  = 0;
+    DEC.next_pc  = core->csrs[SEPC];
 }
 void inst_mret(struct RiscvCore *core) {
-    u64 mpp    = (CSRR(MSTATUS) >> 11) & 3;
-    core->mode = mpp == 3 ? MACHINE : (mpp == 1 ? SUPERVISOR : USER);
-    CSRW(MSTATUS, (((CSRR(MSTATUS) >> 7) & 1) == 1) ? CSRR(MSTATUS) | (1 << 3) : CSRR(MSTATUS) & ~(1 << 3));
-    CSRW(MSTATUS, CSRR(MSTATUS) | (1 << 7));
-    CSRW(MSTATUS, CSRR(MSTATUS) & ~(3 << 11));
-    if (mpp != 3)
-        CSRW(MSTATUS, CSRR(MSTATUS) & ~(1 << 17));
-    DEC.next_pc = CSRR(MEPC);
+    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
+
+    core->mode   = status->mpp;
+    status->mie  = status->mpie;
+    status->mpie = 0;
+    if (status->mpp != MACHINE)
+        status->mprv = 0;
+    status->mpp = 0;
+    DEC.next_pc = core->csrs[MEPC];
 }
 void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
-
 
 #if CURRENT_ARCH == ARCH_RV64
 void inst_addw(struct RiscvCore *core) { RD = (i32)(RS1 + RS2); }
@@ -621,7 +594,6 @@ void inst_inv(struct RiscvCore *core) {
     DEC.exception_val = DEC.inst;
     ERROR("Unknow instruction : %x", DEC.inst);
 }
-
 
 struct Instruction instructions[] = {
     {.mask = 0xfe00707f, .match = 0x33, .func = inst_add},

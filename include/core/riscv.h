@@ -160,4 +160,9 @@ struct ipdef { // interrupt pending
     usize m_e_ip : 1; // 11
 };
 
+struct tvecdef {
+    usize mode : 2; // 0: Direct, 1: Vectored
+    IS_RV64(usize base : 62, usize base : 30);
+};
+
 #endif

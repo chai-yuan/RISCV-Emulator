@@ -1,16 +1,20 @@
 #include "core.h"
 
-usize riscv_csr_read(struct RiscvCore *core, u16 addr) {
+bool riscv_csr_read(struct RiscvCore *core, u16 addr, usize *value) {
+    if (((addr >> 8) & 0x3) > core->mode) // 权限检查
+        return false;
+
     switch (addr) {
     case SSTATUS:
-        return core->csrs[MSTATUS] & SSTATUS_VISIBLE;
+        *value = core->csrs[MSTATUS] & SSTATUS_VISIBLE;
     case SIE:
-        return core->csrs[MIE] & core->csrs[MIDELEG];
+        *value = core->csrs[MIE] & core->csrs[MIDELEG];
     case SIP:
-        return core->csrs[MIP] & core->csrs[MIDELEG];
+        *value = core->csrs[MIP] & core->csrs[MIDELEG];
     default:
-        return core->csrs[addr];
+        *value = core->csrs[addr];
     }
+    return true;
 }
 
 void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {

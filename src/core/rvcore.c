@@ -38,11 +38,14 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->mode              = MACHINE;
     core->reservation_valid = false;
     core->device_func       = device_func;
-    core->csrs[MISA]        = sizeof(usize) == 4 ? (0x1 << 30) : (0x2LL << 62);
-    core->csrs[MISA] |= 0x141105; // TODO
 
+    // csr 初始化
+    struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
+    struct misadef    *misa    = (struct misadef *)&core->csrs[MISA];
+
+    misa->mxl = sizeof(usize) == 4 ? 1 : 2;
+    misa->ext = 0x141105;
 #if CURRENT_ARCH == ARCH_RV64
-    core->csrs[MSTATUS] |= (1ull << 32) | (1ull << 34); // UXL SXL
-    core->csrs[SSTATUS] |= (1ull << 32);
+    mstatus->uxl = mstatus->sxl = 2;
 #endif
 }
