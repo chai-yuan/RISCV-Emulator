@@ -425,23 +425,17 @@ void inst_ecall(struct RiscvCore *core) {
     }
 }
 void inst_sret(struct RiscvCore *core) {
-    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
-
-    core->mode   = status->spp;
-    status->sie  = status->spie;
-    status->spie = 1;
-    status->spp  = 0;
-    DEC.next_pc  = core->csrs[SEPC];
+    core->mode = MSTATUS_SPP;
+    MSTATUS_SET_SIE(MSTATUS_SPIE);
+    MSTATUS_SET_SPIE(0);
+    MSTATUS_SET_MPP(0);
+    DEC.next_pc = core->csrs[SEPC];
 }
 void inst_mret(struct RiscvCore *core) {
-    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
-
-    core->mode   = status->mpp;
-    status->mie  = status->mpie;
-    status->mpie = 0;
-    if (status->mpp != MACHINE)
-        status->mprv = 0;
-    status->mpp = 0;
+    core->mode = MSTATUS_MPP;
+    MSTATUS_SET_MIE(MSTATUS_MPIE);
+    MSTATUS_SET_MPIE(0);
+    MSTATUS_SET_MPP(0);
     DEC.next_pc = core->csrs[MEPC];
 }
 void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }

@@ -1,4 +1,5 @@
 #include "core.h"
+#include "debug.h"
 
 void riscv_decode_init(struct RiscvDecode *decode) {
     decode->inst          = 0;
@@ -29,11 +30,11 @@ static void riscv_decode_inst(struct RiscvDecode *decode) {
         decode->rs2       = BITS(inst, 24, 20);
 
         decode->immI = SEXT(BITS(inst, 31, 20), 12);
-        decode->immB = (SEXT(BITS(inst, 31, 31), 1) << 12) | (BITS(inst, 30, 25) << 5) |
-                       (BITS(inst, 11, 8) << 1) | (BITS(inst, 7, 7) << 11);
+        decode->immB = (SEXT(BITS(inst, 31, 31), 1) << 12) | (BITS(inst, 30, 25) << 5) | (BITS(inst, 11, 8) << 1) |
+                       (BITS(inst, 7, 7) << 11);
         decode->immU = (SEXT(BITS(inst, 31, 12), 20) << 12);
-        decode->immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) | (BITS(inst, 30, 21) << 1) |
-                       (BITS(inst, 20, 20) << 11) | (BITS(inst, 19, 12) << 12);
+        decode->immJ = (SEXT(BITS(inst, 31, 31), 1) << 20) | (BITS(inst, 30, 21) << 1) | (BITS(inst, 20, 20) << 11) |
+                       (BITS(inst, 19, 12) << 12);
         decode->immS = (SEXT(BITS(inst, 31, 25), 7) << 5) | BITS(inst, 11, 7);
 
         decode->csr_imm = BITS(inst, 31, 20);

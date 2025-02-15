@@ -52,4 +52,44 @@ struct Instruction {
             DEC.exception_val = addr;                                                                                  \
     } while (0);
 
+#define GET_BITFIELD(value, start, len) (((value) >> (start)) & ((1ll << (len)) - 1))
+#define SET_BITFIELD(value, start, len, field)                                                                         \
+    ((value) = ((value) & ~(((1ll << (len)) - 1) << (start))) | (((field) & ((1ll << (len)) - 1)) << (start)))
+
+// MTVEC
+#define MTVEC_MODE GET_BITFIELD(core->csrs[MTVEC], 0, 2)
+#define MTVEC_BASE GET_BITFIELD(core->csrs[MTVEC], 2, IS_RV64(62, 30))
+#define STVEC_MODE GET_BITFIELD(core->csrs[STVEC], 0, 2)
+#define STVEC_BASE GET_BITFIELD(core->csrs[STVEC], 2, IS_RV64(62, 30))
+// MSTATUS
+#define MSTATUS_SIE GET_BITFIELD(core->csrs[MSTATUS], 1, 1)
+#define MSTATUS_MIE GET_BITFIELD(core->csrs[MSTATUS], 3, 1)
+#define MSTATUS_SPIE GET_BITFIELD(core->csrs[MSTATUS], 5, 1)
+#define MSTATUS_UBE GET_BITFIELD(core->csrs[MSTATUS], 6, 1)
+#define MSTATUS_MPIE GET_BITFIELD(core->csrs[MSTATUS], 7, 1)
+#define MSTATUS_SPP GET_BITFIELD(core->csrs[MSTATUS], 8, 1)
+#define MSTATUS_VS GET_BITFIELD(core->csrs[MSTATUS], 9, 2)
+#define MSTATUS_MPP GET_BITFIELD(core->csrs[MSTATUS], 11, 2)
+#define MSTATUS_FS GET_BITFIELD(core->csrs[MSTATUS], 13, 2)
+#define MSTATUS_XS GET_BITFIELD(core->csrs[MSTATUS], 15, 2)
+#define MSTATUS_MPRV GET_BITFIELD(core->csrs[MSTATUS], 17, 1)
+#define MSTATUS_SUM GET_BITFIELD(core->csrs[MSTATUS], 18, 1)
+#define MSTATUS_MXR GET_BITFIELD(core->csrs[MSTATUS], 19, 1)
+#define MSTATUS_TVM GET_BITFIELD(core->csrs[MSTATUS], 20, 1)
+#define MSTATUS_TW GET_BITFIELD(core->csrs[MSTATUS], 21, 1)
+#define MSTATUS_TSR GET_BITFIELD(core->csrs[MSTATUS], 22, 1)
+#define MSTATUS_UXL GET_BITFIELD(core->csrs[MSTATUS], 32, 2)
+#define MSTATUS_SXL GET_BITFIELD(core->csrs[MSTATUS], 34, 2)
+#define MSTATUS_SBE GET_BITFIELD(core->csrs[MSTATUS], 36, 1)
+#define MSTATUS_MBE GET_BITFIELD(core->csrs[MSTATUS], 37, 1)
+#define MSTATUS_SD GET_BITFIELD(core->csrs[MSTATUS], IS_RV64(63, 31), 1)
+
+#define MSTATUS_SET_SIE(value) SET_BITFIELD(core->csrs[MSTATUS], 1, 1, value)
+#define MSTATUS_SET_MIE(value) SET_BITFIELD(core->csrs[MSTATUS], 3, 1, value)
+#define MSTATUS_SET_SPIE(value) SET_BITFIELD(core->csrs[MSTATUS], 5, 1, value)
+#define MSTATUS_SET_MPIE(value) SET_BITFIELD(core->csrs[MSTATUS], 7, 1, value)
+#define MSTATUS_SET_SPP(value) SET_BITFIELD(core->csrs[MSTATUS], 8, 1, value)
+#define MSTATUS_SET_MPP(value) SET_BITFIELD(core->csrs[MSTATUS], 11, 2, value)
+#define SSTATUS_VISIBLE 0x7fffe2
+
 #endif

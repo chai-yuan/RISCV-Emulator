@@ -1,37 +1,31 @@
 #include "core.h"
+#include "debug.h"
 
 void riscv_trap_handle_s(struct RiscvCore *core, usize cause) {
-    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
-    struct tvecdef    *tvec   = (struct tvecdef *)core->csrs[STVEC];
-
-    usize vec          = (DEC.interrupt != INT_NONE && tvec->mode == 1) ? (4 * cause) : 0;
-    DEC.next_pc        = tvec->base + vec;
-    status->spp        = core->mode & 0x1;
-    core->mode         = SUPERVISOR;
-    core->csrs[SEPC]   = core->pc;
-    core->csrs[SCAUSE] = cause;
-    core->csrs[STVAL]  = DEC.exception_val;
-    status->spie       = status->sie;
-    status->sie        = 0;
+    /*struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];*/
+    /*struct tvecdef    *tvec   = (struct tvecdef *)core->csrs[STVEC];*/
+    /**/
+    /*usize vec          = (DEC.interrupt != INT_NONE && tvec->mode == 1) ? (4 * cause) : 0;*/
+    /*DEC.next_pc        = tvec->base + vec;*/
+    /*status->spp        = core->mode & 0x1;*/
+    /*core->mode         = SUPERVISOR;*/
+    /*core->csrs[SEPC]   = core->pc;*/
+    /*core->csrs[SCAUSE] = cause;*/
+    /*core->csrs[STVAL]  = DEC.exception_val;*/
+    /*status->spie       = status->sie;*/
+    /*status->sie        = 0;*/
 }
 
 void riscv_trap_handle_m(struct RiscvCore *core, usize cause) {
-    struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];
-    struct tvecdef    *tvec   = (struct tvecdef *)core->csrs[MTVEC];
-
-    if (DEC.interrupt != INT_NONE) {
-        usize vec   = tvec->mode == 1 ? (4 * cause) : 0;
-        DEC.next_pc = tvec->base + vec;
-    } else {
-        DEC.next_pc = tvec->base;
-    }
-    status->mpp        = core->mode;
+    usize vec   = (DEC.interrupt != INT_NONE && MTVEC_MODE == 1) ? (4 * cause) : 0;
+    DEC.next_pc = MTVEC_BASE + vec;
+    MSTATUS_SET_MPP(core->mode);
     core->mode         = MACHINE;
     core->csrs[MEPC]   = core->pc;
     core->csrs[MCAUSE] = cause;
     core->csrs[MTVAL]  = DEC.exception_val;
-    status->mpie       = status->mie;
-    status->mie        = 0;
+    MSTATUS_SET_MPIE(MSTATUS_MIE);
+    MSTATUS_SET_MIE(0);
 }
 
 void riscv_trap_handle(struct RiscvCore *core) {
@@ -55,11 +49,9 @@ void riscv_trap_handle(struct RiscvCore *core) {
 }
 
 bool riscv_check_pending_interrupt(struct RiscvCore *core) {
-    struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
-
-    if (core->mode == MACHINE && mstatus->mie == 0) {
+    if (core->mode == MACHINE && MSTATUS_MIE == 0) {
         return false;
-    } else if (core->mode == SUPERVISOR && mstatus->sie == 0) {
+    } else if (core->mode == SUPERVISOR && MSTATUS_SIE == 0) {
         return false;
     }
 

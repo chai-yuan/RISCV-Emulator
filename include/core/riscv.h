@@ -110,41 +110,6 @@ struct misadef {
     usize mxl : 2;
 };
 
-struct mstatusdef {
-    usize blank0 : 1;
-    usize sie : 1; // supervisor interrupt enable
-    usize blank1 : 1;
-    usize mie : 1; // machine interrupt enable
-    usize blank2 : 1;
-    usize spie : 1; // sie prior to trapping
-    usize ube : 1;  // u big-endian, zero
-    usize mpie : 1; // mie prior to trapping
-    usize spp : 1;  // supervisor previous privilege mode.
-    usize vs : 2;   // without vector, zero
-    usize mpp : 2;  // machine previous privilege mode.
-    usize fs : 2;   // without float, zero
-    usize xs : 2;   // without user ext, zero
-    usize mprv : 1; // Modify PRiVilege (Turn on virtual memory and protection for load/store in M-Mode) when mpp is not
-                    // M-Mode
-    usize sum : 1;  // permit Supervisor User Memory access
-    usize mxr : 1;  // Make eXecutable Readable
-    usize tvm : 1;  // Trap Virtual Memory (raise trap when sfence.vma and sinval.vma executing in S-Mode)
-    usize tw : 1;   // Timeout Wait for WFI
-    usize tsr : 1;  // Trap SRET
-#if CURRENT_ARCH == ARCH_RV64
-    usize blank3 : 9;
-    usize uxl : 2; // user xlen
-    usize sxl : 2; // supervisor xlen
-    usize sbe : 1; // s big-endian
-    usize mbe : 1; // m big-endian
-    usize blank4 : 25;
-#else
-    usize blank3 : 8;
-#endif
-    usize sd : 1; // no vs,fs,xs, zero
-};
-#define SSTATUS_VISIBLE 0x7fffe2
-
 struct ipdef { // interrupt pending
     usize blank0 : 1;
     usize s_s_ip : 1; // 1
@@ -160,9 +125,34 @@ struct ipdef { // interrupt pending
     usize m_e_ip : 1; // 11
 };
 
-struct tvecdef {
-    usize mode : 2; // 0: Direct, 1: Vectored
-    IS_RV64(usize base : 62, usize base : 30);
+struct satpdef {
+    IS_RV64(usize ppn : 44, usize ppn : 22);
+    IS_RV64(usize asid : 16, usize asid : 9);
+    IS_RV64(usize mode : 4, usize mode : 1);
+};
+
+struct sv39pte {
+    u64 V : 1;   // valid
+    u64 R : 1;   // read
+    u64 W : 1;   // write
+    u64 X : 1;   // execute
+    u64 U : 1;   // user
+    u64 G : 1;   // global
+    u64 A : 1;   // access
+    u64 D : 1;   // dirty
+    u64 RSW : 2; // reserved for use by supervisor softwar
+    u64 PPN : 44;
+    u64 reserved : 7;
+    u64 PBMT : 2; // Svpbmt is not implemented, return 0
+    u64 N : 1;
+};
+
+struct sv39vaddr {
+    u64 page_off : 12;
+    u64 vpn_0 : 9;
+    u64 vpn_1 : 9;
+    u64 vpn_2 : 9;
+    u64 blank : 25;
 };
 
 #endif

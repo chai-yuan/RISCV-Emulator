@@ -1,6 +1,7 @@
 #include "core/rvcore.h"
 #include "core.h"
 #include "core/riscv.h"
+#include "debug.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
     struct ipdef *mip = (struct ipdef *)&core->csrs[MIP];
@@ -40,12 +41,7 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->device_func       = device_func;
 
     // csr 初始化
-    struct mstatusdef *mstatus = (struct mstatusdef *)&core->csrs[MSTATUS];
-    struct misadef    *misa    = (struct misadef *)&core->csrs[MISA];
-
-    misa->mxl = sizeof(usize) == 4 ? 1 : 2;
-    misa->ext = 0x141105;
 #if CURRENT_ARCH == ARCH_RV64
-    mstatus->uxl = mstatus->sxl = 2;
+    core->csrs[MSTATUS] = 0xa00000000;
 #endif
 }

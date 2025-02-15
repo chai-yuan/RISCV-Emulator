@@ -3,6 +3,8 @@
 bool riscv_csr_read(struct RiscvCore *core, u16 addr, usize *value) {
     if (((addr >> 8) & 0x3) > core->mode) // 权限检查
         return false;
+    if ((addr & 0xf00) == 0xd00)
+        return false;
 
     switch (addr) {
     case SSTATUS:
