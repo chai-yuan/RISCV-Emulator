@@ -20,10 +20,14 @@ bool riscv_csr_read(struct RiscvCore *core, u16 addr, usize *value) {
     switch (addr) {
     case SSTATUS:
         *value = core->csrs[MSTATUS] & SSTATUS_VISIBLE;
+        break;
     case SIE:
         *value = core->csrs[MIE] & core->csrs[MIDELEG];
+        break;
     case SIP:
         *value = core->csrs[MIP] & core->csrs[MIDELEG];
+        break;
+
     default:
         *value = core->csrs[addr];
     }
@@ -49,13 +53,17 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         core->csrs[MSTATUS] = (core->csrs[MSTATUS] & ~SSTATUS_VISIBLE) | (value & SSTATUS_VISIBLE);
         break;
     }
+    case MIP: {
+        core->csrs[MIE] = (core->csrs[MIE] & ~0xf) | (value & 0xf);
+        break;
+    }
     case SIE: {
         usize mask      = core->csrs[MIDELEG];
         core->csrs[MIE] = (core->csrs[MIE] & ~mask) | (value & mask);
         break;
     }
     case SIP: {
-        usize mask      = core->csrs[MIDELEG];
+        usize mask      = core->csrs[MIDELEG] & 0xf;
         core->csrs[MIP] = (core->csrs[MIP] & ~mask) | (value & mask);
         break;
     }

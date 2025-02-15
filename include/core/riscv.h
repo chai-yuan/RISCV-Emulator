@@ -104,21 +104,4 @@ enum csraddr {
     TDATA1   = 0x7a1
 };
 
-struct ipdef { // interrupt pending
-    usize blank0 : 1;
-    usize s_s_ip : 1; // 1
-    usize blank1 : 1;
-    usize m_s_ip : 1; // 3
-    usize blank2 : 1;
-    usize s_t_ip : 1; // 5
-    usize blank3 : 1;
-    usize m_t_ip : 1; // 7
-    usize blank4 : 1;
-    usize s_e_ip : 1; // 9
-    usize blank5 : 1;
-    usize m_e_ip : 1; // 11
-};
-
-
-
 #endif

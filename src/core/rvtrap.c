@@ -55,20 +55,19 @@ bool riscv_check_pending_interrupt(struct RiscvCore *core) {
         return false;
     }
 
-    usize         pending = core->csrs[MIP] & core->csrs[MIE];
-    struct ipdef *ip      = (struct ipdef *)&pending;
+    usize pending = core->csrs[MIP] & core->csrs[MIE];
 
-    if (ip->s_s_ip)
+    if (IP_SSIP(pending))
         DEC.interrupt = SUPERVISOR_SOFTWARE_INTERRUPT;
-    if (ip->s_t_ip)
+    if (IP_STIP(pending))
         DEC.interrupt = SUPERVISOR_TIMER_INTERRUPT;
-    if (ip->s_e_ip)
+    if (IP_SEIP(pending))
         DEC.interrupt = SUPERVISOR_EXTERNAL_INTERRUPT;
-    if (ip->m_s_ip)
+    if (IP_MSIP(pending))
         DEC.interrupt = MACHINE_SOFTWARE_INTERRUPT;
-    if (ip->m_t_ip)
+    if (IP_MTIP(pending))
         DEC.interrupt = MACHINE_TIMER_INTERRUPT;
-    if (ip->m_e_ip)
+    if (IP_MEIP(pending))
         DEC.interrupt = MACHINE_EXTERNAL_INTERRUPT;
 
     return DEC.interrupt != INT_NONE;

@@ -104,5 +104,12 @@ struct Instruction {
 #define SV39_X(pte) GET_BITFIELD(pte, 3, 1)
 #define SV39_U(pte) GET_BITFIELD(pte, 4, 1)
 #define SV39_PPN(pte) GET_BITFIELD(pte, 9, 44)
+// IP
+#define IP_SSIP(pending) GET_BITFIELD(pending, 1, 1)
+#define IP_MSIP(pending) GET_BITFIELD(pending, 3, 1)
+#define IP_STIP(pending) GET_BITFIELD(pending, 5, 1)
+#define IP_MTIP(pending) GET_BITFIELD(pending, 7, 1)
+#define IP_SEIP(pending) GET_BITFIELD(pending, 9, 1)
+#define IP_MEIP(pending) GET_BITFIELD(pending, 11, 1)
 
 #endif

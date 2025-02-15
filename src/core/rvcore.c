@@ -4,13 +4,8 @@
 #include "debug.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
-    struct ipdef *mip = (struct ipdef *)&core->csrs[MIP];
     if (envinfo.eint) {
-        if (core->mode == MACHINE) {
-            mip->m_e_ip = 1;
-        } else {
-            mip->s_e_ip = 1;
-        }
+        //TODO
     }
 }
 
