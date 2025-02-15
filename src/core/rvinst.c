@@ -379,20 +379,17 @@ void inst_c_jr(struct RiscvCore *core) { DEC.next_pc = core->regs[DEC.rs1]; }
 void inst_c_addi(struct RiscvCore *core) {
     isize imm = ((DEC.inst >> 12) & 0x1) << 5 | ((DEC.inst >> 2) & 0x1f);
     imm |= (imm & 0x20) ? ~0x1f : 0;
-    if (imm != 0)
-        core->regs[DEC.rd] = (usize)((isize)core->regs[DEC.rd] + imm);
+    core->regs[DEC.rd] = (usize)((isize)core->regs[DEC.rd] + imm);
 }
 void inst_c_addiw(struct RiscvCore *core) {
     isize imm = ((DEC.inst >> 12) & 0x1) << 5 | ((DEC.inst >> 2) & 0x1f);
     imm |= (imm & 0x20) ? ~0x1f : 0;
-    if (imm != 0)
-        core->regs[DEC.rd] = (i32)((isize)core->regs[DEC.rd] + imm);
+    core->regs[DEC.rd] = (i32)((isize)core->regs[DEC.rd] + imm);
 }
 void inst_c_addi4spn(struct RiscvCore *core) {
     usize imm = ((DEC.inst >> 5) & 0x1) << 3 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 7) & 0xf) << 6 |
                 ((DEC.inst >> 11) & 0x3) << 4;
-    if (imm != 0)
-        core->regs[DEC.rs2_] = core->regs[2] + imm;
+    core->regs[DEC.rs2_] = core->regs[2] + imm;
 }
 void inst_c_slli(struct RiscvCore *core) {
     u32 shamt = ((DEC.inst >> 12) & 0x1) << 5 | ((DEC.inst >> 2) & 0x1f);
