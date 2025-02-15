@@ -358,7 +358,7 @@ void inst_c_lw(struct RiscvCore *core) {
     core->regs[DEC.rs2_] = (i32)data;
 }
 void inst_c_ld(struct RiscvCore *core) {
-    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    usize imm = ((DEC.inst >> 5) & 0x3) << 6 | ((DEC.inst >> 10) & 0x7) << 3;
     usize data;
     MR(core->regs[DEC.rs1_] + imm, 8, data);
     core->regs[DEC.rs2_] = (i64)data;
@@ -368,7 +368,7 @@ void inst_c_sw(struct RiscvCore *core) {
     MW(core->regs[DEC.rs1_] + imm, 4, core->regs[DEC.rs2_]);
 }
 void inst_c_sd(struct RiscvCore *core) {
-    usize imm = ((DEC.inst >> 5) & 0x1) << 6 | ((DEC.inst >> 6) & 0x1) << 2 | ((DEC.inst >> 10) & 0x7) << 3;
+    usize imm = ((DEC.inst >> 5) & 0x3) << 6 | ((DEC.inst >> 10) & 0x7) << 3;
     MW(core->regs[DEC.rs1_] + imm, 8, core->regs[DEC.rs2_]);
 }
 void inst_c_jalr(struct RiscvCore *core) {
