@@ -1,6 +1,7 @@
 #ifndef RV_CORE_PRIV_H
 #define RV_CORE_PRIV_H
 
+#include "core/riscv.h"
 #include "core/rvcore.h"
 
 void riscv_decode_init(struct RiscvDecode *decode);
@@ -52,6 +53,8 @@ struct Instruction {
             DEC.exception_val = addr;                                                                                  \
     } while (0);
 
+#define SSTATUS_VISIBLE 0x7fffe2
+
 #define GET_BITFIELD(value, start, len) (((value) >> (start)) & ((1ll << (len)) - 1))
 #define SET_BITFIELD(value, start, len, field)                                                                         \
     ((value) = ((value) & ~(((1ll << (len)) - 1) << (start))) | (((field) & ((1ll << (len)) - 1)) << (start)))
@@ -90,6 +93,16 @@ struct Instruction {
 #define MSTATUS_SET_MPIE(value) SET_BITFIELD(core->csrs[MSTATUS], 7, 1, value)
 #define MSTATUS_SET_SPP(value) SET_BITFIELD(core->csrs[MSTATUS], 8, 1, value)
 #define MSTATUS_SET_MPP(value) SET_BITFIELD(core->csrs[MSTATUS], 11, 2, value)
-#define SSTATUS_VISIBLE 0x7fffe2
+// SATP
+#define SATP_PPN GET_BITFIELD(core->csrs[SATP], 0, IS_RV64(44, 22))
+#define SATP_ASID GET_BITFIELD(core->csrs[SATP], IS_RV64(44, 22), IS_RV64(16, 9))
+#define SATP_MODE GET_BITFIELD(core->csrs[SATP], IS_RV64(60, 31), IS_RV64(4, 1))
+// SV39PTE
+#define SV39_V(pte) GET_BITFIELD(pte, 0, 1)
+#define SV39_R(pte) GET_BITFIELD(pte, 1, 1)
+#define SV39_W(pte) GET_BITFIELD(pte, 2, 1)
+#define SV39_X(pte) GET_BITFIELD(pte, 3, 1)
+#define SV39_U(pte) GET_BITFIELD(pte, 4, 1)
+#define SV39_PPN(pte) GET_BITFIELD(pte, 9, 44)
 
 #endif

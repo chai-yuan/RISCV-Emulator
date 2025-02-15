@@ -413,7 +413,10 @@ void inst_c_or(struct RiscvCore *core) { core->regs[DEC.rs1_] |= core->regs[DEC.
 void inst_c_xor(struct RiscvCore *core) { core->regs[DEC.rs1_] ^= core->regs[DEC.rs2_]; }
 void inst_c_sub(struct RiscvCore *core) { core->regs[DEC.rs1_] -= core->regs[DEC.rs2_]; }
 
-void inst_c_ebreak(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
+void inst_c_ebreak(struct RiscvCore *core) {
+    DEC.exception     = BREAKPOINT;
+    DEC.exception_val = core->pc;
+}
 
 void inst_ecall(struct RiscvCore *core) {
     if (core->mode == USER) {
@@ -438,7 +441,10 @@ void inst_mret(struct RiscvCore *core) {
     MSTATUS_SET_MPP(0);
     DEC.next_pc = core->csrs[MEPC];
 }
-void inst_ebeark(struct RiscvCore *core) { DEC.exception = BREAKPOINT; }
+void inst_ebreak(struct RiscvCore *core) {
+    DEC.exception     = BREAKPOINT;
+    DEC.exception_val = core->pc;
+}
 
 #if CURRENT_ARCH == ARCH_RV64
 void inst_addw(struct RiscvCore *core) { RD = (i32)(RS1 + RS2); }
@@ -692,7 +698,7 @@ struct Instruction instructions[] = {
     {.mask = 0xffffffff, .match = 0x00000073, .func = inst_ecall},
     {.mask = 0xffffffff, .match = 0x10200073, .func = inst_sret},
     {.mask = 0xffffffff, .match = 0x30200073, .func = inst_mret},
-    {.mask = 0xffffffff, .match = 0x100073, .func = inst_ebeark},
+    {.mask = 0xffffffff, .match = 0x100073, .func = inst_ebreak},
 
 #if CURRENT_ARCH == ARCH_RV64
     {.mask = 0xfe00707f, .match = 0x3b, .func = inst_addw},

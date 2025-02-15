@@ -60,48 +60,46 @@ enum exception mmu_translate_sv32(struct RiscvCore *core, enum exception exc, us
 }
 
 enum exception mmu_translate_sv39(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
-    /*i32             level = 3;*/
-    /*struct satpdef *stap  = (struct satpdef *)&core->csrs[SATP];*/
-    /*u64             ppn   = stap->ppn;*/
-    /*u64             page_table_addr[3];*/
-    /*struct sv39pte  page_table_entry[3];*/
-    /*u64             vaddr[] = {*/
-    /*    (addr >> 12) & 0x1ff,*/
-    /*    (addr >> 21) & 0x1ff,*/
-    /*    (addr >> 30) & 0x1ff,*/
-    /*};*/
-    /*// 查找叶节点表项*/
-    /*while (1) {*/
-    /*    level--;*/
-    /*    if (level < 0)*/
-    /*        return exc;*/
-    /**/
-    /*    page_table_addr[level] = (ppn << 12) | (vaddr[level] << 2);*/
-    /*    if (DR(page_table_addr[level], 8, (usize *)&page_table_entry[level]) != EXC_NONE)*/
-    /*        return exc;*/
-    /**/
-    /*    if (page_table_entry[level].V) // 有效位检查*/
-    /*        return exc;*/
-    /*    if (page_table_entry[level].R || page_table_entry[level].X || page_table_entry[level].W) { // 叶节点*/
-    /*        if (level == 0)*/
-    /*            *paddr = (page_table_entry[level].PPN << 12) | (addr & 0xfff);*/
-    /*        else*/
-    /*            ERROR("Does not support super memory pages");*/
-    /*        break;*/
-    /*    }*/
-    /**/
-    /*    ppn = page_table_entry[level].PPN;*/
-    /*}*/
-    /*// 设置脏位 TODO*/
-    /**/
-    /*INFO("vaddr : %llx -> paddr : %llx", addr, *paddr);*/
+    i32 level = 3;
+    u64 ppn   = SATP_PPN;
+    u64 page_table_addr[3];
+    u64 page_table_entry[3];
+    u64 vaddr[] = {
+        (addr >> 12) & 0x1ff,
+        (addr >> 21) & 0x1ff,
+        (addr >> 30) & 0x1ff,
+    };
+    // 查找叶节点表项
+    while (1) {
+        level--;
+        if (level < 0)
+            return exc;
+
+        page_table_addr[level] = (ppn << 12) | (vaddr[level] << 2);
+        if (DR(page_table_addr[level], 8, (usize *)&page_table_entry[level]) != EXC_NONE)
+            return exc;
+
+        if (SV39_V(page_table_entry[level])) // 有效位检查
+            return exc;
+        if (SV39_R(page_table_entry[level]) || SV39_X(page_table_entry[level]) ||
+            SV39_W(page_table_entry[level])) { // 叶节点
+            if (level == 0)
+                *paddr = (SV39_PPN(page_table_entry[level]) << 12) | (addr & 0xfff);
+            else
+                ERROR("Does not support super memory pages");
+            break;
+        }
+
+        ppn = SV39_PPN(page_table_entry[level]);
+    }
+    // 设置脏位 TODO
+
+    INFO("vaddr : %llx -> paddr : %llx", addr, *paddr);
     return EXC_NONE;
 }
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
-    struct satpdef    *satp    = (struct satpdef *)&core->csrs[SATP];
-
-    bool enable_vm = satp->mode != 0;
+    bool enable_vm = SATP_MODE != 0;
     if (core->mode == MACHINE) {
         if (MSTATUS_MPRV && (exc != INSTRUCTION_PAGE_FAULT))
             enable_vm = enable_vm && (MSTATUS_MPP != MACHINE);

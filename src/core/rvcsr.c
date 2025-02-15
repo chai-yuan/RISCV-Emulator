@@ -12,7 +12,7 @@ bool riscv_csr_read(struct RiscvCore *core, u16 addr, usize *value) {
         return false; // Smstateen/Ssstateen
     if (addr == 0xda0)
         return false; // Sscofpmf
-    if (addr == 0x000 || addr == 0x321)
+    if (addr == 0x321)
         return false; // Smcntrpmf
     if (addr == 0xfb0)
         return false; // ???
@@ -41,6 +41,10 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         return;
 
     switch (addr) {
+    case MSTATUS: {
+        core->csrs[MSTATUS] = (core->csrs[MSTATUS] & ~0xffffffffLL) | value;
+        break;
+    }
     case SSTATUS: {
         core->csrs[MSTATUS] = (core->csrs[MSTATUS] & ~SSTATUS_VISIBLE) | (value & SSTATUS_VISIBLE);
         break;

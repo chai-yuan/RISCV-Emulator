@@ -104,12 +104,6 @@ enum csraddr {
     TDATA1   = 0x7a1
 };
 
-struct misadef {
-    usize ext : 26;
-    IS_RV64(usize blank : 36, usize blank : 4);
-    usize mxl : 2;
-};
-
 struct ipdef { // interrupt pending
     usize blank0 : 1;
     usize s_s_ip : 1; // 1
@@ -125,34 +119,6 @@ struct ipdef { // interrupt pending
     usize m_e_ip : 1; // 11
 };
 
-struct satpdef {
-    IS_RV64(usize ppn : 44, usize ppn : 22);
-    IS_RV64(usize asid : 16, usize asid : 9);
-    IS_RV64(usize mode : 4, usize mode : 1);
-};
 
-struct sv39pte {
-    u64 V : 1;   // valid
-    u64 R : 1;   // read
-    u64 W : 1;   // write
-    u64 X : 1;   // execute
-    u64 U : 1;   // user
-    u64 G : 1;   // global
-    u64 A : 1;   // access
-    u64 D : 1;   // dirty
-    u64 RSW : 2; // reserved for use by supervisor softwar
-    u64 PPN : 44;
-    u64 reserved : 7;
-    u64 PBMT : 2; // Svpbmt is not implemented, return 0
-    u64 N : 1;
-};
-
-struct sv39vaddr {
-    u64 page_off : 12;
-    u64 vpn_0 : 9;
-    u64 vpn_1 : 9;
-    u64 vpn_2 : 9;
-    u64 blank : 25;
-};
 
 #endif
