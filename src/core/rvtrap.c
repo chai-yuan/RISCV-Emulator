@@ -17,7 +17,7 @@ void riscv_trap_handle_s(struct RiscvCore *core, usize cause) {
 }
 
 void riscv_trap_handle_m(struct RiscvCore *core, usize cause) {
-    usize vec   = (DEC.interrupt != INT_NONE && MTVEC_MODE == 1) ? (4 * cause) : 0;
+    usize vec = (DEC.interrupt != INT_NONE && MTVEC_MODE == 1) ? (4 * cause) : 0;
     DEC.next_pc = MTVEC_BASE + vec;
     MSTATUS_SET_MPP(core->mode);
     core->mode         = MACHINE;

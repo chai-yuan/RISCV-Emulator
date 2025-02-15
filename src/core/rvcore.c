@@ -42,6 +42,7 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
 
     // csr 初始化
 #if CURRENT_ARCH == ARCH_RV64
+    core->csrs[MISA]    = 0x8000000000141105;
     core->csrs[MSTATUS] = 0xa00000000;
 #endif
 }

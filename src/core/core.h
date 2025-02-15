@@ -58,9 +58,9 @@ struct Instruction {
 
 // MTVEC
 #define MTVEC_MODE GET_BITFIELD(core->csrs[MTVEC], 0, 2)
-#define MTVEC_BASE GET_BITFIELD(core->csrs[MTVEC], 2, IS_RV64(62, 30))
+#define MTVEC_BASE (GET_BITFIELD(core->csrs[MTVEC], 2, IS_RV64(62, 30)) * 4)
 #define STVEC_MODE GET_BITFIELD(core->csrs[STVEC], 0, 2)
-#define STVEC_BASE GET_BITFIELD(core->csrs[STVEC], 2, IS_RV64(62, 30))
+#define STVEC_BASE (GET_BITFIELD(core->csrs[STVEC], 2, IS_RV64(62, 30)) * 4)
 // MSTATUS
 #define MSTATUS_SIE GET_BITFIELD(core->csrs[MSTATUS], 1, 1)
 #define MSTATUS_MIE GET_BITFIELD(core->csrs[MSTATUS], 3, 1)
