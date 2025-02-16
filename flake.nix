@@ -26,6 +26,7 @@
           pkgs.gnumake
           pkgs.bear
           pkgs.clang-tools
+          pkgs.dtc
         ];
 
         shellHook = ''

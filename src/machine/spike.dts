@@ -1,8 +1,10 @@
-{
+/dts-v1/;
+
+/{
   #address-cells = <2>;
   #size-cells = <2>;
-  compatible = "ucbbar,spike-bare-dev";
-  model = "ucbbar,spike-bare";
+  compatible = "charain,cremu";
+  model = "charain,cremu";
   chosen {
     stdout-path = &SERIAL0;
     bootargs = "console=ttyS0 earlycon";
@@ -17,7 +19,7 @@
       status = "okay";
       compatible = "riscv";
       riscv,isa = "rv64imac";
-      mmu-type = "riscv,sv57";
+      mmu-type = "riscv,sv39";
       riscv,pmpregions = <16>;
       riscv,pmpgranularity = <4>;
       clock-frequency = <1000000000>;
@@ -36,7 +38,7 @@
   soc {
     #address-cells = <2>;
     #size-cells = <2>;
-    compatible = "ucbbar,spike-bare-soc", "simple-bus";
+    compatible = "charain,cremu-soc", "simple-bus";
     ranges;
     clint@2000000 {
       compatible = "riscv,clint0";

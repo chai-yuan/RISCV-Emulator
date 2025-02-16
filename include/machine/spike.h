@@ -22,8 +22,6 @@ struct SpikeMachine {
 struct SpikePortableOperations {
     u8             *sram_data;
     u64             sram_size;
-    const u8       *dtb_data;
-    u64             dtb_size;
     get_char_func_t get_char;
     put_char_func_t put_char;
 };

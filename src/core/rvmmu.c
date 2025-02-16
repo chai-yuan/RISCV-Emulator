@@ -104,7 +104,7 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         return EXC_NONE;
     }
     if (core->mode == MACHINE) {
-        if (MSTATUS_MPRV || (exc == INSTRUCTION_PAGE_FAULT))
+        if (!MSTATUS_MPRV || (exc == INSTRUCTION_PAGE_FAULT))
             return EXC_NONE;
     }
     INFO("enable ? : SATP_MODE : %llx, mode : %x, MSTATUS_MPRV : %llx", SATP_MODE, core->mode, MSTATUS_MPRV);
@@ -112,8 +112,12 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     return mmu_translate_sv32(core, exc, addr, paddr);
 #elif CURRENT_ARCH == ARCH_RV64 // SV39
-    return mmu_translate_sv39(core, exc, addr, paddr);
+    if (SATP_MODE == 0x8)
+        return mmu_translate_sv39(core, exc, addr, paddr);
+    else
+        ERROR("Only support SV39!");
 #endif
+    return EXC_NONE;
 }
 
 enum exception riscvcore_mmu_read(struct RiscvCore *core, usize addr, u8 size, usize *data) {
