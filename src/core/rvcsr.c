@@ -67,6 +67,14 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         core->csrs[MIP] = (core->csrs[MIP] & ~mask) | (value & mask);
         break;
     }
+    case SATP: {
+        core->csrs[SATP] = value;
+#if CURRENT_ARCH == ARCH_RV64 // 64位情况下仅支持sv39
+        if (SATP_MODE != 0x8 && SATP_MODE != 0)
+            SATP_SET_MODE(0);
+#endif
+        break;
+    }
     default:
         core->csrs[addr] = value;
     }

@@ -97,6 +97,7 @@ struct Instruction {
 #define SATP_PPN GET_BITFIELD(core->csrs[SATP], 0, IS_RV64(44, 22))
 #define SATP_ASID GET_BITFIELD(core->csrs[SATP], IS_RV64(44, 22), IS_RV64(16, 9))
 #define SATP_MODE GET_BITFIELD(core->csrs[SATP], IS_RV64(60, 31), IS_RV64(4, 1))
+#define SATP_SET_MODE(value) SET_BITFIELD(core->csrs[SATP], IS_RV64(60, 31), IS_RV64(4, 1), value)
 // SV39PTE
 #define SV39_V(pte) GET_BITFIELD(pte, 0, 1)
 #define SV39_R(pte) GET_BITFIELD(pte, 1, 1)

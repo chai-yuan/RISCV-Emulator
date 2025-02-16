@@ -5,7 +5,7 @@
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
     if (envinfo.eint) {
-        //TODO
+        // TODO
     }
 }
 
@@ -34,6 +34,8 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->mode              = MACHINE;
     core->reservation_valid = false;
     core->device_func       = device_func;
+
+    core->csrs[MARCHID] = 0x5;
 
     // csr 初始化
 #if CURRENT_ARCH == ARCH_RV64

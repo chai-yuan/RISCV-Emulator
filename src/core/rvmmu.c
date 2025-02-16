@@ -76,6 +76,7 @@ enum exception mmu_translate_sv39(struct RiscvCore *core, enum exception exc, us
             return exc;
 
         page_table_addr[level] = (ppn << 12) | (vaddr[level] << 2);
+        INFO("page_table_addr : %llx", page_table_addr[level]);
         if (DR(page_table_addr[level], 8, (usize *)&page_table_entry[level]) != EXC_NONE)
             return exc;
 
@@ -109,15 +110,11 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
     }
 
     INFO("enable ? : SATP_MODE : %llx, mode : %x, MSTATUS_MPRV : %llx", SATP_MODE, core->mode, MSTATUS_MPRV);
-    ERROR("end");
 
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     return mmu_translate_sv32(core, exc, addr, paddr);
 #elif CURRENT_ARCH == ARCH_RV64 // SV39
-    if (SATP_MODE == 0x8)
-        return mmu_translate_sv39(core, exc, addr, paddr);
-    else
-        ERROR("Only support SV39!");
+    return mmu_translate_sv39(core, exc, addr, paddr);
 #endif
     return EXC_NONE;
 }
