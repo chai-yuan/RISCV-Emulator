@@ -99,17 +99,15 @@ enum exception mmu_translate_sv39(struct RiscvCore *core, enum exception exc, us
 }
 
 enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize addr, u64 *paddr) {
-    bool enable_vm = SATP_MODE != 0;
-    if (core->mode == MACHINE) {
-        if (MSTATUS_MPRV && (exc != INSTRUCTION_PAGE_FAULT))
-            enable_vm = enable_vm && (MSTATUS_MPP != MACHINE);
-        else
-            enable_vm = false;
-    }
-    if (!enable_vm) {
-        *paddr = addr;
+    *paddr = addr;
+    if (SATP_MODE == 0) {
         return EXC_NONE;
     }
+    if (core->mode == MACHINE) {
+        if (MSTATUS_MPRV || (exc == INSTRUCTION_PAGE_FAULT))
+            return EXC_NONE;
+    }
+    INFO("enable ? : SATP_MODE : %llx, mode : %x, MSTATUS_MPRV : %llx", SATP_MODE, core->mode, MSTATUS_MPRV);
 
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     return mmu_translate_sv32(core, exc, addr, paddr);
