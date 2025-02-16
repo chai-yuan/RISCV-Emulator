@@ -54,11 +54,6 @@ struct Instruction {
     } while (0);
 
 #define SSTATUS_VISIBLE 0x7fffe2
-
-#define GET_BITFIELD(value, start, len) (((value) >> (start)) & ((1ll << (len)) - 1))
-#define SET_BITFIELD(value, start, len, field)                                                                         \
-    ((value) = ((value) & ~(((1ll << (len)) - 1) << (start))) | (((field) & ((1ll << (len)) - 1)) << (start)))
-
 // MTVEC
 #define MTVEC_MODE GET_BITFIELD(core->csrs[MTVEC], 0, 2)
 #define MTVEC_BASE (GET_BITFIELD(core->csrs[MTVEC], 2, IS_RV64(62, 30)) * 4)

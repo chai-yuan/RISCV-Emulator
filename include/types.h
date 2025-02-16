@@ -2,6 +2,7 @@
 #define TYPES_H
 
 #include "config.h"
+#include "macro.h"
 
 // 无符号整数类型
 typedef unsigned char      u8;  // 8 位无符号整数
