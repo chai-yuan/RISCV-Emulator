@@ -107,7 +107,9 @@ enum exception mmu_translate(struct RiscvCore *core, enum exception exc, usize a
         if (!MSTATUS_MPRV || (exc == INSTRUCTION_PAGE_FAULT))
             return EXC_NONE;
     }
+
     INFO("enable ? : SATP_MODE : %llx, mode : %x, MSTATUS_MPRV : %llx", SATP_MODE, core->mode, MSTATUS_MPRV);
+    ERROR("end");
 
 #if CURRENT_ARCH == ARCH_RV32 // SV32
     return mmu_translate_sv32(core, exc, addr, paddr);

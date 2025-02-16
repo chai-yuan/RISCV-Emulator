@@ -338,7 +338,7 @@ void inst_c_lwsp(struct RiscvCore *core) {
     RD = (isize)(i32)data;
 }
 void inst_c_ldsp(struct RiscvCore *core) {
-    usize offset = ((DEC.inst >> 2) & 0x3) << 6 | ((DEC.inst >> 4) & 0x7) << 2 | ((DEC.inst >> 12) & 0x1) << 5;
+    usize offset = ((DEC.inst >> 2) & 0x7) << 6 | ((DEC.inst >> 5) & 0x3) << 3 | ((DEC.inst >> 12) & 0x1) << 5;
     usize data;
     MR(core->regs[2] + offset, 8, data);
     RD = (isize)data;
@@ -348,7 +348,7 @@ void inst_c_swsp(struct RiscvCore *core) {
     MW(core->regs[2] + offset, 4, RS2);
 }
 void inst_c_sdsp(struct RiscvCore *core) {
-    usize offset = ((DEC.inst >> 7) & 0x3) << 6 | ((DEC.inst >> 9) & 0xf) << 2;
+    usize offset = ((DEC.inst >> 7) & 0x7) << 6 | ((DEC.inst >> 10) & 0x7) << 3;
     MW(core->regs[2] + offset, 8, RS2);
 }
 void inst_c_lw(struct RiscvCore *core) {
@@ -586,10 +586,14 @@ void inst_c_addw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->re
 void inst_c_subw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->regs[DEC.rs1_] - core->regs[DEC.rs2_]); }
 #endif
 
+void inst_c_unimp(struct RiscvCore *core) {
+    DEC.exception     = ILLEGAL_INSTRUCTION;
+    DEC.exception_val = DEC.inst;
+}
 void inst_inv(struct RiscvCore *core) {
     DEC.exception     = ILLEGAL_INSTRUCTION;
     DEC.exception_val = DEC.inst;
-    ERROR("Unknow instruction : %x", DEC.inst);
+    WARN("Unknow instruction : %x", DEC.inst);
 }
 
 struct Instruction instructions[] = {
@@ -631,6 +635,7 @@ struct Instruction instructions[] = {
     {.mask = 0x7f, .match = 0x6f, .func = inst_jal},
     {.mask = 0x7f, .match = 0x17, .func = inst_auipc},
 
+    {.mask = 0xffff, .match = 0x0000, .func = inst_c_unimp},
     {.mask = 0xe003, .match = 0x2001, .func = inst_c_addiw},
     {.mask = 0xef83, .match = 0x6101, .func = inst_c_addi16sp},
     {.mask = 0xef83, .match = 0x1, .func = inst_c_nop},
