@@ -2,18 +2,15 @@
 #include "debug.h"
 
 void riscv_trap_handle_s(struct RiscvCore *core, usize cause) {
-    /*struct mstatusdef *status = (struct mstatusdef *)core->csrs[MSTATUS];*/
-    /*struct tvecdef    *tvec   = (struct tvecdef *)core->csrs[STVEC];*/
-    /**/
-    /*usize vec          = (DEC.interrupt != INT_NONE && tvec->mode == 1) ? (4 * cause) : 0;*/
-    /*DEC.next_pc        = tvec->base + vec;*/
-    /*status->spp        = core->mode & 0x1;*/
-    /*core->mode         = SUPERVISOR;*/
-    /*core->csrs[SEPC]   = core->pc;*/
-    /*core->csrs[SCAUSE] = cause;*/
-    /*core->csrs[STVAL]  = DEC.exception_val;*/
-    /*status->spie       = status->sie;*/
-    /*status->sie        = 0;*/
+    usize vec   = (DEC.interrupt != INT_NONE && STVEC_MODE == 1) ? (4 * cause) : 0;
+    DEC.next_pc = STVEC_BASE + vec;
+    MSTATUS_SET_SPP(core->mode & 0x1);
+    core->mode         = SUPERVISOR;
+    core->csrs[SEPC]   = core->pc;
+    core->csrs[SCAUSE] = cause;
+    core->csrs[STVAL]  = DEC.exception_val;
+    MSTATUS_SET_SPIE(MSTATUS_SIE);
+    MSTATUS_SET_SIE(0);
 }
 
 void riscv_trap_handle_m(struct RiscvCore *core, usize cause) {
