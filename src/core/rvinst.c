@@ -300,14 +300,14 @@ void inst_c_j(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
                    ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
                    ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
-    offset |= (offset & 0x800) ? ~0x3ff : 0;
+    offset |= (offset & 0x800) ? ~0x7ff : 0;
     DEC.next_pc = core->pc + offset;
 }
 void inst_c_jal(struct RiscvCore *core) {
     usize offset = ((DEC.inst >> 2) & 0x1) << 5 | ((DEC.inst >> 3) & 0x7) << 1 | ((DEC.inst >> 6) & 0x1) << 7 |
                    ((DEC.inst >> 7) & 0x1) << 6 | ((DEC.inst >> 8) & 0x1) << 10 | ((DEC.inst >> 9) & 0x3) << 8 |
                    ((DEC.inst >> 11) & 0x1) << 4 | ((DEC.inst >> 12) & 0x1) << 11;
-    offset |= (offset & 0x800) ? ~0x3ff : 0;
+    offset |= (offset & 0x800) ? ~0x7ff : 0;
     core->regs[1] = core->pc + 2;
     DEC.next_pc   = core->pc + offset;
 }
