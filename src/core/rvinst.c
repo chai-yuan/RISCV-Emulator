@@ -586,6 +586,7 @@ void inst_c_addw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->re
 void inst_c_subw(struct RiscvCore *core) { core->regs[DEC.rs1_] = (i32)(core->regs[DEC.rs1_] - core->regs[DEC.rs2_]); }
 #endif
 
+void inst_wfi(struct RiscvCore *core) { core->wfi = true; }
 void inst_c_unimp(struct RiscvCore *core) {
     DEC.exception     = ILLEGAL_INSTRUCTION;
     DEC.exception_val = DEC.inst;
@@ -742,5 +743,6 @@ struct Instruction instructions[] = {
     {.mask = 0xe003, .match = 0xe000, .func = inst_c_sd},
 #endif
 
+    {.mask = 0xffffffff, .match = 0x10500073, .func = inst_wfi},
     {.mask = 0x0, .match = 0x0, .func = inst_inv},
 };

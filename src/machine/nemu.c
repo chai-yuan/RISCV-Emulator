@@ -12,6 +12,4 @@ void nemu_machine_init(struct NemuMachine *machine, struct NemuPortableOperation
     machine->core.pc = 0x80000000;
 }
 
-void nemu_machine_step(struct NemuMachine *machine) {
-    riscvcore_step(&machine->core, (struct RiscvEnvInfo){.eint = false});
-}
+void nemu_machine_step(struct NemuMachine *machine) { riscvcore_step(&machine->core, (struct RiscvEnvInfo){0}); }

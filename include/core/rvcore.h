@@ -18,7 +18,9 @@ struct RiscvDecode {
 
 struct RiscvEnvInfo {
     u64  time;
-    bool eint;
+    bool meint;
+    bool seint;
+    bool mtint;
 };
 
 struct RiscvCore {
@@ -28,6 +30,7 @@ struct RiscvCore {
     enum mode mode;
     bool      reservation_valid;
     usize     reservation_addr;
+    bool      wfi;
 
     struct RiscvDecode decode;
     struct DeviceFunc  device_func;

@@ -4,11 +4,9 @@
 #include "debug.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
-    if (envinfo.eint) {
-        // TODO
-    }
-
-    //core->csrs[TIME] = envinfo.time;
+    core->csrs[MIP] = 0;
+    core->csrs[MIP] |= envinfo.mtint ? (1 << MACHINE_TIMER_INTERRUPT) : 0;
+    core->csrs[TIME] = envinfo.time;
 }
 
 void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
@@ -16,7 +14,7 @@ void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
 
     if (riscv_check_pending_interrupt(core)) {
         riscv_trap_handle(core);
-    } else {
+    } else if (!core->wfi) { // 如果没有处于休眠
         riscv_decode_init(&core->decode);
         riscvcore_mmu_fetch(core);
         if (core->decode.exception == EXC_NONE)
@@ -35,6 +33,7 @@ void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     core->pc                = 0x00001000;
     core->mode              = MACHINE;
     core->reservation_valid = false;
+    core->wfi               = false;
     core->device_func       = device_func;
 
     core->csrs[MARCHID] = 0x5;

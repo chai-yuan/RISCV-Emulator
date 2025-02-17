@@ -126,11 +126,13 @@ void spike_machine_init(struct SpikeMachine *machine, struct SpikePortableOperat
 }
 
 void spike_machine_step(struct SpikeMachine *machine) {
-    struct DeviceFunc bus = bus_device_get_func(&machine->bus);
-    bus.update(bus.context, 1);
-
     plic_update_intterupt(&machine->plic, uart_check_irq(&machine->uart), 10);
 
-    riscvcore_step(&machine->core, (struct RiscvEnvInfo){.eint = plic_check_irq(&machine->plic, 1),
-                                                         .time = clint_get_time(&machine->clint)});
+    riscvcore_step(&machine->core, (struct RiscvEnvInfo){.meint = false,
+                                                         .seint = false,
+                                                         .mtint = clint_check_irq(&machine->clint),
+                                                         .time  = clint_get_time(&machine->clint)});
+
+    struct DeviceFunc bus = bus_device_get_func(&machine->bus);
+    bus.update(bus.context, 1);
 }

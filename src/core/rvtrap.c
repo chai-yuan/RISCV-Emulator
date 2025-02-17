@@ -33,6 +33,7 @@ void riscv_trap_handle(struct RiscvCore *core) {
         } else {
             riscv_trap_handle_m(core, cause);
         }
+        core->wfi = false; // 触发中断后清除休眠标志
     } else if (DEC.exception != EXC_NONE) {
         usize cause = DEC.exception;
         if ((core->mode <= SUPERVISOR) && ((core->csrs[MEDELEG] >> (u16)cause) & 1)) { // 异常委托
@@ -46,13 +47,23 @@ void riscv_trap_handle(struct RiscvCore *core) {
 }
 
 bool riscv_check_pending_interrupt(struct RiscvCore *core) {
+    usize pending = core->csrs[MIP] & core->csrs[MIE];
+
     if (core->mode == MACHINE && MSTATUS_MIE == 0) {
         return false;
-    } else if (core->mode == SUPERVISOR && MSTATUS_SIE == 0) {
+    }
+    if (IP_MSIP(pending))
+        DEC.interrupt = MACHINE_SOFTWARE_INTERRUPT;
+    if (IP_MTIP(pending))
+        DEC.interrupt = MACHINE_TIMER_INTERRUPT;
+    if (IP_MEIP(pending))
+        DEC.interrupt = MACHINE_EXTERNAL_INTERRUPT;
+
+    return DEC.interrupt != INT_NONE;
+
+    if (core->mode == SUPERVISOR && MSTATUS_SIE == 0) {
         return false;
     }
-
-    usize pending = core->csrs[MIP] & core->csrs[MIE];
 
     if (IP_SSIP(pending))
         DEC.interrupt = SUPERVISOR_SOFTWARE_INTERRUPT;
@@ -60,12 +71,6 @@ bool riscv_check_pending_interrupt(struct RiscvCore *core) {
         DEC.interrupt = SUPERVISOR_TIMER_INTERRUPT;
     if (IP_SEIP(pending))
         DEC.interrupt = SUPERVISOR_EXTERNAL_INTERRUPT;
-    if (IP_MSIP(pending))
-        DEC.interrupt = MACHINE_SOFTWARE_INTERRUPT;
-    if (IP_MTIP(pending))
-        DEC.interrupt = MACHINE_TIMER_INTERRUPT;
-    if (IP_MEIP(pending))
-        DEC.interrupt = MACHINE_EXTERNAL_INTERRUPT;
 
     return DEC.interrupt != INT_NONE;
 }
