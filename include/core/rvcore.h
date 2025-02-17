@@ -17,6 +17,7 @@ struct RiscvDecode {
 };
 
 struct RiscvEnvInfo {
+    u64  time;
     bool eint;
 };
 

@@ -7,6 +7,8 @@ void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
     if (envinfo.eint) {
         // TODO
     }
+
+    //core->csrs[TIME] = envinfo.time;
 }
 
 void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {

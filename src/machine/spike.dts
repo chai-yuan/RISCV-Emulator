@@ -18,7 +18,7 @@
       reg = <0>;
       status = "okay";
       compatible = "riscv";
-      riscv,isa = "rv64imac";
+      riscv,isa = "rv64imac_zicntr";
       mmu-type = "riscv,sv39";
       riscv,pmpregions = <16>;
       riscv,pmpgranularity = <4>;

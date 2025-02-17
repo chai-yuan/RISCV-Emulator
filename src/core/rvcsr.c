@@ -4,8 +4,6 @@ bool riscv_csr_read(struct RiscvCore *core, u16 addr, usize *value) {
     if (((addr >> 8) & 0x3) > core->mode) // 权限检查
         return false;
 
-    if (addr == 0xc01)
-        return false; // time
     if (addr == 0x14d)
         return false; // Sstc
     if (addr == 0x30c)
@@ -54,7 +52,7 @@ void riscv_csr_write(struct RiscvCore *core, u16 addr, usize value) {
         break;
     }
     case MIP: {
-        core->csrs[MIE] = (core->csrs[MIE] & ~0xf) | (value & 0xf);
+        core->csrs[MIP] = (core->csrs[MIP] & ~0xf) | (value & 0xf);
         break;
     }
     case SIE: {

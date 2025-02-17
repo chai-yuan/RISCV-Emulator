@@ -13,6 +13,8 @@ struct CLINT {
 
 void clint_init(struct CLINT *clint);
 
+u64 clint_get_time(struct CLINT *clint);
+
 struct DeviceFunc clint_get_func(struct CLINT *clint);
 
 #endif
