@@ -53,7 +53,7 @@ struct Instruction {
             DEC.exception_val = addr;                                                                                  \
     } while (0);
 
-#define SSTATUS_VISIBLE 0x7fffe2
+#define SSTATUS_VISIBLE IS_RV64(0x80000003000de762LL, 0x800de762)
 // MTVEC
 #define MTVEC_MODE GET_BITFIELD(core->csrs[MTVEC], 0, 2)
 #define MTVEC_BASE (GET_BITFIELD(core->csrs[MTVEC], 2, IS_RV64(62, 30)) * 4)
