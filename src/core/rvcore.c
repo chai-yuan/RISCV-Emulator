@@ -4,8 +4,9 @@
 #include "debug.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
-    /*core->csrs[MIP] = 0;*/
-    /*core->csrs[MIP] |= envinfo.mtint ? (1 << MACHINE_TIMER_INTERRUPT) : 0;*/
+    core->csrs[MIP] = 0;
+    core->csrs[MIP] |= envinfo.mtint ? (1 << SUPERVISOR_TIMER_INTERRUPT) : 0;
+    core->csrs[MIP] |= envinfo.mtint ? (1 << MACHINE_TIMER_INTERRUPT) : 0;
     core->csrs[TIME] = envinfo.time;
 }
 

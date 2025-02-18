@@ -51,9 +51,6 @@ bool riscv_check_pending_interrupt(struct RiscvCore *core) {
     if (pending == 0)
         return false;
 
-    INFO("mip : %llx,mie : %llx,pending : %llx,MSTATUS_MIE : %llx", core->csrs[MIP], core->csrs[MIE], pending,
-         MSTATUS_MIE);
-
     usize enable_interrupts = 0;
     usize machine_enable    = core->mode < MACHINE || (core->mode == MACHINE && MSTATUS_MIE);
     enable_interrupts       = pending & ~core->csrs[MIDELEG] & -machine_enable;
