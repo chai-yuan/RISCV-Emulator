@@ -48,29 +48,34 @@ void riscv_trap_handle(struct RiscvCore *core) {
 
 bool riscv_check_pending_interrupt(struct RiscvCore *core) {
     usize pending = core->csrs[MIP] & core->csrs[MIE];
-
-    if (core->mode == MACHINE && MSTATUS_MIE == 0) {
+    if (pending == 0)
         return false;
-    }
-    if (IP_MSIP(pending))
-        DEC.interrupt = MACHINE_SOFTWARE_INTERRUPT;
-    if (IP_MTIP(pending))
-        DEC.interrupt = MACHINE_TIMER_INTERRUPT;
-    if (IP_MEIP(pending))
-        DEC.interrupt = MACHINE_EXTERNAL_INTERRUPT;
 
-    return DEC.interrupt != INT_NONE;
+    INFO("mip : %llx,mie : %llx,pending : %llx,MSTATUS_MIE : %llx", core->csrs[MIP], core->csrs[MIE], pending,
+         MSTATUS_MIE);
 
-    if (core->mode == SUPERVISOR && MSTATUS_SIE == 0) {
-        return false;
+    usize enable_interrupts = 0;
+    usize machine_enable    = core->mode < MACHINE || (core->mode == MACHINE && MSTATUS_MIE);
+    enable_interrupts       = pending & ~core->csrs[MIDELEG] & -machine_enable;
+    if (enable_interrupts == 0) {
+        usize supervisor_enable = core->mode < SUPERVISOR || (core->mode == SUPERVISOR && MSTATUS_SIE);
+        enable_interrupts       = pending & core->csrs[MIDELEG] & -supervisor_enable;
     }
 
-    if (IP_SSIP(pending))
-        DEC.interrupt = SUPERVISOR_SOFTWARE_INTERRUPT;
-    if (IP_STIP(pending))
-        DEC.interrupt = SUPERVISOR_TIMER_INTERRUPT;
-    if (IP_SEIP(pending))
-        DEC.interrupt = SUPERVISOR_EXTERNAL_INTERRUPT;
+    if (enable_interrupts) {
+        if (IP_SSIP(enable_interrupts))
+            DEC.interrupt = SUPERVISOR_SOFTWARE_INTERRUPT;
+        if (IP_STIP(enable_interrupts))
+            DEC.interrupt = SUPERVISOR_TIMER_INTERRUPT;
+        if (IP_SEIP(enable_interrupts))
+            DEC.interrupt = SUPERVISOR_EXTERNAL_INTERRUPT;
+        if (IP_MSIP(enable_interrupts))
+            DEC.interrupt = MACHINE_SOFTWARE_INTERRUPT;
+        if (IP_MTIP(enable_interrupts))
+            DEC.interrupt = MACHINE_TIMER_INTERRUPT;
+        if (IP_MEIP(enable_interrupts))
+            DEC.interrupt = MACHINE_EXTERNAL_INTERRUPT;
+    }
 
     return DEC.interrupt != INT_NONE;
 }

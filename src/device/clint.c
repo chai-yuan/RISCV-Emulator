@@ -10,6 +10,7 @@ void clint_init(struct CLINT *clint) {
 u64 clint_get_time(struct CLINT *clint) { return REG64(clint->data, CLINT_MTIME); }
 
 bool clint_check_irq(struct CLINT *clint) {
+    // INFO("REG64 : %llx >= %llx", REG64(clint->data, CLINT_MTIME), REG64(clint->data, CLINT_MTIMECMP));
     return REG64(clint->data, CLINT_MTIME) >= REG64(clint->data, CLINT_MTIMECMP);
 }
 
@@ -38,7 +39,7 @@ static void clint_update(void *context, u32 interval) {
     clint->last_update = 0;
 
     REG64(clint->data, CLINT_MTIME) += 50;
-    INFO("time : %llx, cmp : %llx", REG64(clint->data, CLINT_MTIME), REG64(clint->data, CLINT_MTIMECMP));
+    //INFO("time : %llx, cmp : %llx", REG64(clint->data, CLINT_MTIME), REG64(clint->data, CLINT_MTIMECMP));
 }
 
 struct DeviceFunc clint_get_func(struct CLINT *clint) {

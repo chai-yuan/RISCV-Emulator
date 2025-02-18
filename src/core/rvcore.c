@@ -4,18 +4,18 @@
 #include "debug.h"
 
 void riscvcore_update(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
-    core->csrs[MIP] = 0;
-    core->csrs[MIP] |= envinfo.mtint ? (1 << MACHINE_TIMER_INTERRUPT) : 0;
+    //    core->csrs[MIP] = 0;
+    //    core->csrs[MIP] |= envinfo.mtint ? (1 << MACHINE_TIMER_INTERRUPT) : 0;
     core->csrs[TIME] = envinfo.time;
 }
 
 void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
     riscvcore_update(core, envinfo);
+    riscv_decode_init(&core->decode);
 
     if (riscv_check_pending_interrupt(core)) {
         riscv_trap_handle(core);
     } else if (!core->wfi) { // 如果没有处于休眠
-        riscv_decode_init(&core->decode);
         riscvcore_mmu_fetch(core);
         if (core->decode.exception == EXC_NONE)
             riscvcore_exec(core);
