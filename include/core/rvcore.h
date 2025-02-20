@@ -28,8 +28,7 @@ struct RiscvCore {
     usize     pc;
     usize     csrs[4096];
     enum mode mode;
-    bool      reservation_valid;
-    usize     reservation_addr;
+    u64       reservation_addr;
     bool      wfi;
 
     struct RiscvDecode decode;

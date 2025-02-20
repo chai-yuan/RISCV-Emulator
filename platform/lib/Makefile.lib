@@ -21,7 +21,7 @@ build/%.o: %.c $(HEADS)
 
 clean:
 	@echo "[CLEAN] Cleaning up build artifacts"
-	@rm -f $(PROJECT_NAME) $(LIB_NAME) $(OBJS)
+	@rm -f $(LIB_NAME) $(OBJS)
 	@rm -rf build
 
 .PHONY: clean run
