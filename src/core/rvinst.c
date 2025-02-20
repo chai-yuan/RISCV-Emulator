@@ -146,18 +146,17 @@ void inst_remu(struct RiscvCore *core) {
 void inst_lr_w(struct RiscvCore *core) {
     usize data;
     MR(RS1, 4, data);
-    RD                      = (isize)data;
-    core->reservation_valid = true;
-    core->reservation_addr  = RS1;
+    RD                     = (isize)data;
+    core->reservation_addr = RS1;
 }
 void inst_sc_w(struct RiscvCore *core) {
-    if (core->reservation_valid && core->reservation_addr == RS1) {
+    if (core->reservation_addr == RS1) {
         MW(RS1, 4, (u32)RS2);
         RD = 0;
     } else {
         RD = 1;
     }
-    core->reservation_valid = false;
+    core->reservation_addr = -1;
 }
 void inst_amoswap_w(struct RiscvCore *core) {
     usize data;
@@ -499,17 +498,16 @@ void inst_remuw(struct RiscvCore *core) {
 }
 void inst_lr_d(struct RiscvCore *core) {
     MR(RS1, 8, RD);
-    core->reservation_valid = true;
-    core->reservation_addr  = RS1;
+    core->reservation_addr = RS1;
 }
 void inst_sc_d(struct RiscvCore *core) {
-    if (core->reservation_valid && core->reservation_addr == RS1) {
+    if (core->reservation_addr == RS1) {
         MW(RS1, 8, RS2);
         RD = 0;
     } else {
         RD = 1;
     }
-    core->reservation_valid = false;
+    core->reservation_addr = -1;
 }
 void inst_amoswap_d(struct RiscvCore *core) {
     usize data;

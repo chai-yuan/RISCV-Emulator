@@ -31,11 +31,11 @@ void riscvcore_step(struct RiscvCore *core, struct RiscvEnvInfo envinfo) {
 void riscvcore_init(struct RiscvCore *core, struct DeviceFunc device_func) {
     for (int i = 0; i < sizeof(struct RiscvCore); i++)
         *((u8 *)core + i) = 0;
-    core->pc                = 0x00001000;
-    core->mode              = MACHINE;
-    core->reservation_valid = false;
-    core->wfi               = false;
-    core->device_func       = device_func;
+    core->pc               = 0x00001000;
+    core->mode             = MACHINE;
+    core->reservation_addr = -1;
+    core->wfi              = false;
+    core->device_func      = device_func;
 
     core->csrs[MARCHID] = 0x5;
 

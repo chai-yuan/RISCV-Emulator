@@ -7,7 +7,7 @@ void uart_init(struct UART16550 *uart, get_char_func_t get, put_char_func_t put)
     uart->put_char       = put;
     uart->data[UART_LCR] = 0x3;
     uart->data[UART_LSR] = UART_LSR_TX_EMPTY | UART_LSR_THR_SR_EMPTY;
-    uart->data[UART_MSR] = (1 << 7) | (1 << 4);
+    uart->data[UART_MSR] = (1 << 7) | (1 << 5) | (1 << 4);
 }
 
 bool uart_check_irq(struct UART16550 *uart) { return !(uart->data[UART_IIR] & 1); }
