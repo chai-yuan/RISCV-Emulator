@@ -51,7 +51,7 @@ enum exception mmu_translate_sv39(struct RiscvCore *core, enum exception exc, us
     }
     // 设置脏位 TODO
 
-    INFO("vaddr : %llx -> paddr : %llx", addr, *paddr);
+   // INFO("vaddr : %llx -> paddr : %llx", addr, *paddr);
     return EXC_NONE;
 }
 

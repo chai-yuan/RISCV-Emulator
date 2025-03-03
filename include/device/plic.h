@@ -4,6 +4,9 @@
 #include "device/device.h"
 #include "types.h"
 
+#define SOURCE_NUM 1
+#define CONTEXT_NUM 2
+
 #define PLIC_SIZE (0x4000000)
 #define PLIC_PRIORITY (0x0)
 #define PLIC_PENDING (0x1000)
@@ -15,14 +18,12 @@
 #define PLIC_SCLAIM (0x201004)
 
 struct PLIC {
-    u32 priority;
-    u32 pending;
-    u32 menable;
-    u32 senable;
-    u32 mpriority;
-    u32 spriority;
-    u32 mclaim;
-    u32 sclaim;
+    u32 priority[SOURCE_NUM + 1];
+    u32 pending[(SOURCE_NUM + 32) / 32];
+    u32 enable[CONTEXT_NUM][(SOURCE_NUM + 32) / 32];
+    u32 threshold[CONTEXT_NUM];
+    u32 claim[CONTEXT_NUM];
+    u32 claimed[(SOURCE_NUM + 32) / 32];
 };
 
 void plic_init(struct PLIC *plic);
