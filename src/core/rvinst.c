@@ -146,7 +146,7 @@ void inst_remu(struct RiscvCore *core) {
 void inst_lr_w(struct RiscvCore *core) {
     usize data;
     MR(RS1, 4, data);
-    RD                     = (isize)data;
+    RD                     = (isize)(i32)data;
     core->reservation_addr = RS1;
 }
 void inst_sc_w(struct RiscvCore *core) {

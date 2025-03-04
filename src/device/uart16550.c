@@ -5,7 +5,7 @@
 void uart_init(struct UART16550 *uart, get_char_func_t get, put_char_func_t put) {
     uart->get_char       = get;
     uart->put_char       = put;
-    uart->data[UART_LCR] = 0x3;
+    uart->data[UART_LCR] = 0x1;
     uart->data[UART_LSR] = UART_LSR_TX_EMPTY | UART_LSR_THR_SR_EMPTY;
     uart->data[UART_MSR] = (1 << 7) | (1 << 5) | (1 << 4);
 }
@@ -69,6 +69,9 @@ static enum exception uart_write(void *context, u64 addr, u8 size, usize data) {
             uart->data[UART_LSR] &= ~UART_LSR_DATA_READY;
             uart->data[UART_RHR] = 0;
         }
+        break;
+    case UART_LCR:
+        uart->data[UART_LCR] = 0x1 | (data & ~0x3); // 低位只能为01
         break;
 
         // 不允许写入

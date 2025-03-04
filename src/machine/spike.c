@@ -129,7 +129,7 @@ void spike_machine_step(struct SpikeMachine *machine) {
     plic_update_intterupt(&machine->plic, uart_check_irq(&machine->uart), 10);
 
     riscvcore_step(&machine->core, (struct RiscvEnvInfo){.meint = false,
-                                                         .seint = false,
+                                                         .seint = plic_check_irq(&machine->plic, 1),
                                                          .mtint = clint_check_irq(&machine->clint),
                                                          .time  = clint_get_time(&machine->clint)});
 
